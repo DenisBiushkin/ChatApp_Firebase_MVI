@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Unmei</string>
+    <string name="app_name">Mai</string>
+    <string name="logo">Hello world</string>
+    <string name="app_house">Find Your Anime</string>
+    <string name="app_log">Anime_book</string>
+    <string name="app_login_text">Login</string>
 </resources>

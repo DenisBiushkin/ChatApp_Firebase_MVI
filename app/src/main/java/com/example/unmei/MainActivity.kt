@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.unmei.domain.model.TestUser
+import com.example.unmei.presentation.Navigation.NavGraph
 import com.example.unmei.presentation.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
@@ -26,30 +28,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val fs=Firebase.firestore
-
-        val db=FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB)
-        val ref = db.getReference("Main_DB")
-        ref.child("Message").setValue("Same Text")
-
-
-        fs.collection("TestUser")
-            .document().set(
-                TestUser(
-                    "Anna",
-                    "Schneider",
-                    20
-                )
-            )
+//        val fs=Firebase.firestore
+//
+//        val db=FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB)
+//        val ref = db.getReference("Main_DB")
+//        ref.child("Message").setValue("Same Text")
+//        fs.collection("TestUser")
+//            .document().set(
+//                TestUser(
+//                    "Anna",
+//                    "Schneider",
+//                    20
+//                )
+//            )
 
         setContent {
             UnmeiTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                NavGraph(navHostController = rememberNavController())
             }
         }
     }
