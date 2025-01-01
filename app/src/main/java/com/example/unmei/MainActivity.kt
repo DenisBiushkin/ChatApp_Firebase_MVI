@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.unmei.domain.model.TestUser
-import com.example.unmei.ui.theme.UnmeiTheme
+import com.example.unmei.presentation.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.ktx.firestore
@@ -33,14 +33,14 @@ class MainActivity : ComponentActivity() {
         ref.child("Message").setValue("Same Text")
 
 
-//        fs.collection("TestUser")
-//            .document().set(
-//                TestUser(
-//                    "Denis",
-//                    "Biushkin",
-//                    20
-//                )
-//            )
+        fs.collection("TestUser")
+            .document().set(
+                TestUser(
+                    "Anna",
+                    "Schneider",
+                    20
+                )
+            )
 
         setContent {
             UnmeiTheme {
