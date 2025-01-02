@@ -1,4 +1,4 @@
-package com.example.unmei.presentation
+package com.example.unmei.presentation.sign_in
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -33,8 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.R
-import com.example.unmei.presentation.ui.theme.Black
-import com.example.unmei.presentation.ui.theme.BlueGray
+import com.example.unmei.presentation.util.ui.theme.Black
+import com.example.unmei.presentation.util.ui.theme.BlueGray
+import com.example.unmei.presentation.util.LoginTextField
 
 @Preview(showBackground = true)
 @Composable

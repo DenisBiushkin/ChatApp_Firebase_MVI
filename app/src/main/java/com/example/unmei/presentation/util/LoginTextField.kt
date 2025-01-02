@@ -1,4 +1,4 @@
-package com.example.unmei.presentation
+package com.example.unmei.presentation.util
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -10,10 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import com.example.unmei.presentation.ui.theme.Black
-import com.example.unmei.presentation.ui.theme.focusedTextFieldText
-import com.example.unmei.presentation.ui.theme.textFieldContainer
-import com.example.unmei.presentation.ui.theme.unfocusedTextFieldText
+import com.example.unmei.presentation.util.ui.theme.Black
+import com.example.unmei.presentation.util.ui.theme.focusedTextFieldText
+import com.example.unmei.presentation.util.ui.theme.textFieldContainer
+import com.example.unmei.presentation.util.ui.theme.unfocusedTextFieldText
 
 
 @Composable

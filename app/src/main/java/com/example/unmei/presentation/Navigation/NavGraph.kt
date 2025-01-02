@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.unmei.presentation.SignInScreen
+import com.example.unmei.presentation.sign_in.SignInScreen
 
 @Composable
 fun NavGraph(

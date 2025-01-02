@@ -1,12 +1,15 @@
 package com.example.unmei
 
 import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult.Companion.resultCodeToString
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.registerForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,11 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
+import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
 
 import com.example.unmei.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
+import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -29,41 +35,54 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 import kotlin.math.exp
 
 class SignInActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var  launcher :ActivityResultLauncher<Intent>
+    private lateinit var  launcher1 :ActivityResultLauncher<Intent>
+
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //инициализация Firebase Auth
         auth = Firebase.auth
 
-        launcher = registerForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult()
+
+
+
+        val launcher= registerForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult(),//какой контракт, с какими активити
         ){
-            activityResult ->
-            Log.d(TAG,activityResult.resultCode.toString())
-            //достаем аккаунт
-            val task=GoogleSignIn.getSignedInAccountFromIntent(activityResult.data)
-
-            try {
-                //выбранный аккаунт
-                val account= task.getResult(ApiException::class.java)
-                if(account!=null){
-                    account.idToken?.let {
-                        firebaseAuthWithGoogle(it)
-                    }
+                result ->//тот же ActivityResult
+            Log.d(TAG, resultCodeToString(result.resultCode))
+            if(result.resultCode== RESULT_OK){
+                lifecycleScope.launch {
+                    googleAuthUiClient.signWithIntent(
+                        intent=result.data ?: return@launch
+                    )
                 }
-
-            }catch (e:ApiException){
-
             }
+
+
         }
 
-        signInWithGoogle()
+        lifecycleScope.launch {
+            val signInIntenSender: IntentSender? = googleAuthUiClient.signInGoogle()
+            Log.d(TAG,"signInIntenSender "+signInIntenSender.toString())
+            launcher.launch(
+                input= IntentSenderRequest.Builder(
+                    signInIntenSender ?: return@launch
+                ).build()
+            )
+        }
 
         setContent {
             UnmeiTheme {
@@ -73,7 +92,32 @@ class SignInActivity : ComponentActivity() {
             }
         }
     }
+   private fun oldGoogleSignIn(){
+       launcher1 = registerForActivityResult(
+           contract = ActivityResultContracts.StartActivityForResult()
+       ){
+               activityResult ->
+           Log.d(TAG,activityResult.resultCode.toString())
+           //достаем аккаунт
+           val task=GoogleSignIn.getSignedInAccountFromIntent(activityResult.data)
 
+           try {
+               //выбранный аккаунт
+               val account= task.getResult(ApiException::class.java)
+               if(account!=null){
+                   account.idToken?.let {
+                       firebaseAuthWithGoogle(it)
+                   }
+               }
+
+           }catch (e:ApiException){
+
+           }
+       }
+
+       signInWithGoogle()
+
+   }
     //Google ID Token — это токен, который подтверждает аутентификацию пользователя
     // и может использоваться сервером для подтверждения личности пользователя.
     private fun getGoogleClient():GoogleSignInClient{
@@ -92,7 +136,7 @@ class SignInActivity : ComponentActivity() {
     private fun signInWithGoogle(){
         //запускаем с помощью intent()
         val signInClient = getGoogleClient()
-        launcher.launch(signInClient.signInIntent)
+        launcher1.launch(signInClient.signInIntent)
     }
 
     private fun firebaseAuthWithGoogle(googleIdToken:String){

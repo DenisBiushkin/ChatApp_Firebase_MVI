@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.domain.model.TestUser
 import com.example.unmei.presentation.Navigation.NavGraph
-import com.example.unmei.presentation.ui.theme.UnmeiTheme
+import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.ktx.firestore

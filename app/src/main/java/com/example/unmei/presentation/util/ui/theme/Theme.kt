@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.ui.theme
+package com.example.unmei.presentation.util.ui.theme
 
 import android.app.Activity
 import android.os.Build
