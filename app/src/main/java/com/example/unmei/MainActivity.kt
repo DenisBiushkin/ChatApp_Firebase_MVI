@@ -14,8 +14,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.domain.model.TestUser
 import com.example.unmei.presentation.Navigation.NavGraph
+import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
 import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansDev
+import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -23,7 +25,12 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : ComponentActivity() {
 
 
-
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +51,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             UnmeiTheme {
-                NavGraph(navHostController = rememberNavController())
+                NavGraph(
+                    navHostController = rememberNavController(),
+                    googleAuthUiClient=googleAuthUiClient
+                )
             }
         }
     }

@@ -54,11 +54,39 @@ import com.example.unmei.presentation.util.socialMedia
 @Preview(showBackground = true)
 @Composable
 fun showLoginScreen() {
-    SignInScreen(navController = rememberNavController())
+    SignInScreen(
+      signInWithGoogleOnClick = {
+
+      },
+        signInOnClick = {
+
+        },
+        forgotOnClick = {
+
+        },
+        createAccountOnClick = {
+
+        },
+        passwordField = "",
+        passwordFieldOnChange = {
+
+        },
+        emailField = "",
+        emailFieldOnChange = {
+
+        }
+    )
 }
 @Composable
 fun SignInScreen(
-    navController: NavController
+   signInOnClick:()->Unit,
+   signInWithGoogleOnClick:()->Unit,
+   forgotOnClick:()->Unit,
+   createAccountOnClick:()->Unit,
+   passwordFieldOnChange: (String)->Unit,
+   passwordField:String,
+   emailFieldOnChange:(String)->Unit,
+   emailField:String
 ) {
     val passwordTextField = remember {
         mutableStateOf("")
@@ -85,9 +113,10 @@ fun SignInScreen(
                     trailing = "",
                     modifier = Modifier
                         .fillMaxWidth(),
-                    textvalue = emailTextField.value,
+                    textvalue = emailField,
                     onvalueChanged = {
-                        emailTextField.value = it
+                        //emailTextField.value = it
+                        emailFieldOnChange(it)
                     }
                 )
                 Spacer(modifier = Modifier.height(20.dp))
@@ -96,9 +125,9 @@ fun SignInScreen(
                     trailing = "Забыли?",
                     modifier = Modifier
                         .fillMaxWidth(),
-                    textvalue = passwordTextField.value,
+                    textvalue = passwordField,
                     onvalueChanged = {
-                        passwordTextField.value = it
+                        passwordFieldOnChange(it)
                     }
                 )
                 Spacer(modifier = Modifier.height(20.dp))
@@ -109,24 +138,17 @@ fun SignInScreen(
                         containerColor = if (isSystemInDarkTheme()) BlueGray else Black,
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(size = 4.dp), onClick = {
-                        //переход по контроллеру с передачей обязательного аргумента
-                        // println(Screen.Main.route)
-                        //println(Screen.Main.passIdandName(10, "Denis"))
-//                        navController
-//                            .navigate(
-//                                // route=Screen.Dateil.passIdandName(10,"Denis")
-//                               // route = Screen.Main.passId(12)
-//                                // route = Screen.Dateil.route//переход без передачи данных
-//                            )
-                    }
+                    shape = RoundedCornerShape(size = 4.dp),
+                    onClick = forgotOnClick
                 ) {
                     Text(
                         text = "Войти",
-                        style = MaterialTheme.typography.labelMedium
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.clickable {
+                            signInOnClick()
+                        }
                     )
                 }
-
 
                 ///lhkjhkjhkljlkjljjklj
                 Spacer(
@@ -149,7 +171,7 @@ fun SignInScreen(
                         SocialMediaLogIn(
                             icon = R.drawable.google,
                             text = "Google",
-                            OnClick = { /*TODO*/ },
+                            OnClick = signInWithGoogleOnClick,
                             modifier = Modifier.width(100.dp)
                         )
                     }
@@ -191,7 +213,7 @@ fun SignInScreen(
                             }
                         }
                         , modifier = Modifier.clickable {
-
+                            createAccountOnClick()
                             })
                     }
 
