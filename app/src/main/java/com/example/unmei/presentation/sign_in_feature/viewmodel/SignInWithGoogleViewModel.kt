@@ -1,12 +1,16 @@
 package com.example.unmei.presentation.sign_in_feature.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.unmei.data.repository.MainRepositoryImpl
 import com.example.unmei.presentation.sign_in_feature.model.SignInState
 import com.example.unmei.presentation.sign_in_feature.model.SignInResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -14,6 +18,7 @@ import javax.inject.Inject
 class SignInWithGoogleViewModel @Inject constructor(
   //  private val auth: FirebaseAuth,
     //private val googleAuthUiClient: GoogleAuthUiClient
+   // private val repositorty:  MainRepositoryImpl=MainRepositoryImpl()
 ): ViewModel() {
     private val TAG="MyTag"
 

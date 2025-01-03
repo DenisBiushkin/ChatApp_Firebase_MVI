@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.sign_in_feature.components
+package com.example.unmei.presentation.messanger_feature.components
 
 import androidx.annotation.OptIn
 import androidx.compose.material3.Surface

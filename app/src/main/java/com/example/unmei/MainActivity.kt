@@ -8,16 +8,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.example.unmei.data.repository.MainRepositoryImpl
+import com.example.unmei.domain.model.User
 import com.example.unmei.presentation.Navigation.HostNavGraph
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansApp
+import com.example.unmei.util.Resource
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,7 +35,7 @@ class MainActivity : ComponentActivity() {
             oneTapClient = Identity.getSignInClient(applicationContext)
         )
     }
-
+    private val repositorty: MainRepositoryImpl = MainRepositoryImpl()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -41,6 +46,31 @@ class MainActivity : ComponentActivity() {
         if(currentUser!=null){
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
         }
+
+//        lifecycleScope.launch {
+//            repositorty.saveUser(
+//                User(
+//                    uid=googleAuthUiClient.getSignedUser()!!.userId,
+//                    firstName = "Denis",
+//                    secondName = "Biushkin",
+//                    sex = "Male",
+//                    age="20"
+//            )
+//            ).collect{
+//                data->
+//                when(data){
+//                    is Resource.Error -> {
+//
+//                    }
+//                    is Resource.Loading -> {
+//
+//                    }
+//                    is Resource.Success -> {
+//
+//                    }
+//                }
+//            }
+//        }
 
 
 //        val fs=Firebase.firestore
