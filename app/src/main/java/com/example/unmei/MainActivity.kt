@@ -17,7 +17,9 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
@@ -39,6 +41,8 @@ class MainActivity : ComponentActivity() {
         if(currentUser!=null){
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
         }
+
+
 //        val fs=Firebase.firestore
 //
 //        val db=FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB)

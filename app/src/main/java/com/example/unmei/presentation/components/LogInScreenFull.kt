@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.unmei.presentation.viewmodel.SignInWithGoogleViewModel
 import com.example.unmei.util.ConstansDev.TAG
@@ -25,7 +26,7 @@ import com.example.unmei.util.ConstansApp.MAIN_NAVIGATE_ROUTE
 @Composable
 fun LoginInScreenFull(
     navController: NavController,
-    viewModel: SignInWithGoogleViewModel = viewModel<SignInWithGoogleViewModel>(),
+    viewModel: SignInWithGoogleViewModel = hiltViewModel(),
     googleAuthUiClient: GoogleAuthUiClient
 ){
 
