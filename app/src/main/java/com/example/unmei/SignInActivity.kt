@@ -6,26 +6,18 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult.Companion.resultCodeToString
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.registerForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
 
 import com.example.unmei.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansDev.TAG
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -36,7 +28,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-import kotlin.math.exp
 
 class SignInActivity : ComponentActivity() {
 
@@ -65,7 +56,7 @@ class SignInActivity : ComponentActivity() {
             Log.d(TAG, resultCodeToString(result.resultCode))
             if(result.resultCode== RESULT_OK){
                 lifecycleScope.launch {
-                    googleAuthUiClient.signWithIntent(
+                    googleAuthUiClient.signInFirebaseWithIntent(
                         intent=result.data ?: return@launch
                     )
                 }

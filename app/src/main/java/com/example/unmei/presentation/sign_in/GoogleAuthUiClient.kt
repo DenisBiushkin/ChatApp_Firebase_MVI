@@ -9,7 +9,6 @@ import com.example.unmei.util.ConstansDev.TAG
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -22,7 +21,11 @@ class GoogleAuthUiClient (
 ){
     private val auth= Firebase.auth
 
-    suspend fun signInGoogle(): IntentSender?{
+
+    //начинаем вход через Intent
+    //отправив IntentSender откроется окно выбора аккаунтов Google
+    //Результат возврата будет Intent
+    suspend fun signInGoogle(): IntentSender?{//
 
         val result= try {
             //процесс входа в систему через Google Identity Services
@@ -30,7 +33,7 @@ class GoogleAuthUiClient (
                 buildSignInRequest()//запрос
             ).await()
             //синхронно ждем ответ
-            //т.е пока не получим ответ не продлжим
+            //т.е пока не получим ответ не продолжим
         }catch (e:Exception){
             e.printStackTrace()
             if(e is CancellationException) throw e
@@ -55,7 +58,7 @@ class GoogleAuthUiClient (
     }
 
 
-    suspend fun signWithIntent(intent: Intent):SignInResult{//ели нашел Intent....
+    suspend fun signInFirebaseWithIntent(intent: Intent):SignInResult{//ели нашел Intent....
         //учетные данные из Intent когда выбрали аккаунт
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
 //        Log.d(TAG,"signWithIntent ______")

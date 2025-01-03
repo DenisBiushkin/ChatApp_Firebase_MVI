@@ -5,8 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
-import com.example.unmei.presentation.sign_in.LoginInScreenFull
-import com.example.unmei.presentation.sign_in.SignInScreen
+import com.example.unmei.presentation.components.LoginInScreenFull
+import com.example.unmei.presentation.components.MainScreen
 
 @Composable
 fun NavGraph(
@@ -26,7 +26,7 @@ fun NavGraph(
            )
        }
        composable(route = Screens.Main.route){
-            TODO()
+            MainScreen()
        }
    }
 }
