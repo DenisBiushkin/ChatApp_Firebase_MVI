@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.presentation.Navigation.HostNavGraph
-import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
+import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansApp
 import com.google.android.gms.auth.api.identity.Identity

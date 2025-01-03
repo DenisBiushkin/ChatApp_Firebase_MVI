@@ -1,12 +1,8 @@
-package com.example.unmei.presentation.viewmodel
+package com.example.unmei.presentation.sign_in_feature.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.unmei.presentation.model.SignInState
-import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
-import com.example.unmei.presentation.sign_in.SignInResult
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
+import com.example.unmei.presentation.sign_in_feature.model.SignInState
+import com.example.unmei.presentation.sign_in_feature.model.SignInResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

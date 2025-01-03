@@ -4,8 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.unmei.presentation.components.MainScreen
-import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
+import com.example.unmei.presentation.sign_in_feature.components.MainScreen
+import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansApp
 
 fun NavGraphBuilder.mainNavGraph(

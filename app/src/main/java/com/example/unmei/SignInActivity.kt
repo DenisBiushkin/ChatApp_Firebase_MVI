@@ -14,9 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
+import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
+import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
 
-import com.example.unmei.ui.theme.UnmeiTheme
+
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn

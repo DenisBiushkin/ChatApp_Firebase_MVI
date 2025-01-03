@@ -1,10 +1,8 @@
-package com.example.unmei.presentation.components
+package com.example.unmei.presentation.sign_in_feature.components
 
 import android.app.Activity.RESULT_OK
-import android.content.IntentSender
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,14 +11,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.unmei.presentation.viewmodel.SignInWithGoogleViewModel
+import com.example.unmei.presentation.sign_in_feature.viewmodel.SignInWithGoogleViewModel
 import com.example.unmei.util.ConstansDev.TAG
 import kotlinx.coroutines.launch
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.unmei.presentation.Navigation.Screens
-import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
-import com.example.unmei.presentation.sign_in.SignInScreen
-import com.example.unmei.util.ConstansApp
+import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansApp.MAIN_NAVIGATE_ROUTE
 
 @Composable

@@ -1,6 +1,5 @@
-package com.example.unmei.presentation.sign_in
+package com.example.unmei.presentation.sign_in_feature.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -28,10 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -42,14 +39,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.unmei.R
 import com.example.unmei.presentation.util.ui.theme.Black
 import com.example.unmei.presentation.util.ui.theme.BlueGray
 import com.example.unmei.presentation.util.LoginTextField
 import com.example.unmei.presentation.util.SocialMediaLogIn
-import com.example.unmei.presentation.util.socialMedia
 
 @Preview(showBackground = true)
 @Composable

@@ -1,7 +1,7 @@
-package com.example.unmei.presentation.sign_in
+package com.example.unmei.presentation.sign_in_feature.model
 
 data class SignInResult (
-    val data:UserData?,
+    val data: UserData?,
     val errorMessage:String?,
 )
 

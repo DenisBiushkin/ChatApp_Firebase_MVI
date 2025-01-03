@@ -1,14 +1,12 @@
-package com.example.unmei.presentation.components
+package com.example.unmei.presentation.sign_in_feature.components
 
 import androidx.annotation.OptIn
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Constraints
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
-import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 
 @OptIn(UnstableApi::class)

@@ -1,10 +1,12 @@
-package com.example.unmei.presentation.sign_in
+package com.example.unmei.presentation.sign_in_feature.sign_in
 
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.util.Log
 import com.example.unmei.R
+import com.example.unmei.presentation.sign_in_feature.model.SignInResult
+import com.example.unmei.presentation.sign_in_feature.model.UserData
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
@@ -58,7 +60,7 @@ class GoogleAuthUiClient (
     }
 
 
-    suspend fun signInFirebaseWithIntent(intent: Intent):SignInResult{//ели нашел Intent....
+    suspend fun signInFirebaseWithIntent(intent: Intent): SignInResult {//ели нашел Intent....
         //учетные данные из Intent когда выбрали аккаунт
         val credential = oneTapClient.getSignInCredentialFromIntent(intent)
 //        Log.d(TAG,"signWithIntent ______")
@@ -105,7 +107,7 @@ class GoogleAuthUiClient (
 
         }
     }
-    fun getSignedUser():UserData?{
+    fun getSignedUser(): UserData?{
         return auth.currentUser?.run {
             UserData(
                 userId = uid,
