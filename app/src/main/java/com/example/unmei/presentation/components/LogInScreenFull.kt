@@ -19,6 +19,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.sign_in.GoogleAuthUiClient
 import com.example.unmei.presentation.sign_in.SignInScreen
+import com.example.unmei.util.ConstansApp
+import com.example.unmei.util.ConstansApp.MAIN_NAVIGATE_ROUTE
 
 @Composable
 fun LoginInScreenFull(
@@ -55,7 +57,12 @@ fun LoginInScreenFull(
     )
     if (state.value.isSignInSuccess){
         viewModel.resetState()
-        navController.navigate(Screens.Main.route)
+
+//        navController.navigate(MAIN_NAVIGATE_ROUTE){
+//            popUpTo(MAIN_NAVIGATE_ROUTE) { inclusive = false }
+//        }
+
+
     }
     SignInScreen(
         emailField = emailTextField.value,
@@ -73,17 +80,24 @@ fun LoginInScreenFull(
 
         },
         signInWithGoogleOnClick = {
-            scopeGoogleOneTap.launch {
-                val signInIntenSender: IntentSender? = googleAuthUiClient.signInGoogle()
-                Log.d(TAG,"signInIntenSender "+signInIntenSender.toString())
-                //отправляем  IntentSender, результат получим в launcher
-                launcher.launch(
-                    input= IntentSenderRequest.Builder(
-                        //если акканут не был выбран Null выходим из курутины
-                        signInIntenSender ?: return@launch
-                    ).build()
-                )
+
+            navController.backQueue.forEachIndexed { index, navBackStackEntry ->
+                Log.d(TAG, "Route $index: ${navBackStackEntry.destination.route}")
             }
+
+            navController.navigate(MAIN_NAVIGATE_ROUTE)
+
+//            scopeGoogleOneTap.launch {
+//                val signInIntenSender: IntentSender? = googleAuthUiClient.signInGoogle()
+//                Log.d(TAG,"signInIntenSender "+signInIntenSender.toString())
+//                //отправляем  IntentSender, результат получим в launcher
+//                launcher.launch(
+//                    input= IntentSenderRequest.Builder(
+//                        //если акканут не был выбран Null выходим из курутины
+//                        signInIntenSender ?: return@launch
+//                    ).build()
+//                )
+//            }
         },
         createAccountOnClick = {
 
