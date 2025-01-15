@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity() {
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
         }
 
+        //на время разработок внутрянки
+        startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
+
 //        lifecycleScope.launch {
 //            repositorty.saveUser(
 //                User(

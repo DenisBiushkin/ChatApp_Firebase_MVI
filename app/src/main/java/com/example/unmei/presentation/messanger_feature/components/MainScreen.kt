@@ -14,12 +14,14 @@ import com.example.unmei.util.ConstansDev.TAG
 fun MainScreen(
     navController: NavController
 ){
-    navController.clearBackStack(0)
-    Surface(onClick = { /*TODO*/ }) {
-        Text(text = "You Sign in ChatAPP!!!")
 
-        navController.backQueue.forEachIndexed { index, navBackStackEntry ->
-            Log.d(TAG, "Route $index: ${navBackStackEntry.destination.route}")
-        }
+
+    Surface(onClick = { /*TODO*/ }) {
+
+
+
+
+        DrawerScreen(navController = navController)
+
     }
 }
