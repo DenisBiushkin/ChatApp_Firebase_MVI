@@ -16,12 +16,12 @@ fun MainScreen(
 ){
 
 
-    Surface(onClick = { /*TODO*/ }) {
+   // Surface(onClick = { /*TODO*/ }) {
 
 
 
 
-        DrawerScreen(navController = navController)
+       // DrawerScreen(navController = navController)
 
-    }
+
 }

@@ -16,6 +16,7 @@ val Pink40 = Color(0xFF7D5260)
 val Black = Color(0xFF000113)
 val LightBlueWhite = Color(0xFFF1F5F9) //Social media background
 val BlueGray = Color(0xFF334155)
+val LightGray =Color(0xFF665C55)
 val ColorScheme.focusedTextFieldText
     @Composable
     get() = if (isSystemInDarkTheme()) Color.White else Color.Black

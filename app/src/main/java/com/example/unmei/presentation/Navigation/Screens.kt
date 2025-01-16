@@ -6,4 +6,5 @@ sealed class Screens(
     object SignIn:Screens(route="signIn_screen")
 
     object Main:Screens("main_screen")
+    object Drawer:Screens("drawer_screen")
 }

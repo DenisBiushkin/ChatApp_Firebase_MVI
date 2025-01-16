@@ -14,12 +14,15 @@ fun NavGraphBuilder.mainNavGraph(
     googleAuthUiClient: GoogleAuthUiClient
 ){
     navigation(
-        startDestination = Screens.Main.route,
+        startDestination = Screens.Drawer.route,
         route = ConstansApp.MAIN_NAVIGATE_ROUTE
     ){
-        composable(route = Screens.Main.route){
+        composable(route = Screens.Drawer.route){
           //  MainScreen(navController=navController)
             DrawerScreen(navController = navController)
+        }
+        composable(route = Screens.Main.route){
+            MainScreen(navController=navController)
         }
     }
 }
