@@ -7,4 +7,5 @@ sealed class Screens(
 
     object Main:Screens("main_screen")
     object Drawer:Screens("drawer_screen")
+    object Test:Screens("test_screen")
 }

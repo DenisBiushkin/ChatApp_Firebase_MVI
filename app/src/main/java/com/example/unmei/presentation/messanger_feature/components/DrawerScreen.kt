@@ -1,6 +1,5 @@
 package com.example.unmei.presentation.messanger_feature.components
 
-import android.media.browse.MediaBrowser
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -33,10 +31,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -44,29 +40,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.media3.common.MediaItem.LocalConfiguration
 
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.unmei.presentation.messanger_feature.viewmodel.ChatsViewModel
+import com.example.unmei.presentation.messanger_feature.viewmodel.ChatListViewModel
 import kotlinx.coroutines.launch
 import com.example.unmei.R
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.Navigation.Screens
-import com.example.unmei.presentation.util.ui.theme.BlueGray
-import com.example.unmei.presentation.util.ui.theme.lexendFontFamily
 
 @Preview(showBackground = true)
 @Composable
@@ -78,7 +68,7 @@ fun showDrawerScreen(){
 @Composable
 fun DrawerScreen(
   navController: NavController,
-  viewmodel: ChatsViewModel = hiltViewModel()
+  viewmodel: ChatListViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -124,7 +114,7 @@ fun DrawerScreen(
 @Composable
 fun ScreenContent(
     modifier: Modifier = Modifier,
-    viewmodel: ChatsViewModel
+    viewmodel: ChatListViewModel
 ) {
 
     Box(
@@ -251,7 +241,8 @@ fun DrawerContent(navController: NavController) {
             ),
             NavigationItem(
                 title="Группы",
-                painter= painterResource(id = R.drawable.users_icon)
+                painter= painterResource(id = R.drawable.users_icon),
+                navRoute = Screens.Test.route
             ),
             NavigationItem(
                 title="Настройки",

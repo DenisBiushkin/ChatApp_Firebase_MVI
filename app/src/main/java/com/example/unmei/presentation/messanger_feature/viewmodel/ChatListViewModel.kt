@@ -5,12 +5,11 @@ import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.HashMap
 import javax.inject.Inject
 
 
 @HiltViewModel
-class ChatsViewModel @Inject constructor(
+class ChatListViewModel @Inject constructor(
 
 ):ViewModel() {
 
