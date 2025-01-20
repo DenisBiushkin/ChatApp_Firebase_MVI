@@ -5,4 +5,5 @@ sealed class MessageStatus {
     object Send:MessageStatus()
     object Readed:MessageStatus()
     object Error:MessageStatus()
+    object None:MessageStatus()
 }

@@ -58,5 +58,9 @@ fun MessageIconStatus(
               tint =colorIcon.copy(alpha = 0.5f),
           )
       }
+
+      MessageStatus.None -> {
+
+      }
   }
 }

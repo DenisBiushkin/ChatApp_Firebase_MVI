@@ -27,6 +27,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -58,6 +60,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.Navigation.Screens
+import com.example.unmei.presentation.messanger_feature.model.ChatListItem
+import com.example.unmei.presentation.messanger_feature.model.MessageStatus
+import com.example.unmei.presentation.messanger_feature.model.NotificationMessageStatus
+import org.checkerframework.common.subtyping.qual.Bottom
 
 @Preview(showBackground = true)
 @Composable
@@ -127,9 +133,40 @@ fun ScreenContent(
 //        }
         LazyColumn {
             items(count = 1){
-                ChatItem()
+                val item = ChatListItem(
+                    messageStatus= MessageStatus.Send,
+                    notificationMessageStatus = NotificationMessageStatus.On,
+                    isOnline= true,
+                    fullName= "Marcile Donato",
+                    painterUser= painterResource(id =  R.drawable.test_user),
+                    messageText= "Вы: Привет, как твои дела?",
+                    //пока что String
+                    timeStamp= 1737392296
+                )
+                ChatItem(
+                    item= item,
+                    onClick = {
+
+                    },
+                    onLongClick = {
+
+                    }
+                )
             }
         }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetChatList(
+
+){
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = { /*TODO*/ }
+    ) {
+
     }
 }
 

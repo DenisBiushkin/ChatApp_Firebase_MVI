@@ -1,8 +1,10 @@
 package com.example.unmei.presentation.messanger_feature.components
 
 import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -39,8 +43,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import  com.example.unmei.R
+import com.example.unmei.presentation.messanger_feature.model.ChatListItem
 import com.example.unmei.presentation.messanger_feature.model.MessageStatus
+import com.example.unmei.presentation.messanger_feature.model.NotificationMessageStatus
 import com.example.unmei.presentation.messanger_feature.util.MessageIconStatus
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Preview(showBackground = true)
 @Composable
@@ -50,25 +62,61 @@ fun showChatItem(){
     Column (
         modifier = Modifier.fillMaxSize()
     ){
-        ChatItem()
+        val item =ChatListItem(
+            messageStatus=MessageStatus.Send,
+            notificationMessageStatus = NotificationMessageStatus.On,
+            isOnline= true,
+            fullName= "Marcile Donato",
+            painterUser= painterResource(id =  R.drawable.test_user),
+            messageText= "Вы: Привет, как твои дела?",
+            //пока что String
+            timeStamp= 1737392296
+        )
+        ChatItem(
+            item= item,
+            onClick = {
+
+            },
+            onLongClick = {
+
+            }
+        )
     }
 
 }
 
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatItem(
-
+    height: Dp = 70.dp,
+    colorUnderLine:Color =Color.Black.copy(alpha = 0.7f),
+    underLineWidth:Float =1f,
+    item: ChatListItem,
+    onClick:(ChatListItem)->Unit,
+    onLongClick:(ChatListItem)->Unit,
 ){
-
-   val height= 70.dp
-    val isOnline = true
+    //мб перенести эту логику в viewmodel
+    val timeStamp: Long =1737392296
+    val formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy")
+    val date = Instant.ofEpochMilli(item.timeStamp)
+        .atZone(ZoneOffset.UTC) // Устанавливаем временную зону
+        .toLocalDate() // Преобразуем в локальную дату
+    val text = date.format(formatter)
+    val russianDayOfWeek = date.month.getDisplayName(TextStyle.SHORT, Locale("ru"))
+    val dateString =  date.dayOfMonth.toString()+" "+russianDayOfWeek
     Row (
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = height, max = height)
+            .combinedClickable(
+                onClick = {
+                    onClick(item)
+                },
+                onLongClick = {
+                    onLongClick(item)
+                }
+            )
     ){
-
         Box(
           modifier = Modifier
               .fillMaxHeight()
@@ -76,18 +124,15 @@ fun ChatItem(
           , contentAlignment =Alignment.Center
         ){
               BoxWithImageUser(
-                  imageRes = R.drawable.test_user,
+                  painterUser =item.painterUser,
                   height =height,
-                  isOnline = true
+                  isOnline =item. isOnline
               )
         }
-        val colorUnderLine =Color.Black.copy(alpha = 0.7f)
-        val strokewidth = 1f
-
         BoxWithUnderline(
             modifier = Modifier,
             colorUnderLine =colorUnderLine,
-            strokewidth
+           underLineWidth= underLineWidth
         ) {
              Column(
                  modifier = Modifier
@@ -100,11 +145,10 @@ fun ChatItem(
                        .fillMaxWidth()
                        .fillMaxHeight(0.5f)
                        .padding(
-                           top =startPedding,
+                           top = startPedding,
                            start = startPedding,
                            end = 6.dp,
                        )
-                     //  .background(Color.Yellow)
                      ,horizontalArrangement = Arrangement.SpaceBetween,
                      verticalAlignment = Alignment.CenterVertically
                  ){
@@ -114,38 +158,45 @@ fun ChatItem(
                          modifier = Modifier
                              .wrapContentSize()
                              .fillMaxWidth(0.70f)
-                            // .background(Color.Red)
                          , verticalAlignment = Alignment.CenterVertically
                      ) {
                          Text(
                              modifier = Modifier
+                                 //отредактировать
                                  .widthIn(max= 200.dp)
                              ,
-                             text = "Марсиль Донато",
+                             text =item.fullName,
                              fontWeight = FontWeight.Medium,
                              maxLines = 1,
                              fontSize = 17.sp,
                              overflow = TextOverflow.Ellipsis
                          )
                          Spacer(modifier = Modifier.width(5.dp))
-                         Icon(
-                             modifier = Modifier.size(20.dp),
-                             imageVector =  ImageVector.vectorResource(id = R.drawable.volume_off_24px),
-                             contentDescription =null,
-                             tint = Color.Gray.copy(alpha = 0.5f)
-                         )
+                         when(item.notificationMessageStatus){
+                             NotificationMessageStatus.Off ->{
+                                 Icon(
+                                     modifier = Modifier.size(20.dp),
+                                     imageVector =  ImageVector.vectorResource(id = R.drawable.volume_off_24px),
+                                     contentDescription =null,
+                                     tint = Color.Gray.copy(alpha = 0.5f)
+                                 )
+                             }
+                             NotificationMessageStatus.On -> {
+
+                             }
+                         }
                      }
                      Row (
                          verticalAlignment = Alignment.CenterVertically
                      ){
                          MessageIconStatus(
-                             status = MessageStatus.Readed,
+                             status =item. messageStatus,
                              sizeIcon = 25.dp,
                              colorIcon = Color.Green
                          )
                          Spacer(modifier = Modifier.width(4.dp))
                          Text(
-                             text = "20 Янв",
+                             text = dateString,
                              color = Color.Gray,
                              fontSize = 14.sp
                          )
@@ -159,7 +210,7 @@ fun ChatItem(
                          .fillMaxWidth()
                          .fillMaxHeight()
                          .padding(
-                             top =startPedding,
+                             top = startPedding,
                              start = startPedding,
                              end = 6.dp,
                          )
@@ -167,36 +218,13 @@ fun ChatItem(
                      horizontalArrangement = Arrangement.SpaceBetween
                  ){
                    Text(
-                       text = "Вы: Привет, как твои дела?",
+                       text = item.messageText,
                        fontSize = 15.sp,
                        fontWeight = FontWeight.Normal,
                        color= Color.Black.copy(alpha = 0.7f)
                    )
                  }
              }
-            //часть под содержимое то что осталось от 22% для фотки
-//            Row(
-//                modifier=Modifier.fillMaxSize()
-//            ) {
-//                //для текста и тд
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxHeight()
-//                        .fillMaxWidth(0.86f)
-//                        .background(Color.Green)
-//                ){
-//
-//                }
-//                //для иконок справа
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .fillMaxHeight()
-//                        .background(Color.Red)
-//                ){
-//
-//                }
-//            }
         }
     }
 }
@@ -235,7 +263,7 @@ fun BoxWithUnderline(
 }
 @Composable
 fun BoxWithImageUser(
-    imageRes: Int,
+    painterUser: Painter,
     isOnline:Boolean= false,
     height: Dp,
 ){
@@ -269,7 +297,7 @@ fun BoxWithImageUser(
             modifier = Modifier
                 .size(height - 10.dp)
                 .clip(CircleShape)
-            ,painter = painterResource(id = imageRes),
+            ,painter = painterUser,
             contentDescription = ""
         )
     }
