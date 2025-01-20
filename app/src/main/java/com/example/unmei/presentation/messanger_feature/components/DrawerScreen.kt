@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -121,8 +122,13 @@ fun ScreenContent(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ){
-        Button(onClick = { viewmodel.sendCommand() }) {
-            Text(text = "Click send to server")
+//        Button(onClick = { viewmodel.sendCommand() }) {
+//            Text(text = "Click send to server")
+//        }
+        LazyColumn {
+            items(count = 1){
+                ChatItem()
+            }
         }
     }
 }

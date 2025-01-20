@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,6 +29,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -36,34 +40,121 @@ import com.example.unmei.presentation.util.ui.theme.primaryOwnMessageColor
 import com.example.unmei.presentation.messanger_feature.model.MessageStatus
 import com.example.unmei.presentation.messanger_feature.model.TypeMessage
 import com.example.unmei.presentation.messanger_feature.util.MessageIconStatus
+import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 import com.google.protobuf.Internal.BooleanList
 
 @Preview(showBackground = true)
 @Composable
 fun showBubble(){
-    Box(modifier = Modifier.fillMaxSize()){
-      Column (
-          modifier = Modifier.padding(top=40.dp)
-      ){
-          CustomMessageBubble(true)
-      }
-    }
 
+      Column (
+          modifier = Modifier  .fillMaxSize()  .background(color = chatBacgroundColor).padding(top=40.dp)
+      ){
+          CustomMessageBubble(false)
+      }
+
+
+}
+@Composable
+fun TimeMessage(
+    time: String = "20 Января"
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+        , horizontalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .wrapContentSize()
+                .clip(CircleShape)
+                .background(
+
+                    color = Color.Gray.copy(alpha = 0.2f)
+                )
+        ){
+            Text(
+                modifier = Modifier
+                    .padding(
+                        horizontal = 8.dp,
+                    )
+                ,
+                text = time,
+                fontSize = 15.sp,
+                color = Color.Black
+            )
+        }
+    }
 }
 
 @Composable
 fun CustomMessageBubble(
     isOwnMassage: Boolean
 ){
-    Row (
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = if(isOwnMassage) Arrangement.End else Arrangement.Start
-    ){
+
       ChatBubbleWithPattern(isOwn = isOwnMassage) {
           MessageContenet(
-              text = "Привет, это очень длинный текст сообщения "
+              text = "Привет, это очень длинный текст сообщения ",
+              isOwn = isOwnMassage
           )
       }
+//      SimpleChatBubble(isOwn = isOwnMassage) {
+//          MessageContenet(
+//              text = "Привет, это очень длинный текст сообщения ",
+//              isOwn = isOwnMassage
+//          )
+//      }
+
+}
+@Composable
+fun SimpleChatBubble(
+    modifier: Modifier =Modifier,
+    isOwn: Boolean=false,
+    content: @Composable (ColumnScope.() -> Unit)
+){
+    val screenSettings=LocalConfiguration.current
+    val maxWidth=screenSettings.screenWidthDp.dp *0.8f
+    val cornerRadius =  15.dp
+    val paddingBlock= 8.dp
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if(isOwn) Arrangement.End else Arrangement.Start
+    ) {
+        if (isOwn) {
+            Box(
+                modifier = modifier
+                    .padding(end = paddingBlock)
+                    .background(
+                        color = primaryOwnMessageColor,
+                        shape = RoundedCornerShape(cornerRadius)
+                    )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(7.dp)
+                        .widthIn(max = maxWidth)
+                ) {
+                    content()
+                }
+            }
+        } else {
+            Box(
+                modifier = modifier
+                    .padding(start = paddingBlock)
+                    .background(
+                        color = primaryMessageColor,
+                        shape = RoundedCornerShape(cornerRadius)
+                    )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(7.dp)
+                        .widthIn(max = maxWidth)
+                ) {
+                    content()
+                }
+            }
+        }
     }
 }
 
@@ -73,37 +164,37 @@ fun MessageContenet(
     time:String ="18:30",
     isChanged:Boolean = false,
     isOwn:Boolean= true,
+    fullName:String ="Марсиль Донато",
     status: MessageStatus = MessageStatus.Error,
-    typeMessage: TypeMessage = TypeMessage.Text
 ){
     val textWidth= 15.sp
     val fontSizeStatus= 12.sp
     val horizontalPadding= 4.dp
-    when(typeMessage){
-        TypeMessage.Audio -> {
-
-        }
-        TypeMessage.Photo -> {
-
-        }
-        TypeMessage.Text -> {
-
-        }
-    }
     Box(
-        modifier = Modifier.wrapContentSize()
+        modifier = Modifier
+            .wrapContentSize()
             .padding(
                 start = horizontalPadding,
                 end = horizontalPadding,
                 top = horizontalPadding,
                 bottom = 0.dp
             ),
-        contentAlignment = Alignment.Center
     ){
-        Text(
-            text =text,
-            fontSize = textWidth
-        )
+        Column {
+            if (!isOwn){
+                Text(
+                    text = fullName,
+                    fontSize = fontSizeStatus,
+                    color= primaryOwnMessageColor,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text =text,
+                fontSize = textWidth
+            )
+        }
+
     }
     Row (
         modifier = Modifier.fillMaxWidth()
@@ -111,14 +202,16 @@ fun MessageContenet(
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        Text(text = "ред.", fontSize = fontSizeStatus)
+        if (isChanged)Text(text = "ред.", fontSize = fontSizeStatus)
         Spacer(modifier = Modifier.width(4.dp))
-        if(isOwn) Text(text =time , fontSize = fontSizeStatus)
+        Text(text =time , fontSize = fontSizeStatus)
         Spacer(modifier = Modifier.width(4.dp))
-        MessageIconStatus(
-            status= status,
-            sizeIcon = 18.dp
-        )
+        if(isOwn)
+            MessageIconStatus(
+                status= status,
+                sizeIcon = 18.dp
+            )
+
     }
 }
 
@@ -159,33 +252,36 @@ fun ChatBubbleWithPattern(
     }
     val colorMessageBox= Color.Magenta
 
-
-    if(isOwn){
-        Box(
-            modifier = modifier
-                .clip(shape = rightMessageShape)
-                .background(primaryOwnMessageColor)
-        ){
-            Column(
-                modifier =  modifierRightMassage
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if(isOwn) Arrangement.End else Arrangement.Start
+    ) {
+        if (isOwn) {
+            Box(
+                modifier = modifier
+                    .clip(shape = rightMessageShape)
+                    .background(primaryOwnMessageColor)
             ) {
-                content()
+                Column(
+                    modifier = modifierRightMassage
+                ) {
+                    content()
+                }
             }
-        }
-    }else{
-        Box(
-            modifier = modifier
-                .clip(shape = leftMessageShape)
-                .background(color = primaryMessageColor)
-        ){
-            Column(
-                modifier =modifierLeftMassage
+        } else {
+            Box(
+                modifier = modifier
+                    .clip(shape = leftMessageShape)
+                    .background(color = primaryMessageColor)
             ) {
-                content()
+                Column(
+                    modifier = modifierLeftMassage
+                ) {
+                    content()
+                }
             }
         }
     }
-
 
 }
 
@@ -282,7 +378,7 @@ fun CustomBubbleMessageShape(
         arcTo(
             rect= Rect(
                 left = -track,
-                top= track*2,
+                top= size.height-track*2,
                 bottom = size.height,
                 right = track
             ),

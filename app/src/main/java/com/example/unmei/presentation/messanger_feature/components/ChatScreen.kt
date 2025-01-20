@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Divider
+import androidx.compose.material.ModalBottomSheetDefaults
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -53,6 +54,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.R
+import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
+
 @Preview(showBackground = true)
 @Composable
 fun showChatScreen(){
@@ -144,10 +147,15 @@ fun ContentChatScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 8.dp),
-        reverseLayout = true, // Новые сообщения появляются внизу
+            .background(color = chatBacgroundColor)
+            .padding(start = 4.dp, end = 4.dp)
+        , reverseLayout = true, // Новые сообщения появляются внизу
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+            TimeMessage(
+            )
+        }
         items(messages) { message ->
             CustomMessageBubble(isOwnMassage = message)
             Spacer(modifier = Modifier.height(8.dp))
