@@ -12,7 +12,7 @@ class RemoteDataSource(
 
     suspend fun isUserExists(userId: String): Boolean {
         return try {
-            val dataSnapshot = ref.child("users").child(userId).get().await()
+            val dataSnapshot = ref.child(userId).get().await()
             dataSnapshot.exists()
         } catch (e: Exception) {
             false // Обрабатываем ошибки (например, отсутствует подключение)
