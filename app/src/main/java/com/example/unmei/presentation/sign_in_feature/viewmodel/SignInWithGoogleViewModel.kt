@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.data.repository.MainRepositoryImpl
+import com.example.unmei.domain.model.User
+import com.example.unmei.domain.usecase.SaveUserOnceUseCase
 import com.example.unmei.presentation.sign_in_feature.model.SignInState
 import com.example.unmei.presentation.sign_in_feature.model.SignInResult
+import com.example.unmei.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,9 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInWithGoogleViewModel @Inject constructor(
-  //  private val auth: FirebaseAuth,
-    //private val googleAuthUiClient: GoogleAuthUiClient
-   // private val repositorty:  MainRepositoryImpl=MainRepositoryImpl()
+   private val saveUserOnceUseCase: SaveUserOnceUseCase
 ): ViewModel() {
     private val TAG="MyTag"
 
@@ -31,13 +32,41 @@ class SignInWithGoogleViewModel @Inject constructor(
     }
 
     fun inSignResult(result: SignInResult){
-        _state.update {
-            it.copy(
-                isSignInSuccess = result.data!=null,
-                signInErrorMessage = result.errorMessage
+        if (result.data!=null){
+            val data= result.data
+            val currentUser = User(
+                uid = data.userId,
+                fullName = data.userName ?: "Unknown",
+                photo = data.ProfilePictureUrl ?: "Unknown",
+                age = "20"
             )
+            viewModelScope.launch {
+                saveUserOnceUseCase.execute(currentUser).collect{
+                    it->
+                    when(it){
+                        is Resource.Error ->{
+
+                        }
+                        is Resource.Loading -> {
+
+                        }
+                        is Resource.Success ->{
+                            _state.update {
+                                it.copy(
+                                    isSignInSuccess = true,
+                                    signInErrorMessage = result.errorMessage
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
         }
+
     }
+
+
     fun resetState(){
         _state.update {
             SignInState()

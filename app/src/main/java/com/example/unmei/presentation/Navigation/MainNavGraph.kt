@@ -20,12 +20,12 @@ fun NavGraphBuilder.mainNavGraph(
     ){
         composable(route = Screens.Drawer.route){
           //  MainScreen(navController=navController)
-            DrawerScreen(navController = navController)
+            DrawerScreen(navController = navController, googleAuthUiClient = googleAuthUiClient)
         }
         composable(route = Screens.Main.route){
             MainScreen(navController=navController)
         }
-        composable(route=Screens.Test.route){
+        composable(route=Screens.Chat.route){
             ChatScreen(navController = navController)
         }
     }

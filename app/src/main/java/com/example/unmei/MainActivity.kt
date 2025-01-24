@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
             oneTapClient = Identity.getSignInClient(applicationContext)
         )
     }
-    private val repositorty: MainRepositoryImpl = MainRepositoryImpl()
+    //private val repositorty: MainRepositoryImpl = MainRepositoryImpl()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -48,15 +48,15 @@ class MainActivity : ComponentActivity() {
         }
 
         //на время разработок внутрянки
-        startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
+       // startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
 
 //        lifecycleScope.launch {
 //            repositorty.saveUser(
 //                User(
 //                    uid=googleAuthUiClient.getSignedUser()!!.userId,
-//                    firstName = "Denis",
-//                    secondName = "Biushkin",
-//                    sex = "Male",
+//                    firstName = "Marcile",
+//                    secondName = "Donato",
+//                    sex = "Female",
 //                    age="20"
 //            )
 //            ).collect{

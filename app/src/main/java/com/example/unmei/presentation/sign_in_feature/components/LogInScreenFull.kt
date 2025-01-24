@@ -1,8 +1,10 @@
 package com.example.unmei.presentation.sign_in_feature.components
 
 import android.app.Activity.RESULT_OK
+import android.content.IntentSender
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,6 +47,7 @@ fun LoginInScreenFull(
                     val signInResult =  googleAuthUiClient.signInFirebaseWithIntent(
                         intent=result.data ?: return@launch//выход из корутины если null
                     )
+
                     viewModel.inSignResult(signInResult)
                 }
             }
@@ -52,12 +55,9 @@ fun LoginInScreenFull(
     )
     if (state.value.isSignInSuccess){
         viewModel.resetState()
-
-//        navController.navigate(MAIN_NAVIGATE_ROUTE){
-//            popUpTo(MAIN_NAVIGATE_ROUTE) { inclusive = false }
-//        }
-
-
+        navController.navigate(MAIN_NAVIGATE_ROUTE){
+            popUpTo(MAIN_NAVIGATE_ROUTE) { inclusive = false }
+        }
     }
     SignInScreen(
         emailField = emailTextField.value,
@@ -75,24 +75,18 @@ fun LoginInScreenFull(
 
         },
         signInWithGoogleOnClick = {
-
-            navController.backQueue.forEachIndexed { index, navBackStackEntry ->
-                Log.d(TAG, "Route $index: ${navBackStackEntry.destination.route}")
+                //navController.navigate(MAIN_NAVIGATE_ROUTE)
+            scopeGoogleOneTap.launch {
+                val signInIntenSender: IntentSender? = googleAuthUiClient.signInGoogle()
+                Log.d(TAG,"signInIntenSender "+signInIntenSender.toString())
+                //отправляем  IntentSender, результат получим в launcher
+                launcher.launch(
+                    input= IntentSenderRequest.Builder(
+                        //если акканут не был выбран Null выходим из курутины
+                        signInIntenSender ?: return@launch
+                    ).build()
+                )
             }
-
-            navController.navigate(MAIN_NAVIGATE_ROUTE)
-
-//            scopeGoogleOneTap.launch {
-//                val signInIntenSender: IntentSender? = googleAuthUiClient.signInGoogle()
-//                Log.d(TAG,"signInIntenSender "+signInIntenSender.toString())
-//                //отправляем  IntentSender, результат получим в launcher
-//                launcher.launch(
-//                    input= IntentSenderRequest.Builder(
-//                        //если акканут не был выбран Null выходим из курутины
-//                        signInIntenSender ?: return@launch
-//                    ).build()
-//                )
-//            }
         },
         createAccountOnClick = {
 

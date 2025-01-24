@@ -8,4 +8,6 @@ interface MainRepository {
 
 
     fun saveUser(user: User): Flow<Resource<Boolean>>
+
+    suspend fun isUserExist(userId:String):Boolean
 }

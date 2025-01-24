@@ -1,5 +1,7 @@
 package com.example.unmei.data.repository
 
+import com.example.unmei.data.network.RemoteDataSource
+import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
@@ -12,15 +14,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
-class MainRepositoryImpl():MainRepository {
-    override fun saveUser(user: User): Flow<Resource<Boolean>> {
-        val db= FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB)
-        val ref = db.getReference(USERS_REFERENCE_DB)
+class MainRepositoryImpl(
+   private val localDataSource: LocalDataSource, //  Room
+    private val remoteDataSource: RemoteDataSource // Firebase
+):MainRepository {
 
+
+    override suspend fun isUserExist(userId:String):Boolean{
+        return remoteDataSource.isUserExists(userId)
+    }
+
+    override fun saveUser(user: User): Flow<Resource<Boolean>> {
         return flow {
             try{
                 emit(Resource.Loading())
-                ref.child(user.uid).setValue(user).await()
+
+                remoteDataSource.saveUserData(user=user)
+
                 emit(Resource.Success(data = true))
             }catch(e:Exception){
                 emit(Resource.Error(message = e.toString()))

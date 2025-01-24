@@ -1,5 +1,6 @@
 package com.example.unmei.presentation.messanger_feature.components
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,12 +18,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -39,12 +40,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,32 +60,39 @@ import com.example.unmei.presentation.messanger_feature.viewmodel.ChatListViewMo
 import kotlinx.coroutines.launch
 import com.example.unmei.R
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.messanger_feature.model.ChatListItem
 import com.example.unmei.presentation.messanger_feature.model.MessageStatus
 import com.example.unmei.presentation.messanger_feature.model.NotificationMessageStatus
-import org.checkerframework.common.subtyping.qual.Bottom
+import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
+import com.example.unmei.util.ConstansDev
+import com.example.unmei.util.ConstansDev.TAG
 
 @Preview(showBackground = true)
 @Composable
 fun showDrawerScreen(){
     //DrawerScreen(rememberNavController())
-    DrawerContent(rememberNavController())
+    DrawerContent(rememberNavController(), onClickExitAccount = {
+
+    })
 }
 
 @Composable
 fun DrawerScreen(
   navController: NavController,
-  viewmodel: ChatListViewModel = hiltViewModel()
+  viewmodel: ChatListViewModel = hiltViewModel(),
+  googleAuthUiClient: GoogleAuthUiClient
 ) {
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
     )
     val scope = rememberCoroutineScope()
+    val scopeExitAccount = rememberCoroutineScope()
 
-//заменить потом на Surface
+    //заменить потом на Surface
     Box(
       modifier = Modifier.fillMaxSize()
     ) {
@@ -90,7 +100,18 @@ fun DrawerScreen(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet {
-                    DrawerContent(navController=navController)
+                    DrawerContent(
+                        navController=navController,
+                        onClickExitAccount = {
+                            Log.d(TAG,"Осуществляется выход")
+                            scopeExitAccount.launch {
+                                googleAuthUiClient.signOut()
+                                navController.clearBackStack(Screens.SignIn.route)
+                                navController.navigate(Screens.SignIn.route)
+                            }
+
+                        }
+                    )
                 }
             },
             scrimColor = Color.Black.copy(alpha = 0.32f)
@@ -109,7 +130,8 @@ fun DrawerScreen(
               }
           ) { paddingValues ->
                ScreenContent(
-                   Modifier.padding(paddingValues),
+                   navController = navController,
+                   modifier = Modifier.padding(paddingValues),
                    viewmodel=viewmodel
                )
 
@@ -118,56 +140,81 @@ fun DrawerScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ScreenContent(
     modifier: Modifier = Modifier,
+    navController: NavController,
     viewmodel: ChatListViewModel
 ) {
-
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ){
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    val showBottomSheet = remember {
+        mutableStateOf(false)
+    }
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
 //        Button(onClick = { viewmodel.sendCommand() }) {
 //            Text(text = "Click send to server")
 //        }
-        LazyColumn {
-            items(count = 1){
-                val item = ChatListItem(
-                    messageStatus= MessageStatus.Send,
-                    notificationMessageStatus = NotificationMessageStatus.On,
-                    isOnline= true,
-                    fullName= "Marcile Donato",
-                    painterUser= painterResource(id =  R.drawable.test_user),
-                    messageText= "Вы: Привет, как твои дела?",
-                    //пока что String
-                    timeStamp= 1737392296
-                )
-                ChatItem(
-                    item= item,
-                    onClick = {
+            LazyColumn {
+                items(count = 1) {
+                    val item = ChatListItem(
+                        messageStatus = MessageStatus.Send,
+                        notificationMessageStatus = NotificationMessageStatus.On,
+                        isOnline = true,
+                        fullName = "Marcile Donato",
+                        painterUser = painterResource(id = R.drawable.test_user),
+                        messageText = "Вы: Привет, как твои дела?",
+                        //пока что String
+                        timeStamp = 1737392296
+                    )
+                    ChatItem(
+                        item = item,
+                        onClick = {
+                            navController.navigate(Screens.Chat.route)
+                        },
+                        onLongClick = {
+                            //  Log.d(TAG,"Long click")
+                            showBottomSheet.value= true
+
+                        }
+                    )
+                }
+            }
+
+            if (showBottomSheet.value) {
+                ModalBottomSheet(
+                    dragHandle = {
 
                     },
-                    onLongClick = {
+                    sheetState = sheetState,
+                    onDismissRequest = {
+                        showBottomSheet.value = false
+                    }
+                ) {
+
+                    Box(modifier = Modifier.height(200.dp)){
 
                     }
-                )
+                }
             }
         }
-    }
+
 }
+
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetChatList(
 
 ){
-    val sheetState = rememberModalBottomSheetState()
-    ModalBottomSheet(
-        sheetState = sheetState,
-        onDismissRequest = { /*TODO*/ }
-    ) {
 
-    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -208,7 +255,10 @@ fun DrawerTopBar(
 }
 
 @Composable
-fun DrawerContent(navController: NavController) {
+fun DrawerContent(
+    navController: NavController,
+    onClickExitAccount:()->Unit
+) {
 
     val colorProfile = Color(0xFF42A5F5)
     val colorText = Color(0xFFFFFFFF)
@@ -274,24 +324,26 @@ fun DrawerContent(navController: NavController) {
         //блок драйвера
         data class NavigationItem(
             val title:String,
-            val painter:Painter,
-            val navRoute:String=""
+            val imageVector:ImageVector,
+            val navRoute:String="",
+            val colorIcon:Color= Color.Black.copy(alpha = 0.5f)
         )
         val navigationItems= listOf(
             NavigationItem(
                 title="Профиль",
-                painter= painterResource(id = R.drawable.profile_icon)
+                imageVector= ImageVector.vectorResource(id = R.drawable.account_circle_24px)
             ),
             NavigationItem(
                 title="Группы",
-                painter= painterResource(id = R.drawable.users_icon),
-                navRoute = Screens.Test.route
+                imageVector= ImageVector.vectorResource(id = R.drawable.group_24px),
+                navRoute = Screens.Chat.route
             ),
             NavigationItem(
                 title="Настройки",
-                painter= painterResource(id = R.drawable.setting_icon),
+                imageVector= ImageVector.vectorResource(id = R.drawable.settings_24px),
                 navRoute = Screens.Main.route
             ),
+
 
         )
         Box(
@@ -321,8 +373,9 @@ fun DrawerContent(navController: NavController) {
                         icon = {
                             Icon(
                                 modifier = Modifier.width(30.dp),
-                                painter = it.painter,
-                                contentDescription =""
+                                imageVector = it.imageVector,
+                                contentDescription ="",
+                                tint = it.colorIcon
                             )
 
                         },
@@ -330,6 +383,33 @@ fun DrawerContent(navController: NavController) {
                             .padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                 }
+                val exitItem = NavigationItem(
+                    title="Выход",
+                    imageVector=ImageVector.vectorResource(id = R.drawable.exit_to_app_24px),
+                    navRoute = Screens.Main.route,
+                    colorIcon = Color.Red
+                )
+                NavigationDrawerItem(
+                    label = {
+                        Text(
+                            text = exitItem.title,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = exitItem.colorIcon
+                            )
+                     }, selected =false ,
+                    icon = {
+                        Icon(
+                            modifier = Modifier.width(30.dp),
+                            imageVector = exitItem.imageVector,
+                            contentDescription ="",
+                            tint = exitItem.colorIcon
+                        )
+                    },
+                    onClick = onClickExitAccount,
+                    modifier = Modifier
+                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
             }
 
         }
