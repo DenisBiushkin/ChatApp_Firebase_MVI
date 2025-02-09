@@ -5,10 +5,12 @@ import android.app.Application
 import androidx.room.Room
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.repository.MainRepositoryImpl
-import com.example.unmei.data.source.Dao
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
+import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
+import com.example.unmei.domain.usecase.ObserveUserUseCase
 import com.example.unmei.domain.usecase.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.SaveUserUseCase
 import com.example.unmei.util.ConstansDev
@@ -39,6 +41,7 @@ object AppModule {
     }
 
     @Provides
+    @Singleton
     fun provideRemoteDatasource():RemoteDataSource{
         return RemoteDataSource(FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB))
     }
@@ -60,4 +63,19 @@ object AppModule {
     fun provideSaveUserOnceUseCase(mainRepository: MainRepository):SaveUserOnceUseCase{
         return SaveUserOnceUseCase(mainRepository)
     }
+
+    @Provides
+    fun provideObserveUserUseCase(mainRepository: MainRepository):ObserveUserUseCase{
+        return ObserveUserUseCase(mainRepository)
+    }
+    @Provides
+    fun provideObserveChatItemUseCase(mainRepository: MainRepository):ObserveRoomsUserUseCase{
+        return ObserveRoomsUserUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideObserveChatRoomUseCase(mainRepository: MainRepository): ObserveChatRoomUseCase {
+        return ObserveChatRoomUseCase(mainRepository)
+    }
+
 }

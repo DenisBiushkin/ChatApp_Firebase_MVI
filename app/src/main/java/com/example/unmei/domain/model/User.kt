@@ -8,7 +8,11 @@ data class User(
     val email:String="",
     val age:String="",
     val photo:String="",
-    val isOnline:Boolean = false,
+
+
+    val online:Boolean = false,
+
+
     val friends: Map<String,Boolean> = emptyMap(),
     val rooms: Map<String,Boolean> = emptyMap(),
 )

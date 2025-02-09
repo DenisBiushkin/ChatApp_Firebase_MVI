@@ -40,6 +40,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -91,7 +92,7 @@ fun DrawerScreen(
     )
     val scope = rememberCoroutineScope()
     val scopeExitAccount = rememberCoroutineScope()
-
+    viewmodel.observeUser()
     //заменить потом на Surface
     Box(
       modifier = Modifier.fillMaxSize()
@@ -147,6 +148,7 @@ fun ScreenContent(
     navController: NavController,
     viewmodel: ChatListViewModel
 ) {
+    val state = viewmodel.state.collectAsState()
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val showBottomSheet = remember {
@@ -164,7 +166,7 @@ fun ScreenContent(
                     val item = ChatListItem(
                         messageStatus = MessageStatus.Send,
                         notificationMessageStatus = NotificationMessageStatus.On,
-                        isOnline = true,
+                        isOnline = state.value.isOnline,
                         fullName = "Marcile Donato",
                         painterUser = painterResource(id = R.drawable.test_user),
                         messageText = "Вы: Привет, как твои дела?",
