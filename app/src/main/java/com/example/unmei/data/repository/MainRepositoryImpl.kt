@@ -1,19 +1,26 @@
 package com.example.unmei.data.repository
 
+import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.mapNotNull
+import org.example.Mappers.base.Mapper
+import javax.inject.Inject
 
-class MainRepositoryImpl(
+class MainRepositoryImpl @Inject constructor(
    private val localDataSource: LocalDataSource, //  Room
-    private val remoteDataSource: RemoteDataSource // Firebase
+    private val remoteDataSource: RemoteDataSource ,// Firebase,
+    private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
 
 
@@ -44,9 +51,15 @@ class MainRepositoryImpl(
 
     }
 
+    override fun createNewChat(group: ChatRoom): Flow<Resource<String>> {
+        return remoteDataSource.createNewChat(group)
+    }
+
     //переделать чтобы цепляла сначала данные из локальной БД!
     override fun observeChatRoom(roomId:String): Flow<ChatRoom> {
-       return remoteDataSource.observeChatRoom(roomId)
+       return remoteDataSource.observeChatRoom(roomId).mapNotNull {
+           mapperChatRoom.map(it)
+       }
     }
 
 

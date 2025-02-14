@@ -10,4 +10,5 @@ object ConstansApp {
     //DB
     val USERS_REFERENCE_DB="users_unmei"
     val ROOMS_REFERENCE_DB="groups"
+    val MESSAGES_REFERENCE_DB= "messages"
 }

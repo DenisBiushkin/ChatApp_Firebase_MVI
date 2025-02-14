@@ -3,10 +3,12 @@ package com.example.unmei.DI
 
 import android.app.Application
 import androidx.room.Room
+import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.repository.MainRepositoryImpl
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
+import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
 import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
@@ -19,6 +21,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.example.Mappers.base.Mapper
 import javax.inject.Singleton
 
 
@@ -48,11 +51,13 @@ object AppModule {
     @Provides
     fun provideMainRepository(
         localDataSourc:LocalDataSource,
-        remoteDataSource: RemoteDataSource
+        remoteDataSource: RemoteDataSource,
+        mapperChatRoom: Mapper<ChatRoomResponse,ChatRoom>
     ):MainRepository{
         return MainRepositoryImpl(
             localDataSource = localDataSourc,
-            remoteDataSource= remoteDataSource
+            remoteDataSource= remoteDataSource,
+            mapperChatRoom = mapperChatRoom
         )
     }
     @Provides

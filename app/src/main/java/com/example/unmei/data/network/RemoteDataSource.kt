@@ -3,20 +3,25 @@ package com.example.unmei.data.network
 import androidx.annotation.OptIn
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansDev.TAG
+import com.example.unmei.util.Resource
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 class RemoteDataSource(
@@ -24,6 +29,7 @@ class RemoteDataSource(
 ) {
     private  val usersRef = db.getReference(USERS_REFERENCE_DB)
     private  val roomsRef = db.getReference(ROOMS_REFERENCE_DB)
+    private  val messagesRef= db.getReference(MESSAGES_REFERENCE_DB)
 
     suspend fun isUserExists(userId: String): Boolean {
         return try {
@@ -61,7 +67,8 @@ class RemoteDataSource(
 
                 val roomsMap = snapshot.value as? Map<String, Boolean> ?: emptyMap()
                 val roomsUser = RoomsUser(roomsMap)
-                trySend(RoomsUser(roomsMap))
+                Log.d(TAG,"UserRoms DATA: "+roomsUser.rooms)
+                trySend( roomsUser )
 
             }
             override fun onCancelled(error: DatabaseError) {
@@ -72,12 +79,15 @@ class RemoteDataSource(
         awaitClose {reference.removeEventListener(listener) }
     }
 
-    fun observeChatRoom(roomId:String):Flow<ChatRoom> = callbackFlow {
+    fun observeChatRoom(roomId:String):Flow<ChatRoomResponse> = callbackFlow {
 
         val reference = roomsRef.child(roomId)
         val listener= object : ValueEventListener {
+            @OptIn(UnstableApi::class)
             override fun onDataChange(snapshot: DataSnapshot) {
-                trySend(snapshot.getValue(ChatRoom::class.java)?: ChatRoom())
+                val data= snapshot.getValue(ChatRoomResponse::class.java)?: ChatRoomResponse()
+                Log.d(TAG, "ChatRoom Data: " + data.id)
+                trySend(data)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -87,6 +97,26 @@ class RemoteDataSource(
         reference.addValueEventListener(listener)
         awaitClose{ reference.removeEventListener(listener)}
     }
+
+    fun createNewChat( group:ChatRoom):Flow<Resource<String>> = flow{
+        val roomId = roomsRef.push().key.toString()
+        try{
+            emit(Resource.Loading())
+            val room = group.run {
+                ChatRoomResponse(
+                    id = id,
+                    timestamp = ServerValue.TIMESTAMP
+                )
+            }
+            roomsRef.child(roomId).setValue(room)
+            messagesRef.child(roomId)
+            emit(Resource.Success(data = roomId))
+        }catch (e:Exception){
+            emit(Resource.Error(message = e.toString()))
+        }
+
+    }
+
 
 
 }
