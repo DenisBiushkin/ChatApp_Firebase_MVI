@@ -4,11 +4,15 @@ import androidx.annotation.OptIn
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.example.unmei.data.model.ChatRoomResponse
+import com.example.unmei.data.model.StatusUserResponse
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.RoomsUser
+import com.example.unmei.domain.model.Status
+import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
+import com.example.unmei.util.ConstansApp.PRESENCE_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansDev.TAG
@@ -30,6 +34,7 @@ class RemoteDataSource(
     private  val usersRef = db.getReference(USERS_REFERENCE_DB)
     private  val roomsRef = db.getReference(ROOMS_REFERENCE_DB)
     private  val messagesRef= db.getReference(MESSAGES_REFERENCE_DB)
+    private  val presenceUsersRef= db.getReference(PRESENCE_USERS_REFERENCE_DB)
 
     suspend fun isUserExists(userId: String): Boolean {
         return try {
@@ -115,6 +120,65 @@ class RemoteDataSource(
             emit(Resource.Error(message = e.toString()))
         }
 
+    }
+
+    fun getUserById(userId: String): Flow<Resource<User>>  = flow {
+
+    }
+    fun observeStatusUserById(userId: String):Flow<StatusUserResponse> = callbackFlow {
+
+        val reference = presenceUsersRef.child(userId)
+        val listener = object :  ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val data = snapshot.getValue(StatusUserResponse::class.java)?: StatusUserResponse()
+                trySend(data)
+            }
+            override fun onCancelled(error: DatabaseError) {
+            }
+        }
+        reference.addValueEventListener(listener)
+        awaitClose { reference.removeEventListener(listener) }
+    }
+
+   suspend fun setStatsuById(userId:String,status:StatusUser):Resource<String>{
+       //написать потом mapper
+       val stat = when(status.status){
+           Status.OFFLINE -> "offline"
+           Status.ONLINE -> "online"
+           Status.RECENTLY -> "recently"
+       }
+       try {
+           presenceUsersRef.child(userId).setValue(StatusUserResponse(
+               status = stat,
+               lastSeen = status.lastSeen
+           )).await()
+           return Resource.Success(data = "")
+
+       }catch (e:Exception){
+           return Resource.Error(message = e.toString())
+       }
+   }
+
+    suspend fun createNewRoom(room: ChatRoom,message: Message):String{
+        val key= roomsRef.push().key.toString()
+        try {
+            roomsRef.child(key).setValue(
+                room.run {
+                    ChatRoomResponse(
+                        timestamp = ServerValue.TIMESTAMP,
+                        id = key,
+                        moderators = moderators,
+                        members = members,
+                        type = type,
+                        lastMessage = lastMessage
+                    )
+                }
+            ).await()
+            messagesRef.child(key).setValue(message).await()
+        }catch (e:Exception){
+
+        }
+        return key
     }
 
 

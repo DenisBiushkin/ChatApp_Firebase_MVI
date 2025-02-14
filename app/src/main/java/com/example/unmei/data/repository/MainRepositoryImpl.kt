@@ -5,14 +5,13 @@ import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
-import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.mapNotNull
 import org.example.Mappers.base.Mapper
 import javax.inject.Inject
@@ -23,6 +22,20 @@ class MainRepositoryImpl @Inject constructor(
     private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
 
+
+    override suspend fun setStatusUser(userId: String, status: StatusUser): Resource<String> {
+       return remoteDataSource.setStatsuById(userId,status)
+    }
+
+    override suspend fun getUserById(userId: String): User? {
+        return null
+    }
+
+    override fun observeStatusUserById(userId: String): Flow<StatusUser> {
+        return remoteDataSource.observeStatusUserById(userId).mapNotNull {
+            it.toStatusUser()
+        }
+    }
 
     override suspend fun isUserExist(userId:String):Boolean{
         return remoteDataSource.isUserExists(userId)

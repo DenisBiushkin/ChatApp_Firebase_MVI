@@ -10,11 +10,14 @@ import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.domain.usecase.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
 import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
+import com.example.unmei.domain.usecase.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.usecase.ObserveUserUseCase
 import com.example.unmei.domain.usecase.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.SaveUserUseCase
+import com.example.unmei.domain.usecase.SetStatusUserUseCase
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
 import dagger.Module
@@ -81,6 +84,21 @@ object AppModule {
     @Provides
     fun provideObserveChatRoomUseCase(mainRepository: MainRepository): ObserveChatRoomUseCase {
         return ObserveChatRoomUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideSetStatusUserUseCase(mainRepository: MainRepository): SetStatusUserUseCase {
+        return SetStatusUserUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideObserveUserStatusByIdUseCase(mainRepository: MainRepository): ObserveUserStatusByIdUseCase{
+        return  ObserveUserStatusByIdUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideGetUserByIdUseCase(mainRepository: MainRepository): GetUserByIdUseCase{
+        return GetUserByIdUseCase(mainRepository)
     }
 
 }

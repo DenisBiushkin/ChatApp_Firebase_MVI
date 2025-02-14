@@ -11,7 +11,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.data.repository.MainRepositoryImpl
+import com.example.unmei.domain.model.Status
+import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.usecase.SetStatusUserUseCase
 import com.example.unmei.presentation.Navigation.HostNavGraph
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
@@ -22,18 +25,45 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
 
+    @Inject
+    lateinit var setStatusUserUseCase: SetStatusUserUseCase
+
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
             context = applicationContext,
             oneTapClient = Identity.getSignInClient(applicationContext)
         )
+    }
+
+    override fun onStart() {
+        super.onStart()
+        CoroutineScope(Dispatchers.IO).launch {
+            val status = StatusUser(
+                Status.ONLINE,
+                System.currentTimeMillis()
+            )
+            setStatusUserUseCase.execute(auth.currentUser!!.uid,status)
+        }
+    }
+    override fun onStop() {
+        super.onStop()
+        CoroutineScope(Dispatchers.IO).launch {
+            val status = StatusUser(
+                Status.OFFLINE,
+                System.currentTimeMillis()
+            )
+            setStatusUserUseCase.execute(auth.currentUser!!.uid,status)
+        }
     }
     //private val repositorty: MainRepositoryImpl = MainRepositoryImpl()
     override fun onCreate(savedInstanceState: Bundle?) {

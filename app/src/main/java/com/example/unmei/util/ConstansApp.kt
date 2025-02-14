@@ -11,4 +11,6 @@ object ConstansApp {
     val USERS_REFERENCE_DB="users_unmei"
     val ROOMS_REFERENCE_DB="groups"
     val MESSAGES_REFERENCE_DB= "messages"
+    val CHATS_BY_USERS_REFERENCE_DB="chats_by_users"
+    val PRESENCE_USERS_REFERENCE_DB="presence_users"
 }

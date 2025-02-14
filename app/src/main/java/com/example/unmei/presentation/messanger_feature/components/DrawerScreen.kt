@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -161,17 +162,20 @@ fun ScreenContent(
 //        Button(onClick = { viewmodel.sendCommand() }) {
 //            Text(text = "Click send to server")
 //        }
+            val list =state.value.chatList
             LazyColumn {
-                items(count = 1) {
+
+                items(list) {
+                    it->
                     val item = ChatListItem(
                         messageStatus = MessageStatus.Send,
                         notificationMessageStatus = NotificationMessageStatus.On,
                         isOnline = state.value.isOnline,
-                        fullName = "Marcile Donato",
+                        fullName = it.nameChat,//Marcile Donato
                         painterUser = painterResource(id = R.drawable.test_user),
                         messageText = "Вы: Привет, как твои дела?",
                         //пока что String
-                        timeStamp = 1737392296
+                        timeStamp = it.timestamp
                     )
                     ChatItem(
                         item = item,

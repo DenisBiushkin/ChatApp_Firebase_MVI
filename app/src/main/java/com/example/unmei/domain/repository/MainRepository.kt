@@ -2,6 +2,7 @@ package com.example.unmei.domain.repository
 
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.RoomsUser
+import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.util.Resource
@@ -22,4 +23,9 @@ interface MainRepository {
 
     fun createNewChat(group :ChatRoom):Flow<Resource<String>>
 
+    suspend fun getUserById(userId: String):User?
+
+    fun observeStatusUserById(userId: String):Flow<StatusUser>
+
+    suspend fun setStatusUser(userId:String,status:StatusUser):Resource<String>
 }
