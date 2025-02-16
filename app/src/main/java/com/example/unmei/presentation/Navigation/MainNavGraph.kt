@@ -4,7 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.unmei.presentation.chat_list_feature.components.ChatScreen
+import com.example.unmei.presentation.conversation_future.components.ChatScreen
 import com.example.unmei.presentation.chat_list_feature.components.DrawerScreen
 import com.example.unmei.presentation.chat_list_feature.components.MainScreen
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient

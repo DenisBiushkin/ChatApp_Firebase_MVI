@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.chat_list_feature.components
+package com.example.unmei.presentation.conversation_future.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,13 +43,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.R
+import com.example.unmei.presentation.chat_list_feature.components.CustomMessageBubble
+import com.example.unmei.presentation.chat_list_feature.components.TimeMessage
+import com.example.unmei.presentation.conversation_future.utils.BottomBarChatScreen
+import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 
 @Preview(showBackground = true)
@@ -58,17 +65,24 @@ fun showChatScreen(){
 }
 @Composable
 fun  ChatScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ConversationViewModel = hiltViewModel()
 ) {
+
+    val state = viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
             TopBarChatScreen(
                 onClickBack ={navController.popBackStack()},
-                onClickProfile = {}
+                onClickProfile = {},
+                iconChatPainter =  painterResource(id = R.drawable.test_user),
+                titleChat = "Unknown",
+                statusChat = "offline"
             )
         },
         bottomBar = {
+
             BottomBarChatScreen(
 
             )
@@ -86,54 +100,9 @@ fun  ChatScreen(
         )
     }
 }
-@Composable
-fun BottomBarChatScreen(){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-       //HorizontalDivider()
-       IconButton(onClick = { /*TODO*/ }) {
-           Icon(
-               modifier = Modifier
-                   .size(28.dp)
-                   .alpha(alpha = 0.6f)
-               ,painter = painterResource(id = R.drawable.paperclip_icon)
-              ,contentDescription =null
-           )
-        }
-        TextField(
-            value = "",
-            onValueChange ={},
-            placeholder = {Text(text="Сообщение")},
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.Transparent,
 
-                focusedIndicatorColor = Color.Transparent, // Убираем подчеркивание в фокусе
-                unfocusedIndicatorColor = Color.Transparent, // Убираем подчеркивание без фокуса
-                disabledIndicatorColor = Color.Transparent // Убираем подчеркивание в неактивном состоянии
-            )
-        )
 
-    }
-}
-@Composable
-fun MessageBubble(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .background(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(8.dp)
-    ) {
-        Text(text = message, style = MaterialTheme.typography.bodyMedium)
-    }
-}
+
 @Composable
 fun ContentChatScreen(
     modifier: Modifier= Modifier,
@@ -163,6 +132,9 @@ fun TopBarChatScreen(
     modifier: Modifier = Modifier,
     onClickBack:()->Unit,
     onClickProfile: () -> Unit,
+    statusChat:String,
+    titleChat:String,
+    iconChatPainter:Painter
 
 ){
     val colorApp= Color(0xFF42A5F5)
@@ -186,7 +158,7 @@ fun TopBarChatScreen(
                     modifier = Modifier
                         .clip(CircleShape)
                         .size(50.dp)
-                    , painter = painterResource(id = R.drawable.test_user),
+                    , painter =iconChatPainter,
                     contentDescription =""
                 )
                 Column (
@@ -195,14 +167,16 @@ fun TopBarChatScreen(
                     //отредачить расстояние между текстами
                     //см проект ComposeTraining
                     Text(
-                        text = "Марсиль Донато",
+                        text = titleChat,
                         color=colorText,
                         maxLines = 1,
                         fontSize = 20.sp
                     )
+                    //Жестко отредачить и добавить анимацию когда кто то печатает
                     Text(
                         modifier = Modifier.padding(top = 0.dp),
-                        text = "был(а) в сети 18:30",
+
+                        text = statusChat,
                         color= colorTextLight,
                         maxLines = 1,
                         fontSize = 15.sp
@@ -226,7 +200,6 @@ fun TopBarChatScreen(
         },
         //DropDown меню
         actions = {
-
             IconButton(  modifier = Modifier
                 .padding(end = 2.dp),
                 onClick = { expanded.value = true }
@@ -251,4 +224,19 @@ fun TopBarChatScreen(
             containerColor = colorApp
         )
     )
+}
+@Composable
+fun MessageBubble(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(8.dp)
+    ) {
+        Text(text = message, style = MaterialTheme.typography.bodyMedium)
+    }
 }

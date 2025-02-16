@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.chat_list_feature.components
+package com.example.unmei.presentation.conversation_future.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -39,10 +39,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import  com.example.unmei.R
-import com.example.unmei.presentation.chat_list_feature.model.ChatListItem
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
 import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
+import com.example.unmei.presentation.conversation_future.model.ChatListItemUI
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -57,7 +57,7 @@ fun showChatItem(){
     Column (
         modifier = Modifier.fillMaxSize()
     ){
-        val item =ChatListItem(
+        val item = ChatListItemUI(
             messageStatus=MessageStatus.Send,
             notificationMessageStatus = NotificationMessageStatus.On,
             isOnline= true,
@@ -86,9 +86,9 @@ fun ChatItem(
     height: Dp = 70.dp,
     colorUnderLine:Color =Color.Black.copy(alpha = 0.7f),
     underLineWidth:Float =1f,
-    item: ChatListItem,
-    onClick:(ChatListItem)->Unit,
-    onLongClick:(ChatListItem)->Unit,
+    item: ChatListItemUI,
+    onClick:(ChatListItemUI)->Unit,
+    onLongClick:(ChatListItemUI)->Unit,
 ){
     //мб перенести эту логику в viewmodel
     val timeStamp: Long =1737392296
@@ -223,12 +223,7 @@ fun ChatItem(
         }
     }
 }
-@Composable
-fun UpDoubleLine(
-    modifier:Modifier=Modifier,
-){
 
-}
 @Composable
 fun BoxWithUnderline(
     modifier:Modifier=Modifier,

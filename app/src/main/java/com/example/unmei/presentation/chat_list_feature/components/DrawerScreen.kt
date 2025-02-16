@@ -66,9 +66,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.Navigation.Screens
-import com.example.unmei.presentation.chat_list_feature.model.ChatListItem
+import com.example.unmei.presentation.conversation_future.model.ChatListItemUI
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
+import com.example.unmei.presentation.conversation_future.components.ChatItem
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansDev.TAG
 
@@ -166,7 +167,7 @@ fun ScreenContent(
 
                 items(list) {
                     it->
-                    val item = ChatListItem(
+                    val item = ChatListItemUI(
                         messageStatus = MessageStatus.Send,
                         notificationMessageStatus = NotificationMessageStatus.On,
                         isOnline = state.value.isOnline,
