@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.messanger_feature.util
+package com.example.unmei.presentation.chat_list_feature.util
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -10,7 +10,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.unmei.R
-import com.example.unmei.presentation.messanger_feature.model.MessageStatus
+import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 
 @Composable
 fun MessageIconStatus(

@@ -1,9 +1,7 @@
-package com.example.unmei.presentation.messanger_feature.components
+package com.example.unmei.presentation.chat_list_feature.components
 
-import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,12 +39,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import  com.example.unmei.R
-import com.example.unmei.presentation.messanger_feature.model.ChatListItem
-import com.example.unmei.presentation.messanger_feature.model.MessageStatus
-import com.example.unmei.presentation.messanger_feature.model.NotificationMessageStatus
-import com.example.unmei.presentation.messanger_feature.util.MessageIconStatus
+import com.example.unmei.presentation.chat_list_feature.model.ChatListItem
+import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
+import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
+import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
 import java.time.Instant
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle

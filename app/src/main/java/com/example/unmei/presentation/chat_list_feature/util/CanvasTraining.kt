@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.messanger_feature.util
+package com.example.unmei.presentation.chat_list_feature.util
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.height

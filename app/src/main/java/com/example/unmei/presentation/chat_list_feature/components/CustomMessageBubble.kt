@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.messanger_feature.components
+package com.example.unmei.presentation.chat_list_feature.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -37,11 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.util.ui.theme.primaryMessageColor
 import com.example.unmei.presentation.util.ui.theme.primaryOwnMessageColor
-import com.example.unmei.presentation.messanger_feature.model.MessageStatus
-import com.example.unmei.presentation.messanger_feature.model.TypeMessage
-import com.example.unmei.presentation.messanger_feature.util.MessageIconStatus
+import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
+import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
-import com.google.protobuf.Internal.BooleanList
 
 @Preview(showBackground = true)
 @Composable

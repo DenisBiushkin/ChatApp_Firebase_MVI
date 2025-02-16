@@ -1,17 +1,10 @@
-package com.example.unmei.presentation.messanger_feature.viewmodel
+package com.example.unmei.presentation.chat_list_feature.viewmodel
 
-import android.nfc.Tag
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.ChatRoom
-import com.example.unmei.domain.model.GroupType
 import com.example.unmei.domain.model.Status
-import com.example.unmei.domain.model.StatusUser
-import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
@@ -19,13 +12,9 @@ import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.usecase.ObserveUserUseCase
 import com.example.unmei.domain.usecase.SetStatusUserUseCase
-import com.example.unmei.presentation.Navigation.Screens
-import com.example.unmei.presentation.messanger_feature.model.ChatItemUI
-import com.example.unmei.presentation.messanger_feature.model.ChatVMState
-import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
+import com.example.unmei.presentation.chat_list_feature.model.ChatItemUI
+import com.example.unmei.presentation.chat_list_feature.model.ChatVMState
 import com.example.unmei.util.ConstansDev
-import com.example.unmei.util.ConstansDev.TAG
-import com.example.unmei.util.Resource
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,17 +22,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -73,15 +58,14 @@ class ChatListViewModel @Inject constructor(
     private val currentUserId ="u1DDSWtIHOSpcHIkLZl0SZGEsmB3";
     private lateinit var userChats:StateFlow<List<ChatItemUI>>
 
+
+
      init {
-
-
-
          viewModelScope.launch {
              val uidMessage= refMessages.push().key
             val mes= Message(
                  id = uidMessage!!,
-                 senderId = "userId1",
+                 senderId = "auegBKgwyvbwge7PQs9nfFRRFfj1",
                  text="Первое сообщение",
                  timestamp = ServerValue.TIMESTAMP,
                  type = "text",
@@ -89,16 +73,12 @@ class ChatListViewModel @Inject constructor(
                  mediaUrl = "url",
                  edited = true
              )
-             val group = ChatRoom(
-                 id="",
-                 timestamp = 0L,
-                 members = mapOf(
-                     "auegBKgwyvbwge7PQs9nfFRRFfj1" to true,
-                     "u1DDSWtIHOSpcHIkLZl0SZGEsmB3" to true
-                 ),
-                 type = "private"
-             )
-             remote.createNewRoom(group,mes)
+             val users= listOf("auegBKgwyvbwge7PQs9nfFRRFfj1","u1DDSWtIHOSpcHIkLZl0SZGEsmB3")
+
+//             val res=remote.createPrivateRoom(users, message = mes)
+//             res.data?.let {
+//                 remote.saveIdRoomInUsers(users,it)
+//             }
 
          }
          observeChatRooms()

@@ -1,7 +1,6 @@
 package com.example.unmei.domain.model
 
-import com.example.unmei.presentation.messanger_feature.model.ChatItemUI
-import com.example.unmei.presentation.messanger_feature.model.ChatListItem
+import com.example.unmei.presentation.chat_list_feature.model.ChatItemUI
 
 data class ChatRoom(
         val id :String, //id группы == узлу ген Firebase

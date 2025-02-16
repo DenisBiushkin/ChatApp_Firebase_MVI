@@ -11,10 +11,13 @@ import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.util.ConstansApp
+import com.example.unmei.util.ConstansApp.CHATS_BY_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.PRESENCE_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
+import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.google.firebase.database.DataSnapshot
@@ -45,6 +48,8 @@ class RemoteDataSource(
         }
     }
 
+
+    @Deprecated(message = "Доработать добавление статуса online в presence")
     suspend fun saveUserData(user:User){
         usersRef.child(user.uid).setValue(user).await()
     }
@@ -85,7 +90,6 @@ class RemoteDataSource(
     }
 
     fun observeChatRoom(roomId:String):Flow<ChatRoomResponse> = callbackFlow {
-
         val reference = roomsRef.child(roomId)
         val listener= object : ValueEventListener {
             @OptIn(UnstableApi::class)
@@ -103,6 +107,8 @@ class RemoteDataSource(
         awaitClose{ reference.removeEventListener(listener)}
     }
 
+
+    @Deprecated(message = "Не сипользовать сделал по другому")
     fun createNewChat( group:ChatRoom):Flow<Resource<String>> = flow{
         val roomId = roomsRef.push().key.toString()
         try{
@@ -122,9 +128,7 @@ class RemoteDataSource(
 
     }
 
-    fun getUserById(userId: String): Flow<Resource<User>>  = flow {
 
-    }
     fun observeStatusUserById(userId: String):Flow<StatusUserResponse> = callbackFlow {
 
         val reference = presenceUsersRef.child(userId)
@@ -159,28 +163,100 @@ class RemoteDataSource(
        }
    }
 
-    suspend fun createNewRoom(room: ChatRoom,message: Message):String{
-        val key= roomsRef.push().key.toString()
-        try {
-            roomsRef.child(key).setValue(
-                room.run {
-                    ChatRoomResponse(
-                        timestamp = ServerValue.TIMESTAMP,
-                        id = key,
-                        moderators = moderators,
-                        members = members,
-                        type = type,
-                        lastMessage = lastMessage
-                    )
-                }
-            ).await()
-            messagesRef.child(key).setValue(message).await()
-        }catch (e:Exception){
 
+   //work
+    private suspend fun createNewRoom(room: ChatRoom):Resource<String>{
+        val key= roomsRef.push().key.toString()
+        val reference = db.getReference()
+        try {
+            val data= room.run {
+                ChatRoomResponse(
+                    timestamp = ServerValue.TIMESTAMP,
+                    id = key,
+                    moderators = moderators,
+                    members = members,
+                    type = type,
+                    lastMessage = lastMessage
+                )
+            }
+            val updates = mapOf(
+                "${ROOMS_REFERENCE_DB}/$key" to data,
+                "${MESSAGES_REFERENCE_DB}/$key" to null,
+            )
+            reference.updateChildren(updates).await()
+            return Resource.Success(data = key)
+        }catch (e:Exception){
+            return  Resource.Error(message=e.toString())
         }
-        return key
     }
 
+    //рабочая
+    suspend fun cascadingRoomDeleteWithMessage(roomId:String):Resource<Unit>{
 
+        val reference = db.getReference()
+        try{
+            val updates = mapOf(
+                "${ROOMS_REFERENCE_DB}/$roomId" to null,
+                "${MESSAGES_REFERENCE_DB}/$roomId" to null,
+            )
+            reference.updateChildren(updates).await()
+            return Resource.Success(data = Unit)
+        }catch (e:Exception){
+            return Resource.Error(message = e.toString())
+        }
+    }
+
+    //рабочая
+    suspend fun createPrivateRoom(users:List<String>,message: Message):Resource<String>{
+        val reference = db.getReference()
+        try {
+            val members = mutableMapOf<String,Boolean>()
+            users.forEach {
+                members[it] = true
+            }
+            val room = ChatRoom(
+                id="", timestamp = 0L,
+                members =members,
+                type = "private"
+            )
+            val requestData = createNewRoom(room)
+            when(requestData){
+                is Resource.Error ->{return Resource.Error(message = requestData.message!!) }
+                is Resource.Loading -> {return Resource.Error(message = "OtherError")}
+                is Resource.Success -> {
+                    val roomId = requestData.data
+                    val messageId=messagesRef.push().key
+                    val chatByUserKey=chatsByUsersGenKey(members)
+                    val updates = mapOf(
+                        "${MESSAGES_REFERENCE_DB}/$roomId/$messageId" to message,
+                        "${CHATS_BY_USERS_REFERENCE_DB}/$chatByUserKey" to roomId
+                    )
+                    reference.updateChildren(updates).await()
+                    return Resource.Success(data = roomId)
+                }
+            }
+        }catch (e:Exception){
+            return Resource.Error(message = e.toString())
+        }
+    }
+//рабочая
+    suspend fun saveIdRoomInUsers(users:List<String>,roomId:String):Resource<Unit>{
+        val reference = db.getReference()
+        try {
+            val updates= mutableMapOf<String,Any>()
+            users.forEach {
+                updates["${USERS_REFERENCE_DB}/$it/rooms/$roomId"] = true
+            }
+            reference.updateChildren(updates).await()
+            return Resource.Success(data = Unit)
+        }catch (e:Exception){
+            return Resource.Error(message = e.toString())
+        }
+    }
+    private fun chatsByUsersGenKey(members:Map<String,Boolean>):String{
+        val keys = members.keys.toList()
+        val sorted =keys.map { it.toCharArray().sorted().joinToString("") }
+        return sorted.sorted().joinToString ("_")
+    }
 
 }

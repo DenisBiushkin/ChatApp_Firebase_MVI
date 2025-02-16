@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.messanger_feature.model
+package com.example.unmei.presentation.chat_list_feature.model
 
 sealed class TypeMessage {
 

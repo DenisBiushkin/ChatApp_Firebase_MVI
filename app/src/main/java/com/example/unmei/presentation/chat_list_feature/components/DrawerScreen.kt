@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.messanger_feature.components
+package com.example.unmei.presentation.chat_list_feature.components
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -58,7 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.unmei.presentation.messanger_feature.viewmodel.ChatListViewModel
+import com.example.unmei.presentation.chat_list_feature.viewmodel.ChatListViewModel
 import kotlinx.coroutines.launch
 import com.example.unmei.R
 import androidx.compose.ui.platform.LocalConfiguration
@@ -66,11 +66,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.Navigation.Screens
-import com.example.unmei.presentation.messanger_feature.model.ChatListItem
-import com.example.unmei.presentation.messanger_feature.model.MessageStatus
-import com.example.unmei.presentation.messanger_feature.model.NotificationMessageStatus
+import com.example.unmei.presentation.chat_list_feature.model.ChatListItem
+import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
+import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
-import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 
 @Preview(showBackground = true)
