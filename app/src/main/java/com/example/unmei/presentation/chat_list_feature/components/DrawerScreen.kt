@@ -69,7 +69,6 @@ import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.conversation_future.model.ChatListItemUI
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
-import com.example.unmei.presentation.conversation_future.components.ChatItem
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansDev.TAG
 
@@ -164,31 +163,38 @@ fun ScreenContent(
 //        }
             val list =state.value.chatList
             LazyColumn {
+                if(state.value.isLoading){
 
-                items(list) {
-                    it->
-                    val item = ChatListItemUI(
-                        messageStatus = MessageStatus.Send,
-                        notificationMessageStatus = NotificationMessageStatus.On,
-                        isOnline = state.value.isOnline,
-                        fullName = it.nameChat,//Marcile Donato
-                        painterUser = painterResource(id = R.drawable.test_user),
-                        messageText = "Вы: Привет, как твои дела?",
-                        //пока что String
-                        timeStamp = it.timestamp
-                    )
-                    ChatItem(
-                        item = item,
-                        onClick = {
-                            navController.navigate(Screens.Chat.route)
-                        },
-                        onLongClick = {
-                            //  Log.d(TAG,"Long click")
-                            showBottomSheet.value= true
+                    items(10) {
+                        AnimatedShimmerEffectChatItem()
+                    }
+                }else{
+                    items(list) {
+                            it->
+                        val item = ChatListItemUI(
+                            messageStatus = MessageStatus.Send,
+                            notificationMessageStatus = NotificationMessageStatus.On,
+                            isOnline = state.value.isOnline,
+                            fullName = it.nameChat,//Marcile Donato
+                            painterUser = painterResource(id = R.drawable.test_user),
+                            messageText = "Вы: Привет, как твои дела?",
+                            //пока что String
+                            timeStamp = it.timestamp
+                        )
+                        ChatItem(
+                            item = item,
+                            onClick = {
+                                navController.navigate(Screens.Chat.route)
+                            },
+                            onLongClick = {
+                                //  Log.d(TAG,"Long click")
+                                showBottomSheet.value= true
 
-                        }
-                    )
+                            }
+                        )
+                    }
                 }
+
             }
 
             if (showBottomSheet.value) {

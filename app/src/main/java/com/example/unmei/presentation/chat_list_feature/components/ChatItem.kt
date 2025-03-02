@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.conversation_future.components
+package com.example.unmei.presentation.chat_list_feature.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image

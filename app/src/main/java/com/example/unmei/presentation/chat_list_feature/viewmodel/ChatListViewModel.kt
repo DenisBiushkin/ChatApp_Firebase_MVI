@@ -2,6 +2,7 @@ package com.example.unmei.presentation.chat_list_feature.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.Status
@@ -63,7 +64,7 @@ class ChatListViewModel @Inject constructor(
      init {
          viewModelScope.launch {
              val uidMessage= refMessages.push().key
-            val mes= Message(
+            val mes= MessageResponse(
                  id = uidMessage!!,
                  senderId = "auegBKgwyvbwge7PQs9nfFRRFfj1",
                  text="Первое сообщение",
@@ -118,8 +119,10 @@ class ChatListViewModel @Inject constructor(
                  combine(chatFlows) { it.toList() }
              }.collect{
                  _state.value = state.value.copy(
-                     chatList = it
+                     chatList = it,
+                     isLoading = false
                  )
+
              }
 
          }
@@ -181,7 +184,7 @@ class ChatListViewModel @Inject constructor(
         //у каждой группы своя пачкас сообщений
         refMessages.child("-OGfKvopKTMOCp_bxJqe")
             .child(uidMessage!!).setValue(
-            Message(
+            MessageResponse(
                 id = uidMessage!!,
                 senderId = "userId1",
                 text="Первое сообщение",

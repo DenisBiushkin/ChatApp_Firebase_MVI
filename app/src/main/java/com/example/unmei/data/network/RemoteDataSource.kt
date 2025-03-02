@@ -4,6 +4,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import com.example.unmei.data.model.ChatRoomResponse
+import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.model.StatusUserResponse
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.Message
@@ -253,6 +254,31 @@ class RemoteDataSource(
             return Resource.Error(message = e.toString())
         }
     }
+    fun observeMessageInChat(roomId: String):Flow<List<Message>> = callbackFlow {
+
+        val reference = messagesRef.child(roomId).orderByChild("timestamp").limitToLast(100)
+        val listener=object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val listMessage= mutableListOf<MessageResponse>()
+                snapshot.children.forEach {
+                 //   println(it.value)
+                    it.getValue(MessageResponse::class.java)?.let { it1 -> listMessage.add(it1) }
+                }
+                trySend(listMessage.map { it.toMessage() })
+               snapshot.getValue(MessageResponse::class.java)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                //
+            }
+        }
+        reference.addValueEventListener(listener)
+        awaitClose{
+            reference.removeEventListener(listener)
+        }
+    }
+
+
     private fun chatsByUsersGenKey(members:Map<String,Boolean>):String{
         val keys = members.keys.toList()
         val sorted =keys.map { it.toCharArray().sorted().joinToString("") }
