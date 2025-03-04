@@ -1,8 +1,6 @@
-package com.example.unmei.presentation.conversation_future.model
+package com.example.unmei.presentation.chat_list_feature.model
 
 import androidx.compose.ui.graphics.painter.Painter
-import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
-import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
 
 data class ChatListItemUI(
     val messageStatus: MessageStatus = MessageStatus.None,
@@ -11,5 +9,7 @@ data class ChatListItemUI(
     val fullName:String,
     val painterUser: Painter,
     val messageText:String,
-    val timeStamp:Long
+    val timeStamp:Long,
+    val groupUid:String,
+    val companionUid:String? = null
 )

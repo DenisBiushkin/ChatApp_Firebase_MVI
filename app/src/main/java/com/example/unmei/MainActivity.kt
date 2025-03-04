@@ -22,6 +22,7 @@ import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.Resource
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
+
 
     @Inject
     lateinit var setStatusUserUseCase: SetStatusUserUseCase
@@ -52,7 +54,10 @@ class MainActivity : ComponentActivity() {
                 Status.ONLINE,
                 System.currentTimeMillis()
             )
-            setStatusUserUseCase.execute(auth.currentUser!!.uid,status)
+            if(auth.currentUser !=null){
+                setStatusUserUseCase.execute(auth.currentUser!!.uid,status)
+            }
+
         }
     }
     override fun onStop() {
@@ -62,7 +67,9 @@ class MainActivity : ComponentActivity() {
                 Status.OFFLINE,
                 System.currentTimeMillis()
             )
-            setStatusUserUseCase.execute(auth.currentUser!!.uid,status)
+            if(auth.currentUser !=null) {
+                setStatusUserUseCase.execute(auth.currentUser!!.uid, status)
+            }
         }
     }
     //private val repositorty: MainRepositoryImpl = MainRepositoryImpl()

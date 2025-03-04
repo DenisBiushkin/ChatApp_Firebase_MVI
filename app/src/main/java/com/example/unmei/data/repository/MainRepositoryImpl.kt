@@ -5,6 +5,7 @@ import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
@@ -22,6 +23,10 @@ class MainRepositoryImpl @Inject constructor(
     private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
 
+    override fun initFirstMassages(chatId:String): Flow<Resource<List<Message>>> {
+       //сначала вызываем из локалки
+        return remoteDataSource.initFirstMassagesRemote(chatId)
+    }
 
     override suspend fun setStatusUser(userId: String, status: StatusUser): Resource<String> {
        return remoteDataSource.setStatsuById(userId,status)

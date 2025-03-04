@@ -1,5 +1,7 @@
 package com.example.unmei.presentation.chat_list_feature.model
 
+
+
 data class ChatItemUI(
                  val chatId:String,
                  val members: List<String>,

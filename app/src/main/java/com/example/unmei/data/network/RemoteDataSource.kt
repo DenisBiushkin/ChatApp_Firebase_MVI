@@ -12,6 +12,9 @@ import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
+import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
+import com.example.unmei.presentation.conversation_future.model.MessageType
 import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansApp.CHATS_BY_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
@@ -29,6 +32,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
@@ -68,6 +72,27 @@ class RemoteDataSource(
         reference.addValueEventListener(listener)
         awaitClose {reference.removeEventListener(listener) }
     }
+    fun initFirstMassagesRemote(chatId:String): Flow<Resource<List<Message>>> = flow{
+
+        try{
+            emit(Resource.Loading())
+            val snapshot=messagesRef.child(chatId)
+                // .orderByChild("timestamp")
+                .limitToLast(30)
+                .get()
+                .await()
+            //сырые данные
+            val newMessages = snapshot.children.mapNotNull {
+                it.getValue(Message::class.java) }
+            emit(Resource.Success(data = newMessages))
+        }catch (e:Exception){
+            emit(Resource.Error(message = e.toString()))
+        }
+
+    }.catch {
+        emit(Resource.Error(message = "errro"))
+    }
+
 
     fun observeUserRooms(userId: String):Flow<RoomsUser> = callbackFlow {
         val reference= usersRef.child(userId).child("rooms")

@@ -42,7 +42,7 @@ import  com.example.unmei.R
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
 import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
-import com.example.unmei.presentation.conversation_future.model.ChatListItemUI
+import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUI
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -65,7 +65,8 @@ fun showChatItem(){
             painterUser= painterResource(id =  R.drawable.test_user),
             messageText= "Вы: Привет, как твои дела?",
             //пока что String
-            timeStamp= 1737392296
+            timeStamp= 1737392296,
+            groupUid = ""
         )
         ChatItem(
             item= item,

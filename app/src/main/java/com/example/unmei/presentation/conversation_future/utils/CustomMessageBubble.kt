@@ -1,4 +1,4 @@
-package com.example.unmei.presentation.chat_list_feature.components
+package com.example.unmei.presentation.conversation_future.utils
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,19 +36,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.unmei.presentation.util.ui.theme.primaryMessageColor
 import com.example.unmei.presentation.util.ui.theme.primaryOwnMessageColor
-import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
+import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 
 @Preview(showBackground = true)
 @Composable
 fun showBubble(){
 
-      Column (
-          modifier = Modifier  .fillMaxSize()  .background(color = chatBacgroundColor).padding(top=40.dp)
-      ){
-          CustomMessageBubble(false)
-      }
+//      Column (
+//          modifier = Modifier  .fillMaxSize()  .background(color = chatBacgroundColor).padding(top=40.dp)
+//      ){
+//          CustomMessageBubble(false)
+//      }
 
 
 }
@@ -86,13 +86,12 @@ fun TimeMessage(
 
 @Composable
 fun CustomMessageBubble(
-    isOwnMassage: Boolean
+    itemUI: MessageListItemUI
 ){
 
-      ChatBubbleWithPattern(isOwn = isOwnMassage) {
-          MessageContenet(
-              text = "Привет, это очень длинный текст сообщения ",
-              isOwn = isOwnMassage
+      ChatBubbleWithPattern(isOwn = itemUI.isOwn) {
+          MessageContent(
+            data = itemUI
           )
       }
 //      SimpleChatBubble(isOwn = isOwnMassage) {
@@ -156,13 +155,8 @@ fun SimpleChatBubble(
 }
 
 @Composable
-fun MessageContenet(
-    text:String ="",
-    time:String ="18:30",
-    isChanged:Boolean = false,
-    isOwn:Boolean= true,
-    fullName:String ="Марсиль Донато",
-    status: MessageStatus = MessageStatus.Error,
+fun MessageContent(
+    data: MessageListItemUI
 ){
     val textWidth= 15.sp
     val fontSizeStatus= 12.sp
@@ -178,16 +172,21 @@ fun MessageContenet(
             ),
     ){
         Column {
-            if (!isOwn){
+            if (!data.isOwn){
                 Text(
-                    text = fullName,
+                    text = data.fullName,
                     fontSize = fontSizeStatus,
                     color= primaryOwnMessageColor,
                     fontWeight = FontWeight.Bold
                 )
+            }else{
+                Text(
+                    text = data.fullName,
+                    fontSize = fontSizeStatus,
+                )
             }
             Text(
-                text =text,
+                text =data.text,
                 fontSize = textWidth
             )
         }
@@ -199,13 +198,13 @@ fun MessageContenet(
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        if (isChanged)Text(text = "ред.", fontSize = fontSizeStatus)
+        if (data.isChanged)Text(text = "ред.", fontSize = fontSizeStatus)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text =time , fontSize = fontSizeStatus)
+        Text(text =data.timeString , fontSize = fontSizeStatus)
         Spacer(modifier = Modifier.width(4.dp))
-        if(isOwn)
+        if(data.isOwn)
             MessageIconStatus(
-                status= status,
+                status= data.status,
                 sizeIcon = 18.dp
             )
 

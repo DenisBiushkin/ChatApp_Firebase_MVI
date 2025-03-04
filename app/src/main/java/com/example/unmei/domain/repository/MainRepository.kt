@@ -1,6 +1,7 @@
 package com.example.unmei.domain.repository
 
 import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
@@ -28,4 +29,6 @@ interface MainRepository {
     fun observeStatusUserById(userId: String):Flow<StatusUser>
 
     suspend fun setStatusUser(userId:String,status:StatusUser):Resource<String>
+
+     fun initFirstMassages(chatId:String): Flow<Resource<List<Message>>>
 }

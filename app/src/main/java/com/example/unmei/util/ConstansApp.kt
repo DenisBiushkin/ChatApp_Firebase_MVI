@@ -6,6 +6,8 @@ object ConstansApp {
     val ROOT_NAVIGATE_ROUTE="root_route"
     val MAIN_NAVIGATE_ROUTE="main_route"
     val ONBOARDING_NAVIGATE_ROUTE="onboarding_route"
+    val CHAT_AGUIMENT_GROUPUID = "groupUid"
+    val CHAT_ARGUMENT_COMPANIONUID = "companionUid"
 
     //DB
     val USERS_REFERENCE_DB="users_unmei"
