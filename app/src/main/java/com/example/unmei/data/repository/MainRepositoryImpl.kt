@@ -23,9 +23,14 @@ class MainRepositoryImpl @Inject constructor(
     private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
 
-    override fun initFirstMassages(chatId:String): Flow<Resource<List<Message>>> {
-       //сначала вызываем из локалки
-        return remoteDataSource.initFirstMassagesRemote(chatId)
+
+    override fun getBlockMessagesByChatId(
+        chatId: String,
+        count: Int,
+        lastMessageKey: String?
+    ): Flow<Resource<List<Message>>> {
+        //сначала вызываем из локалки
+        return remoteDataSource.getBlockMessagesByChatIdRemote(chatId,count,lastMessageKey)
     }
 
     override suspend fun setStatusUser(userId: String, status: StatusUser): Resource<String> {

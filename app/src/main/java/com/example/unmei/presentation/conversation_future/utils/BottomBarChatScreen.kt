@@ -54,8 +54,6 @@ fun BottomBarChatScreen(
                scope.launch {
                    lazyState.animateScrollToItem(lazyState.layoutInfo.totalItemsCount-1)
                }
-
-
                text.value = ""
             }
        ) {

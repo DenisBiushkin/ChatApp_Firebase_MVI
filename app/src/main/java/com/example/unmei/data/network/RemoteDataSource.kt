@@ -72,13 +72,20 @@ class RemoteDataSource(
         reference.addValueEventListener(listener)
         awaitClose {reference.removeEventListener(listener) }
     }
-    fun initFirstMassagesRemote(chatId:String): Flow<Resource<List<Message>>> = flow{
-
+    fun getBlockMessagesByChatIdRemote(
+    chatId:String,
+    count:Int = 20,
+    lastMessageKey: String?
+    ): Flow<Resource<List<Message>>> = flow{
+        val baseref=messagesRef.child(chatId)
         try{
             emit(Resource.Loading())
-            val snapshot=messagesRef.child(chatId)
-                // .orderByChild("timestamp")
-                .limitToLast(30)
+
+            var query =messagesRef.child(chatId).limitToLast(count)
+            if( lastMessageKey!=null){
+               query=messagesRef.child(chatId).limitToLast(count).orderByKey().endBefore(lastMessageKey)
+            }
+            val snapshot= query
                 .get()
                 .await()
             //сырые данные
@@ -88,9 +95,6 @@ class RemoteDataSource(
         }catch (e:Exception){
             emit(Resource.Error(message = e.toString()))
         }
-
-    }.catch {
-        emit(Resource.Error(message = "errro"))
     }
 
 

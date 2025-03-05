@@ -1,6 +1,11 @@
 package com.example.unmei.presentation.conversation_future.utils
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,16 +14,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +40,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -34,21 +49,64 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.util.ui.theme.primaryMessageColor
 import com.example.unmei.presentation.util.ui.theme.primaryOwnMessageColor
 import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
 import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
+import com.example.unmei.presentation.conversation_future.model.MessageType
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 
 @Preview(showBackground = true)
 @Composable
 fun showBubble(){
 
-//      Column (
-//          modifier = Modifier  .fillMaxSize()  .background(color = chatBacgroundColor).padding(top=40.dp)
-//      ){
-//          CustomMessageBubble(false)
-//      }
+
+    val testItem=MessageListItemUI(
+        fullName = "name",
+        timestamp = 183789371,
+        timeString = "0:18",
+        isOwn = false,
+        status = MessageStatus.Send,
+        isChanged = false,
+        type = MessageType.Text,
+        text = "Привет",
+        visvilityOptins = true
+    )
+
+      Column (
+          modifier = Modifier
+              .fillMaxSize()
+              .background(color = chatBacgroundColor)
+            //  .padding(top = 40.dp)
+      ){
+          CustomMessageBubble(
+              itemUI = testItem,
+              optionVisibility = true,
+
+              onClickLine = {
+
+              },
+              onLongClickLine = {
+
+              },
+              selected = true
+          )
+          Spacer(modifier = Modifier.height(8.dp))
+          CustomMessageBubble(itemUI = testItem.copy(
+           text = "Длинное сообщение",
+              isOwn = true
+          ), onClickLine = {
+
+          },
+              onLongClickLine = {
+
+              },
+              selected = true,
+              optionVisibility = true
+          )
+      }
 
 
 }
@@ -84,16 +142,59 @@ fun TimeMessage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomMessageBubble(
-    itemUI: MessageListItemUI
+    modifier: Modifier = Modifier,
+    onClickLine:() ->Unit,
+    onLongClickLine:() ->Unit,
+    itemUI: MessageListItemUI,
+    optionVisibility:Boolean,
+    selected:Boolean,
 ){
+     Row(
+         verticalAlignment = Alignment.Bottom,
+         modifier = Modifier
+             .combinedClickable(
+                 onClick = onClickLine,
+                 onLongClick = onLongClickLine
+             )
+     ){
+         AnimatedVisibility(
+             visible = optionVisibility
+         ) {
+             Box(
+                 modifier = Modifier
+                     .padding(start = 3.dp, end = 5.dp)
+                     .size(25.dp)
+                     .background(
+                         shape = CircleShape,
+                         color = Color.Black
+                     )
+             ){
+                 if(
+                     selected
+                 ){
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription ="",
+                        tint = Color.White
+                    )
+                 }
+             }
+         }
+         ChatBubbleWithPattern(
+             modifier= modifier,
+             isOwn = itemUI.isOwn,) {
+             MessageContent(
+                 data = itemUI
+             )
+         }
+     }
 
-      ChatBubbleWithPattern(isOwn = itemUI.isOwn) {
-          MessageContent(
-            data = itemUI
-          )
-      }
+
+
+
 //      SimpleChatBubble(isOwn = isOwnMassage) {
 //          MessageContenet(
 //              text = "Привет, это очень длинный текст сообщения ",
@@ -171,7 +272,9 @@ fun MessageContent(
                 bottom = 0.dp
             ),
     ){
-        Column {
+        Column(
+            horizontalAlignment = Alignment.Start
+        ) {
             if (!data.isOwn){
                 Text(
                     text = data.fullName,
@@ -185,30 +288,41 @@ fun MessageContent(
                     fontSize = fontSizeStatus,
                 )
             }
+
             Text(
                 text =data.text,
                 fontSize = textWidth
             )
-        }
+            Row(
+                modifier = Modifier.wrapContentWidth(),
+                horizontalArrangement = Arrangement.End,
+            ){
+                Row (
+                    modifier = Modifier.wrapContentWidth()
+                    ,
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+
+                ) {
+                    if (data.isChanged)Text(text = "ред.", fontSize = fontSizeStatus)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text =data.timeString , fontSize = fontSizeStatus)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    if(data.isOwn)
+                        MessageIconStatus(
+                            status= data.status,
+                            sizeIcon = 18.dp
+                        )
+
+                }
+            }
+            }
+
+
 
     }
-    Row (
-        modifier = Modifier.fillMaxWidth()
-        , horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
 
-    ) {
-        if (data.isChanged)Text(text = "ред.", fontSize = fontSizeStatus)
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(text =data.timeString , fontSize = fontSizeStatus)
-        Spacer(modifier = Modifier.width(4.dp))
-        if(data.isOwn)
-            MessageIconStatus(
-                status= data.status,
-                sizeIcon = 18.dp
-            )
 
-    }
 }
 
 @Composable
@@ -230,6 +344,7 @@ fun ChatBubbleWithPattern(
             end = otherPadding
         )
         .widthIn(max = maxWidth)
+
     val modifierRightMassage = modifier
         .padding(
             start = otherPadding,
@@ -238,6 +353,7 @@ fun ChatBubbleWithPattern(
             end = compensatePadding
         )
         .widthIn(max = maxWidth)
+
     val density = LocalDensity.current
     val cornerRadius = 15.dp
     val leftMessageShape = remember {
@@ -250,8 +366,13 @@ fun ChatBubbleWithPattern(
 
     Row (
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if(isOwn) Arrangement.End else Arrangement.Start
+        horizontalArrangement =
+        if(isOwn) Arrangement.End else Arrangement.Start
     ) {
+
+
+
+            //
         if (isOwn) {
             Box(
                 modifier = modifier

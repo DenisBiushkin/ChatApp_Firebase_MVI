@@ -22,6 +22,7 @@ val LightGray =Color(0xFF665C55)
 val primaryOwnMessageColor = Color(0xFF99ff99)
 val primaryMessageColor = Color.White
 val chatBacgroundColor = Color(0xFFdbf0ff)
+val colorApp= Color(0xFF42A5F5)
 
 val ColorScheme.focusedTextFieldText
     @Composable

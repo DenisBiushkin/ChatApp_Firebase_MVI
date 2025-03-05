@@ -30,5 +30,5 @@ interface MainRepository {
 
     suspend fun setStatusUser(userId:String,status:StatusUser):Resource<String>
 
-     fun initFirstMassages(chatId:String): Flow<Resource<List<Message>>>
+     fun getBlockMessagesByChatId(chatId:String,count:Int = 20,lastMessageKey: String? = null): Flow<Resource<List<Message>>>
 }
