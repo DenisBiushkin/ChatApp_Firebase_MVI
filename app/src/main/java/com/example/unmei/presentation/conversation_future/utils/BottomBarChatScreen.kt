@@ -12,9 +12,7 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,13 +25,13 @@ import androidx.compose.ui.unit.dp
 import com.example.unmei.R
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun BottomBarChatScreen(
     vmState: State<ConversationVMState>,
     viewModel: ConversationViewModel,
-    lazyState: LazyListState
+    lazyState: LazyListState,
+    onClickContent:()->Unit
 ){
 
     val text =  remember {
@@ -50,11 +48,12 @@ fun BottomBarChatScreen(
        //HorizontalDivider()
        IconButton(
            onClick = {
-               viewModel.sendMessage(text.value)
-               scope.launch {
-                   lazyState.animateScrollToItem(lazyState.layoutInfo.totalItemsCount-1)
-               }
-               text.value = ""
+//               viewModel.sendMessage(text.value)
+//               scope.launch {
+//                   lazyState.animateScrollToItem(lazyState.layoutInfo.totalItemsCount-1)
+//               }
+//               text.value = ""
+               onClickContent()
             }
        ) {
 

@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
@@ -27,7 +26,6 @@ import com.google.firebase.database.ServerValue
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,6 +59,8 @@ class ConversationViewModel @Inject constructor(
 
     private val chatId="-OGfKvopKTMOCp_bxJqe"
 
+
+
     init {
 
         viewModelScope.launch {
@@ -89,7 +89,7 @@ class ConversationViewModel @Inject constructor(
 
         }
     }
-    fun onChangeSelectedMessages(
+    private fun onChangeSelectedMessages(
         messageId:String
     ){
         //пришел id  который уже есть и он 1, значит отменяем выбор сообщений
@@ -111,7 +111,7 @@ class ConversationViewModel @Inject constructor(
             return
         }
         val isSelected = state.value.selectedMessages[messageId] == true
-        //тот же пришедшйи удаляем, новый прибавлем
+        //тот же пришедшйи id удаляем, новый прибавлем
         if (isSelected) {
             _state.value = state.value.copy(
                 selectedMessages =  state.value.selectedMessages.minus(messageId)
@@ -199,8 +199,20 @@ class ConversationViewModel @Inject constructor(
            ConversationEvent.LoadingNewMessage -> {
                loadOldMessages()
            }
+           is ConversationEvent.ChangeSelectedMessages -> {
+              onChangeSelectedMessages(event.id)
+           }
+           is ConversationEvent.OpenCloseBottomSheet -> {
+                _state.value= state.value.copy(
+                    bottomSheetVisibility = !state.value.bottomSheetVisibility
+                )
+           }
+
        }
     }
+
+
+
     @RequiresApi(35)
     private suspend fun initFirstMassages(chatId:String){
         repository.getBlockMessagesByChatId(chatId).collect {

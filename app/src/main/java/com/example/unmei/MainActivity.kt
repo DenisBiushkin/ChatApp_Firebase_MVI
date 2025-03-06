@@ -1,5 +1,6 @@
 package com.example.unmei
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,7 +8,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.unmei.data.repository.MainRepositoryImpl
@@ -83,6 +86,17 @@ class MainActivity : ComponentActivity() {
         if(currentUser!=null){
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
         }
+
+        //ПОПРАВИТЬ
+        ActivityCompat.requestPermissions(
+            this,
+
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+
+            0
+        )
+
+
 
         //на время разработок внутрянки
        // startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE

@@ -8,6 +8,7 @@ data class ConversationVMState(
     val loadingScreen: Boolean= true,
     val loadingOldMessages:Boolean = false,
     val optionsVisibility: Boolean = false,
+    val bottomSheetVisibility: Boolean = false,
     val chatFullName:String="",
     val statusChat:String="",
     val groupId : String = "",
