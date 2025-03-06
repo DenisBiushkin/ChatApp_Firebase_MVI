@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
 import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
 import com.example.unmei.presentation.conversation_future.model.MessageType
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
+import com.example.unmei.presentation.util.ui.theme.colorApp
 
 @Preview(showBackground = true)
 @Composable
@@ -169,18 +171,38 @@ fun CustomMessageBubble(
                      .size(25.dp)
                      .background(
                          shape = CircleShape,
-                         color = Color.Black
+                         color = Color.Transparent
                      )
+                     .border(
+                         width = 2.dp,
+                         color = if(selected) Color.White else colorApp,
+                         shape = CircleShape,
+                     )
+                 ,
+                 contentAlignment = Alignment.Center
              ){
-                 if(
-                     selected
+                 Row (
+                     horizontalArrangement = Arrangement.Center,
+                     verticalAlignment = Alignment.CenterVertically
                  ){
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription ="",
-                        tint = Color.White
-                    )
+                     AnimatedVisibility(
+                         visible =selected
+                     ) {
+                         Icon(
+                             modifier = Modifier
+                                 .size(22.dp)
+                                 .background(
+                                     shape = CircleShape,
+                                     color = colorApp
+                                 )
+                             ,
+                             imageVector = Icons.Default.Check,
+                             contentDescription ="",
+                             tint = Color.White
+                         )
+                     }
                  }
+
              }
          }
          ChatBubbleWithPattern(
