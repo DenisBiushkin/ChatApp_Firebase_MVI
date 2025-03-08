@@ -208,6 +208,12 @@ class ConversationViewModel @Inject constructor(
                 )
            }
 
+           is ConversationEvent.SelectedMediaToSend -> {
+               _state.value = state.value.copy(
+                   selectedUrisForRequest = event.value,
+                   bottomSheetVisibility = !state.value.bottomSheetVisibility
+               )
+           }
        }
     }
 

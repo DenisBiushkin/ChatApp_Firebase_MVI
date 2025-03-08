@@ -12,6 +12,6 @@ data class MessageListItemUI(
     val fullName: String,
     val status: MessageStatus = MessageStatus.Send,
     val type: MessageType = MessageType.Text,
-    val visvilityOptins:Boolean = false
+    val visvilityOptins:Boolean = false,
 )
 

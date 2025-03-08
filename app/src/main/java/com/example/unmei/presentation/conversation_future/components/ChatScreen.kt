@@ -1,36 +1,40 @@
 package com.example.unmei.presentation.conversation_future.components
 
-import android.Manifest
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.widget.Button
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
+
+
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -38,30 +42,36 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.rememberBottomSheetState
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+
+
+
 import androidx.compose.material3.Scaffold
+
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SheetValue.Expanded
+import androidx.compose.material3.SheetValue.Hidden
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,16 +81,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.popup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 
 import com.example.unmei.R
@@ -89,6 +111,7 @@ import com.example.unmei.presentation.conversation_future.model.ConversationEven
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
 import com.example.unmei.presentation.conversation_future.utils.CustomMessageBubble
 import com.example.unmei.presentation.conversation_future.utils.BottomBarChatScreen
+import com.example.unmei.presentation.conversation_future.utils.BottomButtonSelectMedia
 import com.example.unmei.presentation.conversation_future.utils.LoadingCircleProgressNewMessages
 import com.example.unmei.presentation.conversation_future.utils.TopBarChatScreen
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
@@ -96,7 +119,7 @@ import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 import com.example.unmei.presentation.util.ui.theme.colorApp
 import com.example.unmei.util.ConstansDev.TAG
 import kotlinx.coroutines.launch
-import org.checkerframework.checker.units.qual.min
+import kotlin.math.roundToInt
 
 @Preview(showBackground = true)
 @Composable
@@ -117,6 +140,7 @@ fun  ChatScreen(
     val lazyState = rememberLazyListState()
     val bottomSheetState = rememberModalBottomSheetState()
 
+
     Scaffold(
         topBar = {
             TopBarChatScreen(
@@ -134,7 +158,6 @@ fun  ChatScreen(
                 lazyState = lazyState,
                 vmState = state,
                 onClickContent = {
-
                     viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet)
                 }
             )
@@ -149,13 +172,18 @@ fun  ChatScreen(
             lazyState= lazyState,
             viewModel
         )
+
         ConversationModalBottom(
             bottomSheetState = bottomSheetState,
             visibility = state.value.bottomSheetVisibility,
             onDismissRequest = {
               viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet)
+            },
+            onSelectedMedia = {
+                viewModel.onEvent(ConversationEvent.SelectedMediaToSend(it))
             }
         )
+
 
         
     }
@@ -168,88 +196,165 @@ fun  ChatScreen(
 fun ConversationModalBottom(
     bottomSheetState: SheetState,
     visibility :Boolean = false,
-    onDismissRequest: ()->Unit
+    onDismissRequest: ()->Unit,
+    onSelectedMedia:(List<Uri>)->Unit
 ){
     val screenSettings= LocalConfiguration.current
     val sizeOneItemDp=screenSettings.screenWidthDp.dp /3
     val maxHeihtBottomSheet = screenSettings.screenHeightDp.dp * 0.7f
 
-    if (visibility) {
+    val selectedImages = remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val listImageUris = remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val isLoadingImages = remember { mutableStateOf<Boolean>(false) }
+
+
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val doTrash = remember {
+        mutableStateOf(false)
+    }
+   if (doTrash .value){
+        Popup(
+            onDismissRequest = {},
+            properties = PopupProperties(focusable = true)
+        ) {
+            var offsetY by remember { mutableStateOf(0f) }
+            val maxHeight = 400.dp // Максимальная высота bottom sheet
+            val minHeight = 100.dp // Минимальная высота bottom sheet
+
+            // Анимация для плавного изменения высоты
+            val animatedOffsetY by animateFloatAsState(
+                targetValue = offsetY,
+                animationSpec = tween(durationMillis =0)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)) // Затемняющий фон
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            //  onDismiss() // Закрыть при нажатии на scrim
+                        }
+                    }
+                , contentAlignment = Alignment.BottomEnd
+            ) {
+                // Содержимое bottom sheet
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(maxHeight)
+                        .offset {
+                            IntOffset(
+                                0,
+                                animatedOffsetY.roundToInt()
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragStart = { offset ->
+                                    // Начало перетаскивания (опционально)
+                                },
+                                onDragEnd = {
+                                    // Закрыть, если пользователь перетащил вниз
+                                    if (offsetY > -maxHeight.toPx() / 2) {
+                                        // onDismiss()
+                                    } else {
+                                        offsetY = -maxHeight.toPx()
+                                    }
+                                },
+                                onVerticalDrag = { change, dragAmount ->
+                                    offsetY = (offsetY + dragAmount)
+                                        .coerceIn(
+                                            -maxHeight.toPx(), -minHeight.toPx()
+                                        )
+                                }
+                            )
+                        },
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                    color = Color.White
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        Text("Это кастомный Bottom Sheet", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(16.dp))
+                       // content()
+                    }
+                }
+            }
+        }
+   }
+    if (visibility && !doTrash.value) {
+
         ModalBottomSheet(
-            modifier = Modifier.heightIn(
-                min = maxHeihtBottomSheet
-            ),
-            dragHandle = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+            ,
             sheetState = bottomSheetState,
             onDismissRequest = onDismissRequest,
             shape = RoundedCornerShape(
                 topStart = 10.dp, topEnd = 10.dp
-            )
+            ),
+            dragHandle = {}
+            // windowInsets = WindowInsets.,
         ) {
-            Scaffold(
-                topBar = {
-                   Row (
-                       modifier = Modifier
-                           .height(60.dp)
-                           .fillMaxWidth()
-                           .background(Color.Red)
-                   ){
 
-                   }
-                },
-                bottomBar = {
+
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+
+                ,
+               // containerColor = Color.Yellow,
+                topBar = {
                     Row (
                         modifier = Modifier
                             .height(60.dp)
                             .fillMaxWidth()
-                            .background(Color.Blue),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                            .background(Color.Red)
                     ){
-                       Button(
-                           modifier = Modifier
-                               .fillMaxWidth(0.95f)
-                               .height(50.dp)
-                               .background(
-                                   shape = RoundedCornerShape(10.dp),
-                                   color = Color.Black
-                               )
-                           , onClick = {  }
-                       ) {
-                           Text(text = "Отменить")
-                       }
+
                     }
+                },
+
+                bottomBar = {
+                    BottomButtonSelectMedia(
+                        mediaSelected = selectedImages.value.size !=0,
+                        countSelectedMedia = selectedImages.value.size,
+                        onClick ={
+                            if (selectedImages.value.size !=0){
+                                onSelectedMedia(selectedImages.value)
+                            }else{
+                                onDismissRequest()
+                            }
+                        }
+                    )
                 }
             ) {
-               paddingValues ->
-
-
-                val selectedImages = remember {
-                    mutableStateOf<List<Uri>>(emptyList())
-                }
-
-                val listImageUris = remember {
-                    mutableStateOf<List<Uri>>(emptyList())
-                }
-                val isLoadingImages = remember {
-                    mutableStateOf<Boolean>(false)
-                }
-                val scope = rememberCoroutineScope()
-                val context = LocalContext.current
+                    paddingValues ->
+                // Log.d(TAG,bottomSheetState.requireOffset().dp.toString())
 
                 LaunchedEffect(key1 = isLoadingImages) {
-                     listImageUris.value=ContentResolverClient(context).getAllImagesUri().take(20)
+                    listImageUris.value=ContentResolverClient(context).getAllImagesUri().take(20)
                     isLoadingImages.value= false
                 }
+
                 if(isLoadingImages.value){
-                    LoadingContentProgressIndicator(true)
+                    LoadingContentProgressIndicator(
+                        // modifier = Modifier.padding(paddingValues),
+                        visibility = true
+                    )
                 }else{
+
+                    //Сетка только для выбора фотографий
                     LazyVerticalGrid(
-                        modifier = Modifier
-                            .padding(paddingValues)
-                            .heightIn(min = sizeOneItemDp * 2.5f)
-                        ,
-                        columns =GridCells.Fixed(3),
+                        modifier = Modifier.padding(paddingValues)
+                        ,columns =GridCells.Fixed(3),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
 
@@ -257,13 +362,6 @@ fun ConversationModalBottom(
 
                             Box(
                                 modifier = Modifier
-                                    .combinedClickable(
-                                        onClick = {
-
-                                        },
-                                        onLongClick = {
-                                        }
-                                    )
                                     .size(sizeOneItemDp)
                                     .padding(top = 4.dp)
                             ){
@@ -306,10 +404,17 @@ fun ConversationModalBottom(
                     }
                 }
 
+
+
             }
         }
+
+
     }
 }
+
+
+
 @Composable
 fun CircleCountIndicatorSelectedItem(
     modifier: Modifier = Modifier,
@@ -317,9 +422,9 @@ fun CircleCountIndicatorSelectedItem(
     count:Int = 1,
     onClickRound:()->Unit
 ){
+
     Box(
         modifier = modifier
-            // .padding(start = 3.dp, end = 5.dp)
             .background(
                 shape = CircleShape,
                 color = Color.Transparent
@@ -329,7 +434,8 @@ fun CircleCountIndicatorSelectedItem(
                 width = 2.dp,
                 color = if (isSelected) Color.White else colorApp,
                 shape = CircleShape,
-            ).clickable (
+            )
+            .clickable(
                 onClick = onClickRound
             )
         ,
@@ -359,15 +465,19 @@ fun CircleCountIndicatorSelectedItem(
 
 @Composable
 fun LoadingContentProgressIndicator(
+    modifier: Modifier = Modifier,
     visibility: Boolean,
 
 ) {
    if(visibility){
      Box(
-         modifier = Modifier
-             .heightIn(min = 60.dp)
+         modifier = modifier
+             .heightIn(min = 60.dp, max = 60.dp)
              .fillMaxWidth()
-         , contentAlignment = Alignment.Center
+           //  .background(Color.LightGray)
+         ,
+         contentAlignment = Alignment.Center,
+
      ){
          CircularProgressIndicator(
              modifier = Modifier
@@ -459,6 +569,21 @@ fun ContentChatScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
+            if(!state.value.selectedUrisForRequest.isEmpty()){
+                //Log.d(TAG,"${state.value.selectedUrisForRequest.first()}")
+                item{
+                    Image(
+                        modifier = Modifier
+                            .size(300.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                        ,
+                        contentScale = ContentScale.Crop,
+                        painter = rememberAsyncImagePainter(model =state.value.selectedUrisForRequest.first())
+                        , contentDescription = ""
+                    )
+                }
+            }
+
 
         }
     }
