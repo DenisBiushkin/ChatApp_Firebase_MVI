@@ -65,7 +65,8 @@ fun showChatBubbleImages(){
         ChatBubbleImages( item =item )
         Spacer(modifier = Modifier.height(8.dp))
         ChatBubbleImages( item =item.copy(
-            isOwn = true
+            isOwn = true,
+            status = MessageStatus.Readed
         ) )
 
     }
@@ -100,10 +101,12 @@ fun ChatBubbleImages(
             painter = rememberAsyncImagePainter(model = imageUri)
             ,contentDescription = ""
         )
-        Row {
+        Box(
+            modifier = Modifier
+                .padding(end = 5.dp, bottom = 5.dp),
+            contentAlignment = Alignment.Center
+        ){
             StatusTimeMessageBlock(
-                modifier = Modifier
-                    .padding(end = 5.dp, bottom = 5.dp),
                 status = item.status,
                 stringTime = item.timeString,
                 isChanged = item.isChanged
@@ -127,25 +130,17 @@ fun StatusTimeMessageBlock(
         Box(
            modifier = modifier
                .clip(CircleShape)
-               .height(20.dp)
-               .background(
-                   color = containerColor
-               )
-               .padding(
-                   start = 4.dp, end = 2.dp,
-                   top = 2.dp, bottom = 2.dp
-               )
+               .wrapContentSize()
+               .background(color = containerColor)
+               .padding(horizontal = 4.dp)
             ,
             contentAlignment = Alignment.Center
         ) {
             Row (
-                modifier = Modifier.wrapContentWidth()
-                ,
-                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
-
             ) {
                 if (isChanged)
+                    //изменить на на Annoted string что не юзать 2 TExt
                     Text(
                         text = "ред.",
                         fontSize = fontSizeStatus,
@@ -159,15 +154,11 @@ fun StatusTimeMessageBlock(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 //убрать сравнение тут и сравнивать в viemodel Status.None
-
-                    MessageIconStatus(
-                        status=status,
-                        sizeIcon = 18.dp,
-                        colorIcon = colorText
-                    )
+                MessageIconStatus(
+                    status=status,
+                    sizeIcon = 18.dp,
+                    colorIcon = colorText
+                )
             }
         }
-       
-
-
 }
