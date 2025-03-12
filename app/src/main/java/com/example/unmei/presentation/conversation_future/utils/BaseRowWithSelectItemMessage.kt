@@ -1,27 +1,25 @@
 package com.example.unmei.presentation.conversation_future.utils
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
@@ -33,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.traceEventEnd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +38,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -50,7 +46,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.util.ui.theme.primaryMessageColor
 import com.example.unmei.presentation.util.ui.theme.primaryOwnMessageColor
@@ -83,31 +78,31 @@ fun showBubble(){
               .background(color = chatBacgroundColor)
             //  .padding(top = 40.dp)
       ){
-          CustomMessageBubble(
-              itemUI = testItem,
-              optionVisibility = true,
-
-              onClickLine = {
-
-              },
-              onLongClickLine = {
-
-              },
-              selected = true
-          )
-          Spacer(modifier = Modifier.height(8.dp))
-          CustomMessageBubble(itemUI = testItem.copy(
-           text = "Длинное сообщение",
-              isOwn = true
-          ), onClickLine = {
-
-          },
-              onLongClickLine = {
-
-              },
-              selected = true,
-              optionVisibility = true
-          )
+//          BaseRowWithSelectItemMessage(
+//              itemUI = testItem,
+//              optionVisibility = true,
+//
+//              onClickLine = {
+//
+//              },
+//              onLongClickLine = {
+//
+//              },
+//              selected = true
+//          )
+//          Spacer(modifier = Modifier.height(8.dp))
+//          BaseRowWithSelectItemMessage(itemUI = testItem.copy(
+//           text = "Длинное сообщение",
+//              isOwn = true
+//          ), onClickLine = {
+//
+//          },
+//              onLongClickLine = {
+//
+//              },
+//              selected = true,
+//              optionVisibility = true
+//          )
       }
 
 
@@ -146,13 +141,13 @@ fun TimeMessage(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CustomMessageBubble(
+fun BaseRowWithSelectItemMessage(
     modifier: Modifier = Modifier,
     onClickLine:() ->Unit,
     onLongClickLine:() ->Unit,
-    itemUI: MessageListItemUI,
     optionVisibility:Boolean,
     selected:Boolean,
+    content: @Composable() (RowScope.()->Unit)
 ){
      Row(
          verticalAlignment = Alignment.Bottom,
@@ -162,7 +157,9 @@ fun CustomMessageBubble(
                  onLongClick = onLongClickLine
              )
      ){
+         //в целом открытие способности выделения сообщения
          AnimatedVisibility(
+
              visible = optionVisibility
          ) {
              Box(
@@ -185,9 +182,11 @@ fun CustomMessageBubble(
                      horizontalArrangement = Arrangement.Center,
                      verticalAlignment = Alignment.CenterVertically
                  ){
+                     //сообщение выбрано
                      AnimatedVisibility(
                          visible =selected
                      ) {
+
                          Icon(
                              modifier = Modifier
                                  .size(22.dp)
@@ -205,77 +204,10 @@ fun CustomMessageBubble(
 
              }
          }
-         ChatBubbleWithPattern(
-             modifier= modifier,
-             isOwn = itemUI.isOwn,) {
-             MessageContent(
-                 data = itemUI
-             )
-         }
+         content()
      }
-
-
-
-
-//      SimpleChatBubble(isOwn = isOwnMassage) {
-//          MessageContenet(
-//              text = "Привет, это очень длинный текст сообщения ",
-//              isOwn = isOwnMassage
-//          )
-//      }
-
 }
-@Composable
-fun SimpleChatBubble(
-    modifier: Modifier =Modifier,
-    isOwn: Boolean=false,
-    content: @Composable (ColumnScope.() -> Unit)
-){
-    val screenSettings=LocalConfiguration.current
-    val maxWidth=screenSettings.screenWidthDp.dp *0.8f
-    val cornerRadius =  15.dp
-    val paddingBlock= 8.dp
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if(isOwn) Arrangement.End else Arrangement.Start
-    ) {
-        if (isOwn) {
-            Box(
-                modifier = modifier
-                    .padding(end = paddingBlock)
-                    .background(
-                        color = primaryOwnMessageColor,
-                        shape = RoundedCornerShape(cornerRadius)
-                    )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(7.dp)
-                        .widthIn(max = maxWidth)
-                ) {
-                    content()
-                }
-            }
-        } else {
-            Box(
-                modifier = modifier
-                    .padding(start = paddingBlock)
-                    .background(
-                        color = primaryMessageColor,
-                        shape = RoundedCornerShape(cornerRadius)
-                    )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(7.dp)
-                        .widthIn(max = maxWidth)
-                ) {
-                    content()
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
 fun MessageContent(
@@ -335,7 +267,6 @@ fun MessageContent(
                             status= data.status,
                             sizeIcon = 18.dp
                         )
-
                 }
             }
             }
@@ -357,6 +288,14 @@ fun ChatBubbleWithPattern(
     val compensatePadding=15.dp
     val screenSettings=LocalConfiguration.current
     val maxWidth=screenSettings.screenWidthDp.dp *0.8f
+    val density = LocalDensity.current
+    val cornerRadius = 15.dp
+    val leftMessageShape = remember {
+        CustomBubbleMessageShape(density=density, cornerRadiusDp =cornerRadius)
+    }
+    val rightMessageShape = remember {
+        CustomBubbleMessageShape(density=density,position = true, cornerRadiusDp = cornerRadius)
+    }
 
     val modifierLeftMassage= modifier
         .padding(
@@ -376,15 +315,6 @@ fun ChatBubbleWithPattern(
         )
         .widthIn(max = maxWidth)
 
-    val density = LocalDensity.current
-    val cornerRadius = 15.dp
-    val leftMessageShape = remember {
-        CustomBubbleMessageShape(density=density, cornerRadiusDp =cornerRadius)
-    }
-    val rightMessageShape = remember {
-        CustomBubbleMessageShape(density=density,position = true, cornerRadiusDp = cornerRadius)
-    }
-    val colorMessageBox= Color.Magenta
 
     Row (
         modifier = Modifier.fillMaxWidth(),

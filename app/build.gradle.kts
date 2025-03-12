@@ -6,6 +6,8 @@ plugins {
     //hilt
     id ("kotlin-kapt")
     id ("com.google.dagger.hilt.android")
+//serialization
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 android {
@@ -53,6 +55,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
 
 dependencies {
@@ -98,5 +101,8 @@ dependencies {
     //room
     implementation ("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
+
+    //serializtion
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 }

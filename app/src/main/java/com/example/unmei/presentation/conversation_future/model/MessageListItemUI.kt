@@ -1,5 +1,6 @@
 package com.example.unmei.presentation.conversation_future.model
 
+import com.example.unmei.domain.model.Attachment
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 
 data class MessageListItemUI(
@@ -13,5 +14,5 @@ data class MessageListItemUI(
     val status: MessageStatus = MessageStatus.Send,
     val type: MessageType = MessageType.Text,
     val visvilityOptins:Boolean = false,
+    val attachments: List<Attachment>? = null
 )
-

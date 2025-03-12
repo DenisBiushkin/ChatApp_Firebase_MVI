@@ -73,26 +73,31 @@ class RemoteDataSource(
         awaitClose {reference.removeEventListener(listener) }
     }
     fun getBlockMessagesByChatIdRemote(
-    chatId:String,
-    count:Int = 20,
-    lastMessageKey: String?
+        chatId:String,
+        count:Int = 20,
+        lastMessageKey: String?
     ): Flow<Resource<List<Message>>> = flow{
         val baseref=messagesRef.child(chatId)
         try{
             emit(Resource.Loading())
 
             var query =messagesRef.child(chatId).limitToLast(count)
+
             if( lastMessageKey!=null){
                query=messagesRef.child(chatId).limitToLast(count).orderByKey().endBefore(lastMessageKey)
             }
+
             val snapshot= query
                 .get()
                 .await()
             //сырые данные
             val newMessages = snapshot.children.mapNotNull {
-                it.getValue(Message::class.java) }
-            emit(Resource.Success(data = newMessages))
-        }catch (e:Exception){
+                it.getValue(MessageResponse::class.java)
+            }
+            Log.d(TAG,newMessages.toString())
+            emit(Resource.Success(data = newMessages.map { it.toMessage() }))
+        }catch (e:Exception)
+        {
             emit(Resource.Error(message = e.toString()))
         }
     }
@@ -222,7 +227,6 @@ class RemoteDataSource(
 
     //рабочая
     suspend fun cascadingRoomDeleteWithMessage(roomId:String):Resource<Unit>{
-
         val reference = db.getReference()
         try{
             val updates = mapOf(

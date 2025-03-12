@@ -64,16 +64,16 @@ class ChatListViewModel @Inject constructor(
      init {
          viewModelScope.launch {
              val uidMessage= refMessages.push().key
-            val mes= MessageResponse(
-                 id = uidMessage!!,
-                 senderId = "auegBKgwyvbwge7PQs9nfFRRFfj1",
-                 text="Первое сообщение",
-                 timestamp = ServerValue.TIMESTAMP,
-                 type = "text",
-                 readed = true,
-                 mediaUrl = "url",
-                 edited = true
-             )
+//            val mes= MessageResponse(
+//                 id = uidMessage!!,
+//                 senderId = "auegBKgwyvbwge7PQs9nfFRRFfj1",
+//                 text="Первое сообщение",
+//                 timestamp = ServerValue.TIMESTAMP,
+//                 type = "text",
+//                 readed = true,
+//                 mediaUrl = "url",
+//                 edited = true
+//             )
              val users= listOf("auegBKgwyvbwge7PQs9nfFRRFfj1","u1DDSWtIHOSpcHIkLZl0SZGEsmB3")
 
 //             val res=remote.createPrivateRoom(users, message = mes)
@@ -174,28 +174,7 @@ class ChatListViewModel @Inject constructor(
 //            }
         }
     }
-    fun sendCommand(){
-        //при отпрвьке сообщения генерируется ключ для сообщения
-        //зашивается гурппа в groups в realtime db
-        //зашивается в User->groups обеим участникам или же всем кто в группе
-        //
-        val uidGroup = refGroups.push().key
-        val uidMessage= refMessages.push().key
-        //у каждой группы своя пачкас сообщений
-        refMessages.child("-OGfKvopKTMOCp_bxJqe")
-            .child(uidMessage!!).setValue(
-            MessageResponse(
-                id = uidMessage!!,
-                senderId = "userId1",
-                text="Первое сообщение",
-                timestamp = ServerValue.TIMESTAMP,
-                type = "text",
-                readed = true,
-                mediaUrl = "url",
-                edited = true
-            )
-        )
-    }
+
 
     private fun sendGroup(uid:String){
 //       // val uid = refGroups.push().key

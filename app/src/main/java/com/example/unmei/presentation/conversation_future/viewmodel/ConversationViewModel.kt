@@ -8,6 +8,7 @@ import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.domain.model.Attachment
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.conversation_future.model.ConversationEvent
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
@@ -22,7 +23,6 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ServerValue
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.awaitClose
@@ -33,6 +33,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.serializer
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -40,6 +45,7 @@ import javax.inject.Inject
 
 
 
+@RequiresApi(35)
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
   val remote:RemoteDataSource,
@@ -64,24 +70,19 @@ class ConversationViewModel @Inject constructor(
     init {
 
         viewModelScope.launch {
+
             initFirstMassages(chatId)
+
             listenForNewMessages(chatId).collect{
-                val data= it.run {
-                    MessageListItemUI(
-                        fullName = "name",
-                        timestamp = timestamp,
-                        timeString = TimeStampToString(timestamp),
-                        isOwn = senderId== currentUsrUid,
-                        status = MessageStatus.Send,
-                        isChanged = false,
-                        type = MessageType.Text,
-                        text = text
-                    )
-                }
-                if (data !=state.value.listMessage.last()){
-                    val list = state.value.listMessage.toMutableList().plus(data)
+                val data= it.toMessageListItemUI(currentUsrUid)
+                Log.d(TAG,"ChildEVENT ${data.text}")
+                //сравниваем последнее текущее сообщение и полученное
+                if (data !=state.value.listMessage.first()){
+                    val currentList = state.value.listMessage.toMutableList()
+                    currentList.add(0, data)
+
                     _state.value= state.value.copy(
-                        listMessage = list
+                        listMessage = currentList
                     )
                 }
 
@@ -89,6 +90,10 @@ class ConversationViewModel @Inject constructor(
 
         }
     }
+
+
+
+
     private fun onChangeSelectedMessages(
         messageId:String
     ){
@@ -123,11 +128,31 @@ class ConversationViewModel @Inject constructor(
         }
 
     }
+
+
+
     fun testFun(){
-        _state.value= state.value.copy(
-            listMessage = state.value.listMessage.map { it.copy(visvilityOptins = true) }
+        val item = MessageListItemUI(
+            text = "",
+            timestamp = 19380313,
+            timeString = "3:07",
+            fullName = "",
+            isOwn = true,
+            isChanged = true,
+            type = MessageType.Image(""),
+            attachments = listOf(Attachment.Image(state.value.selectedUrisForRequest.first().toString()))
         )
+        Log.d(TAG,state.value.selectedUrisForRequest.toString())
+        val currentList = state.value.listMessage.toMutableList()
+        currentList.add(0, item)
+        _state.value= state.value.copy(
+            listMessage = currentList,
+            selectedUrisForRequest = emptyList()
+        )
+
     }
+
+   // @Deprecated("Не подходит под новый ТИП сообщения")
     private fun loadOldMessages(){
         viewModelScope.launch {
             if(lastLoadedIdMessage.isEmpty()){
@@ -149,19 +174,7 @@ class ConversationViewModel @Inject constructor(
                         if (it.data != null) {
                             val responseMessages = it.data
                             val uiMessages = responseMessages.map {
-                                it.run {
-                                    MessageListItemUI(
-                                        fullName = "name",
-                                        timestamp = timestamp,
-                                        timeString = TimeStampToString(timestamp),
-                                        isOwn = senderId== currentUsrUid,
-                                        status = MessageStatus.Send,
-                                        isChanged = false,
-                                        type = MessageType.Text,
-                                        text = text,
-                                        messageId = id
-                                    )
-                                }
+                                it.toMessageListItemUI(currentUsrUid)
                             }
                             Log.d(TAG,"OLDMESSAGE first: ${uiMessages.first().timestamp} last: ${uiMessages.last().timestamp}")
                             lastLoadedTimestamp = uiMessages.first().timestamp
@@ -177,23 +190,17 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
+   // @Deprecated("Не подходит под новый ТИП сообщения")
+    suspend fun sendMessage(message: Message){
+            val uidMessage= refMessages.push().key!!
+                refMessages.child(chatId).child(uidMessage).
+                setValue(MessageResponse().fromMessageToResp(message).copy(
+                    id= uidMessage
+                )).await()
 
-    fun sendMessage(text: String){
-        viewModelScope.launch {
-            val uidMessage= refMessages.push().key
-            val message = MessageResponse(
-                id = uidMessage!!,
-                senderId = "u1DDSWtIHOSpcHIkLZl0SZGEsmB3",
-                text=text,
-                timestamp = ServerValue.TIMESTAMP,
-                type = "text",
-                readed = false,
-                mediaUrl = "url",
-                edited = false
-            )
-            refMessages.child(chatId).child(uidMessage).setValue(message).await()
-        }
     }
+
+
     fun onEvent(event: ConversationEvent){
        when(event){
            ConversationEvent.LoadingNewMessage -> {
@@ -214,6 +221,21 @@ class ConversationViewModel @Inject constructor(
                    bottomSheetVisibility = !state.value.bottomSheetVisibility
                )
            }
+
+           is ConversationEvent.SendMessage -> {
+               if (!event.text.isEmpty()){
+                   viewModelScope.launch {
+                       val item = Message(
+                           "",
+                           senderId = currentUsrUid,
+                           text = event.text
+                       )
+                       sendMessage(item)
+                   }
+               }else{
+                   Log.d(TAG,"Пустая строка")
+               }
+           }
        }
     }
 
@@ -224,7 +246,7 @@ class ConversationViewModel @Inject constructor(
         repository.getBlockMessagesByChatId(chatId).collect {
             when (it) {
                 is Resource.Error -> {
-
+                    Log.d(TAG,"ошибка получения BlockMessage ${it.message}")
                 }
                 is Resource.Loading -> {
                     _state.value = state.value.copy(
@@ -235,24 +257,12 @@ class ConversationViewModel @Inject constructor(
                     if (it.data != null) {
                         val responseMessages = it.data
                         val uiMessages = responseMessages.map {
-                                it.run {
-                                    MessageListItemUI(
-                                        fullName = "name",
-                                        timestamp = timestamp,
-                                        timeString = TimeStampToString(timestamp),
-                                        isOwn = senderId== currentUsrUid,
-                                        status = MessageStatus.Send,
-                                        isChanged = false,
-                                        type = MessageType.Text,
-                                        text = text,
-                                        messageId = id
-                                    )
+                                it.toMessageListItemUI(currentUsrUid)
                                 }
-                        }
-                            //.sortedBy{ it.timestamp }
+                            .asReversed()
+                     //   val uiMessageReversed = uiMessages.reversed()
 
                         Log.d(TAG,"first: ${uiMessages.first().timestamp} last: ${uiMessages.last().timestamp}")
-
                         lastLoadedTimestamp = uiMessages.first().timestamp
                         lastLoadedIdMessage = uiMessages.first().messageId
 
@@ -271,12 +281,13 @@ class ConversationViewModel @Inject constructor(
         var index = 0
         val listener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val newMessage = snapshot.getValue(Message::class.java)
+                val newMessage = snapshot.getValue(MessageResponse::class.java)
                 newMessage?.let {
                     index+=1
                     Log.d(TAG,"Обртка с ChildEvent: $index timestampItem: ${it.timestamp}")
 
-                    trySend(it)
+                    trySend(it.toMessage())
+
                     // lastLoadedTimestamp = it.timestamp
                 }
             }
@@ -292,13 +303,6 @@ class ConversationViewModel @Inject constructor(
         awaitClose{
             ref.removeEventListener(listener)
         }
-    }
-
-
-    private fun TimeStampToString(timestamp: Long):String{
-        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-            .withZone(ZoneOffset.UTC)
-        return formatter.format(Instant.ofEpochMilli(timestamp))
     }
     fun saveNecessaryInfo(groupUid:String, companionUid:String){
         _state.value = state.value.copy(

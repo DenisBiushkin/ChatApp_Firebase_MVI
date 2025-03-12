@@ -10,6 +10,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -28,17 +30,15 @@ import com.example.unmei.presentation.conversation_future.viewmodel.Conversation
 
 @Composable
 fun BottomBarChatScreen(
-    vmState: State<ConversationVMState>,
-    viewModel: ConversationViewModel,
-    lazyState: LazyListState,
-    onClickContent:()->Unit
+    onClickContent:()->Unit,
+    onSendMessage:(String)->Unit
 ){
 
-    val text =  remember {
-      mutableStateOf("")
-    }
 
     val scope= rememberCoroutineScope()
+    val text = remember {
+        mutableStateOf("")
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -47,14 +47,8 @@ fun BottomBarChatScreen(
     ) {
        //HorizontalDivider()
        IconButton(
-           onClick = {
-//               viewModel.sendMessage(text.value)
-//               scope.launch {
-//                   lazyState.animateScrollToItem(lazyState.layoutInfo.totalItemsCount-1)
-//               }
-//               text.value = ""
-               onClickContent()
-            }
+           onClick = onClickContent
+
        ) {
 
            Icon(
@@ -74,12 +68,27 @@ fun BottomBarChatScreen(
 
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,
-
                 focusedIndicatorColor = Color.Transparent, // Убираем подчеркивание в фокусе
                 unfocusedIndicatorColor = Color.Transparent, // Убираем подчеркивание без фокуса
                 disabledIndicatorColor = Color.Transparent // Убираем подчеркивание в неактивном состоянии
             )
         )
+        IconButton(
+            onClick = {
+                onSendMessage(text.value)
+                text.value =""
+            }
+
+        ) {
+
+            Icon(
+                modifier = Modifier
+                    .size(28.dp)
+                    .alpha(alpha = 0.6f)
+                , imageVector = Icons.Default.Send
+                ,contentDescription =null
+            )
+        }
 
     }
 }

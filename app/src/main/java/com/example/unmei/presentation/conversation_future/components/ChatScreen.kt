@@ -1,16 +1,14 @@
 package com.example.unmei.presentation.conversation_future.components
 
 import android.net.Uri
-import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,10 +43,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -58,9 +52,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SheetValue.Expanded
-import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -81,18 +72,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.popup
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -101,26 +85,29 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 
 import com.example.unmei.R
 import com.example.unmei.presentation.conversation_future.ContentResolverClient
 import com.example.unmei.presentation.conversation_future.model.ConversationEvent
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
-import com.example.unmei.presentation.conversation_future.utils.CustomMessageBubble
+import com.example.unmei.presentation.conversation_future.model.MessageType
+import com.example.unmei.presentation.conversation_future.utils.BaseRowWithSelectItemMessage
 import com.example.unmei.presentation.conversation_future.utils.BottomBarChatScreen
 import com.example.unmei.presentation.conversation_future.utils.BottomButtonSelectMedia
+
+import com.example.unmei.presentation.conversation_future.utils.ChatBubbleImages
+import com.example.unmei.presentation.conversation_future.utils.ChatBubbleWithPattern
 import com.example.unmei.presentation.conversation_future.utils.LoadingCircleProgressNewMessages
+import com.example.unmei.presentation.conversation_future.utils.MessageContent
 import com.example.unmei.presentation.conversation_future.utils.TopBarChatScreen
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 import com.example.unmei.presentation.util.ui.theme.colorApp
 import com.example.unmei.util.ConstansDev.TAG
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@RequiresApi(35)
 @Preview(showBackground = true)
 @Composable
 fun showChatScreen(){
@@ -129,6 +116,7 @@ fun showChatScreen(){
        viewModel = hiltViewModel()
    )
 }
+@RequiresApi(35)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun  ChatScreen(
@@ -152,13 +140,13 @@ fun  ChatScreen(
             )
         },
         bottomBar = {
-
             BottomBarChatScreen(
-              viewModel=viewModel,
-                lazyState = lazyState,
-                vmState = state,
                 onClickContent = {
                     viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet)
+                },
+                onSendMessage = {
+                    viewModel.onEvent(ConversationEvent.SendMessage(it))
+
                 }
             )
         },
@@ -329,6 +317,7 @@ fun ConversationModalBottom(
                         onClick ={
                             if (selectedImages.value.size !=0){
                                 onSelectedMedia(selectedImages.value)
+                                selectedImages.value = emptyList()
                             }else{
                                 onDismissRequest()
                             }
@@ -412,8 +401,6 @@ fun ConversationModalBottom(
 
     }
 }
-
-
 
 @Composable
 fun CircleCountIndicatorSelectedItem(
@@ -537,7 +524,7 @@ fun ContentChatScreen(
                 .background(color = chatBacgroundColor)
                 .padding(start = 4.dp, end = 4.dp)
             ,
-         //   reverseLayout = true,
+            reverseLayout = true,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
@@ -549,39 +536,41 @@ fun ContentChatScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
             items( state.value.listMessage ) { message ->
-                CustomMessageBubble(
-                    itemUI = message,
-                    modifier = Modifier,
+                BaseRowWithSelectItemMessage(
                     optionVisibility = state.value.optionsVisibility,
                     onClickLine = {
-                          if (state.value.optionsVisibility){
-                              viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
-                          }else{
-                              //bottom drawer
-
-                          }
-                    },
-                    onLongClickLine = {
+                        if (state.value.optionsVisibility){
+                            viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
+                        }else{
+                            //bottom drawer
+                        }
+                    },onLongClickLine = {
                         viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
                     },
                     selected = state.value.selectedMessages[message.messageId] == true
+                ) {
 
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            if(!state.value.selectedUrisForRequest.isEmpty()){
-                //Log.d(TAG,"${state.value.selectedUrisForRequest.first()}")
-                item{
-                    Image(
-                        modifier = Modifier
-                            .size(300.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                        ,
-                        contentScale = ContentScale.Crop,
-                        painter = rememberAsyncImagePainter(model =state.value.selectedUrisForRequest.first())
-                        , contentDescription = ""
-                    )
+                    when(message.type){
+                        is MessageType.Image -> {
+                           ChatBubbleImages(item = message)
+                        }
+                        is  MessageType.Text -> {
+                            ChatBubbleWithPattern(
+                                modifier= Modifier,
+                                isOwn = message.isOwn,) {
+                                MessageContent(
+                                    data = message
+                                )
+                            }
+                        }
+                    }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+
+            }
+
+            if(!state.value.selectedUrisForRequest.isEmpty()){
+                viewModel.testFun()
             }
 
 
