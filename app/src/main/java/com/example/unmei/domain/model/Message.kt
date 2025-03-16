@@ -4,7 +4,8 @@ import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
 import com.example.unmei.presentation.conversation_future.model.MessageType
 import java.time.Instant
-import java.time.ZoneOffset
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 data class Message(
@@ -22,8 +23,8 @@ data class Message(
                 MessageListItemUI(
                         text = text ?: "",
                         messageId = id,
-                        timestamp = timestamp,
-                        timeString = TimeStampToString(timestamp),
+                        timestamp = timestampToLocalDateTime(timestamp),
+                        timeString = timestampToStringHourMinute(timestamp),
                         isChanged = edited,
                         isOwn = owUid == senderId,
                         fullName = "name",//брать из hAshMap?????
@@ -36,10 +37,15 @@ data class Message(
                         status =if(readed) MessageStatus.Readed else MessageStatus.Send
                 )
         }
-        private fun TimeStampToString(timestamp: Long):String{
+        private fun timestampToStringHourMinute(timestamp: Long):String{
                 val formatter = DateTimeFormatter.ofPattern("HH:mm")
-                        .withZone(ZoneOffset.UTC)
+                        .withZone(ZoneId.systemDefault())
                 return formatter.format(Instant.ofEpochMilli(timestamp))
+        }
+        private fun timestampToLocalDateTime(timestamp:Long):LocalDateTime{
+              return Instant.ofEpochMilli(timestamp)
+                        .atZone(ZoneId.systemDefault())  // Использует системный часовой пояс
+                        .toLocalDateTime()
         }
 }
 

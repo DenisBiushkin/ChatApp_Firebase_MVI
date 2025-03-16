@@ -6,9 +6,11 @@ import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.NewRoomModel
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -23,6 +25,13 @@ class MainRepositoryImpl @Inject constructor(
     private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
 
+    override suspend fun createNewChatAdvence(newRoomModel: NewRoomModel): Resource<String> {
+        return remoteDataSource.createNewRoomAdvence(newRoomModel)
+    }
+
+    override suspend fun deleteChatAdvance(roomId: String): Resource<Unit> {
+        return remoteDataSource.cascadeDeleteRoomsAdvence(roomId)
+    }
 
     override fun getBlockMessagesByChatId(
         chatId: String,
@@ -33,12 +42,23 @@ class MainRepositoryImpl @Inject constructor(
         return remoteDataSource.getBlockMessagesByChatIdRemote(chatId,count,lastMessageKey)
     }
 
+    override fun deleteMessagesInChat(
+        messagesId: List<String>,
+        chatId: String
+    ): Flow<Resource<Unit>> {
+        return remoteDataSource.deleteMessagesInChat(messagesId,chatId)
+    }
+
     override suspend fun setStatusUser(userId: String, status: StatusUser): Resource<String> {
        return remoteDataSource.setStatsuById(userId,status)
     }
 
     override suspend fun getUserById(userId: String): User? {
         return null
+    }
+
+    override fun observeMessagesInChat(chatId: String): Flow<ExtendedResource<Message>> {
+        return remoteDataSource.observeMessagesInChat(chatId)
     }
 
     override fun observeStatusUserById(userId: String): Flow<StatusUser> {
@@ -67,11 +87,6 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun observeUser(userId: String): Flow <User> {
         return remoteDataSource.observeUser(userId)
-    }
-
-    //
-    fun getUserRooms():Flow<List<RoomsUser>> = callbackFlow {
-
     }
 
     override fun createNewChat(group: ChatRoom): Flow<Resource<String>> {

@@ -2,6 +2,7 @@ package com.example.unmei.DI
 
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.network.RemoteDataSource
@@ -10,6 +11,8 @@ import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
+import com.example.unmei.domain.usecase.CreatePrivateChatUseCase
 import com.example.unmei.domain.usecase.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
 import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
@@ -20,6 +23,7 @@ import com.example.unmei.domain.usecase.SaveUserUseCase
 import com.example.unmei.domain.usecase.SetStatusUserUseCase
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,17 +52,23 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRemoteDatasource():RemoteDataSource{
-        return RemoteDataSource(FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB))
+    fun provideRemoteDatasource(context:Application):RemoteDataSource{
+        return RemoteDataSource(
+            db=FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB),
+            storage= FirebaseStorage.getInstance(ConstansDev.YOUR_PATHFOLDER_STORAGE),
+            context= context
+        )
     }
+
+    @Singleton
     @Provides
     fun provideMainRepository(
-        localDataSourc:LocalDataSource,
+        localDataSource:LocalDataSource,
         remoteDataSource: RemoteDataSource,
         mapperChatRoom: Mapper<ChatRoomResponse,ChatRoom>
     ):MainRepository{
         return MainRepositoryImpl(
-            localDataSource = localDataSourc,
+            localDataSource = localDataSource,
             remoteDataSource= remoteDataSource,
             mapperChatRoom = mapperChatRoom
         )
@@ -99,6 +109,15 @@ object AppModule {
     @Provides
     fun provideGetUserByIdUseCase(mainRepository: MainRepository): GetUserByIdUseCase{
         return GetUserByIdUseCase(mainRepository)
+    }
+    @Provides
+    fun provideCreateNewRoomAdvenceUseCase(mainRepository: MainRepository): CreateNewRoomAdvenceUseCase {
+        return  CreateNewRoomAdvenceUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideCreatePrivateChatUseCase(mainRepository: MainRepository):CreatePrivateChatUseCase {
+        return  CreatePrivateChatUseCase(mainRepository)
     }
 
 }

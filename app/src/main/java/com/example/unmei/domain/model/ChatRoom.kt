@@ -8,16 +8,24 @@ data class ChatRoom(
         val timestamp:Long,//время создания
         val moderators: Map<String,Boolean> = emptyMap(),//для группового чата()
         val members:Map<String,Boolean> = emptyMap(),
-        val lastMessage: String? = null
+        val lastMessage: String? = null,
+
+        //новое
+     //   val chatname:String,
+
     ){
-        fun toChatItemUi(): ChatItemUI = ChatItemUI(
-                chatId = id,
-                type = type,
-                timestamp = timestamp,
-                moderators = moderators.keys.toList(),
-                members = members.keys.toList(),
-                lastMessageId = lastMessage.toString(),
-                icon= null,
-                nameChat = ""
-        )
+        fun toChatItemUi(): ChatItemUI{
+                val members = members.keys.toList()
+
+                return ChatItemUI(
+                        chatId = id,
+                        type = type,
+                        timestamp = timestamp,
+                        moderators = moderators.keys.toList(),
+                        members = members,
+                        lastMessageId = lastMessage.toString(),
+                        icon= null,
+                        nameChat =""
+                )
+        }
 }

@@ -43,7 +43,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 
@@ -54,6 +60,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 
 
@@ -100,6 +107,7 @@ import com.example.unmei.presentation.conversation_future.utils.ChatBubbleImages
 import com.example.unmei.presentation.conversation_future.utils.ChatBubbleWithPattern
 import com.example.unmei.presentation.conversation_future.utils.LoadingCircleProgressNewMessages
 import com.example.unmei.presentation.conversation_future.utils.MessageContent
+import com.example.unmei.presentation.conversation_future.utils.TimeMessage
 import com.example.unmei.presentation.conversation_future.utils.TopBarChatScreen
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
@@ -138,6 +146,47 @@ fun  ChatScreen(
                 titleChat = "Unknown",
                 statusChat = "offline"
             )
+
+            AnimatedVisibility(
+                visible = state.value.optionsVisibility
+                , enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                TopAppBar(
+                    title = { /*TODO*/ },
+                    modifier = Modifier.fillMaxWidth(),
+                    navigationIcon = {
+                        IconButton(
+                            modifier = Modifier
+                                .padding(start = 5.dp)
+                            ,
+                            onClick = {
+                                viewModel.onEvent(ConversationEvent.Offoptions)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                tint = Color.Black,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            modifier = Modifier
+                                .padding(start = 5.dp)
+                            ,
+                            onClick = { viewModel.onEvent(ConversationEvent.DeleteSelectedMessages) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                tint = Color.Black,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            }
         },
         bottomBar = {
             BottomBarChatScreen(
@@ -160,6 +209,8 @@ fun  ChatScreen(
             lazyState= lazyState,
             viewModel
         )
+
+        Log.d(TAG,state.value.selectedMessages.keys.toList().toString())
 
         ConversationModalBottom(
             bottomSheetState = bottomSheetState,
@@ -291,14 +342,10 @@ fun ConversationModalBottom(
             dragHandle = {}
             // windowInsets = WindowInsets.,
         ) {
-
-
             Scaffold(
                 modifier = Modifier
                     .fillMaxSize()
-
                 ,
-               // containerColor = Color.Yellow,
                 topBar = {
                     Row (
                         modifier = Modifier
@@ -306,7 +353,6 @@ fun ConversationModalBottom(
                             .fillMaxWidth()
                             .background(Color.Red)
                     ){
-
                     }
                 },
 
@@ -332,7 +378,6 @@ fun ConversationModalBottom(
                     listImageUris.value=ContentResolverClient(context).getAllImagesUri().take(20)
                     isLoadingImages.value= false
                 }
-
                 if(isLoadingImages.value){
                     LoadingContentProgressIndicator(
                         // modifier = Modifier.padding(paddingValues),
@@ -346,15 +391,12 @@ fun ConversationModalBottom(
                         ,columns =GridCells.Fixed(3),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-
                         items(listImageUris.value){
-
                             Box(
                                 modifier = Modifier
                                     .size(sizeOneItemDp)
                                     .padding(top = 4.dp)
                             ){
-
                                 Image(
                                     modifier = Modifier
                                         .clip(RectangleShape)
@@ -504,15 +546,6 @@ fun ContentChatScreen(
             lazyState.canScrollForward
         }
     }
-    Log.d(TAG,"canScrollForward $canScrollForward")
-//    if(isScrollingUp && !state.value.loadingOldMessages){
-//
-//        Log.d(TAG,"Загрузка старых")
-//        viewModel.onEvent(ConversationEvent.LoadingNewMessage)
-//    }
-    println("Идет скрол "+isScrolling)
-    println("Пользователь листает вверх "+isScrollingUp)
-
     if (state.value.loadingScreen){
         CircularProgressIndicator()
     }else{
@@ -525,49 +558,56 @@ fun ContentChatScreen(
                 .padding(start = 4.dp, end = 4.dp)
             ,
             reverseLayout = true,
+
+            
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             item{
               LoadingCircleProgressNewMessages(state.value.loadingOldMessages)
             }
-            //для времени сообщения
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            items( state.value.listMessage ) { message ->
-                BaseRowWithSelectItemMessage(
-                    optionVisibility = state.value.optionsVisibility,
-                    onClickLine = {
-                        if (state.value.optionsVisibility){
+//            state.value.groupedMapMessage.forEach{
+//                (date,messages)->
+                items(  state.value.listMessage) { message ->
+                    BaseRowWithSelectItemMessage(
+                        optionVisibility = state.value.optionsVisibility,
+                        onClickLine = {
+                            if (state.value.optionsVisibility){
+                                viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
+                            }else{
+                                //bottom drawer
+                            }
+                        },onLongClickLine = {
                             viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
-                        }else{
-                            //bottom drawer
-                        }
-                    },onLongClickLine = {
-                        viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
-                    },
-                    selected = state.value.selectedMessages[message.messageId] == true
-                ) {
-
-                    when(message.type){
-                        is MessageType.Image -> {
-                           ChatBubbleImages(item = message)
-                        }
-                        is  MessageType.Text -> {
-                            ChatBubbleWithPattern(
-                                modifier= Modifier,
-                                isOwn = message.isOwn,) {
-                                MessageContent(
-                                    data = message
-                                )
+                        },
+                        selected = state.value.selectedMessages[message.messageId] == true
+                    ) {
+                        when(message.type){
+                            is MessageType.Image -> {
+                                ChatBubbleImages(item = message)
+                            }
+                            is  MessageType.Text -> {
+                                ChatBubbleWithPattern(
+                                    modifier= Modifier,
+                                    isOwn = message.isOwn,) {
+                                    MessageContent(
+                                        data = message
+                                    )
+                                }
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+//                item {
+//                    TimeMessage(time = date.toString())
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                }
 
             }
+
+
+
 
             if(!state.value.selectedUrisForRequest.isEmpty()){
                 viewModel.testFun()
@@ -579,7 +619,7 @@ fun ContentChatScreen(
 
 
 
-}
+
 
 
 @Composable

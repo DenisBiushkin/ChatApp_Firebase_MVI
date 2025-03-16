@@ -54,6 +54,7 @@ import com.example.unmei.presentation.conversation_future.model.MessageListItemU
 import com.example.unmei.presentation.conversation_future.model.MessageType
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 import com.example.unmei.presentation.util.ui.theme.colorApp
+import java.time.LocalDateTime
 
 @Preview(showBackground = true)
 @Composable
@@ -62,7 +63,7 @@ fun showBubble(){
 
     val testItem=MessageListItemUI(
         fullName = "name",
-        timestamp = 183789371,
+        timestamp = LocalDateTime.now(),
         timeString = "0:18",
         isOwn = false,
         status = MessageStatus.Send,

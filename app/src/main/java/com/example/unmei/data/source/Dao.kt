@@ -7,6 +7,7 @@ import com.example.unmei.data.source.entitys.UserEntity
 
 @Dao
 interface Dao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: UserEntity)
 

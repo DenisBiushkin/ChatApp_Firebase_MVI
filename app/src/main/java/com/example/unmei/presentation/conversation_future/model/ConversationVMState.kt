@@ -3,9 +3,12 @@ package com.example.unmei.presentation.conversation_future.model
 import android.net.Uri
 import androidx.transition.Visibility
 import okhttp3.Request
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class ConversationVMState(
     val listMessage: List<MessageListItemUI> = emptyList(),
+    val groupedMapMessage : LinkedHashMap<LocalDate,List<MessageListItemUI>> = LinkedHashMap(),
     val selectedUrisForRequest: List<Uri> = emptyList(),
     val selectedMessages: Map<String,Boolean> = emptyMap(),
     val loadingScreen: Boolean= true,

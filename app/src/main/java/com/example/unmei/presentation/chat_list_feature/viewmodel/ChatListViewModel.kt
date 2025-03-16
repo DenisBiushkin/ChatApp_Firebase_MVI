@@ -1,11 +1,18 @@
 package com.example.unmei.presentation.chat_list_feature.viewmodel
 
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unmei.data.model.ChatRoomAdvence
 import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.RoomSummaries
 import com.example.unmei.domain.model.Status
+import com.example.unmei.domain.model.StatusUser
+import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
@@ -13,20 +20,29 @@ import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.usecase.ObserveUserUseCase
 import com.example.unmei.domain.usecase.SetStatusUserUseCase
+import com.example.unmei.presentation.chat_list_feature.model.ChatItemAdvenced
 import com.example.unmei.presentation.chat_list_feature.model.ChatItemUI
 import com.example.unmei.presentation.chat_list_feature.model.ChatVMState
+import com.example.unmei.presentation.chat_list_feature.model.TypeMessage
 import com.example.unmei.util.ConstansDev
+import com.example.unmei.util.ConstansDev.TAG
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,7 +65,7 @@ class ChatListViewModel @Inject constructor(
     val state: StateFlow<ChatVMState> = _state.asStateFlow()
 
 
-
+    private val currentUsrUid = Firebase.auth.currentUser!!.uid
 
     val db= FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB)
     val groupsRef = ""
@@ -62,81 +78,118 @@ class ChatListViewModel @Inject constructor(
 
 
      init {
-         viewModelScope.launch {
-             val uidMessage= refMessages.push().key
-//            val mes= MessageResponse(
-//                 id = uidMessage!!,
-//                 senderId = "auegBKgwyvbwge7PQs9nfFRRFfj1",
-//                 text="Первое сообщение",
-//                 timestamp = ServerValue.TIMESTAMP,
-//                 type = "text",
-//                 readed = true,
-//                 mediaUrl = "url",
-//                 edited = true
-//             )
-             val users= listOf("auegBKgwyvbwge7PQs9nfFRRFfj1","u1DDSWtIHOSpcHIkLZl0SZGEsmB3")
 
-//             val res=remote.createPrivateRoom(users, message = mes)
-//             res.data?.let {
-//                 remote.saveIdRoomInUsers(users,it)
-//             }
-
-         }
          observeChatRooms()
          val currentUserUid = "u1DDSWtIHOSpcHIkLZl0SZGEsmB3"
          viewModelScope.launch {
-             val userChatsWithStatus = userChats.flatMapLatest { listChat ->
-                 val chatFlows = listChat.map { chatItem ->
-                     if (chatItem.type == "private") {
-                         val idCompanion = chatItem.members.first { it != currentUserUid }
-                         // Одиночный запрос: загружаем данные собеседника
-                         val companionInfo =
-                             getUserByIdUseCase.execute(idCompanion) // suspend-функция
-                         // Наблюдение за онлайном
-                         val statusFlow = observeUserStatusByIdUseCase.execute(idCompanion)
-                         // Объединяем статические данные с реактивными
-                         combine(
-                             flowOf(companionInfo), // Одиночный запрос
-                             statusFlow // Реактивный статус
-                         ) { info, status ->
-                             chatItem.copy(
-                                 isOnline = if (status.status == Status.ONLINE) true else false,
-                                 nameChat = companionInfo?.fullName ?: "Unknown"
-                             )
-                         }
-                     } else {
-                         flowOf(chatItem)
-                         // Наблюдение за печатью (если нужно)
-//                     val typingFlow = observeTypingStatus(chatItem.id)
+
+             observeChatRoomsAdvanced()
+//             val userChatsWithStatus = userChats.flatMapLatest { listChat ->
+//                 val chatFlows = listChat.map { chatItem ->
+//                     if (chatItem.type == "private") {
+//                         val idCompanion = chatItem.members.first { it != currentUserUid }
+//                         // Одиночный запрос: загружаем данные собеседника
+//                         val companionInfo =
+//                             getUserByIdUseCase.execute(idCompanion) // suspend-функция
 //
-//                     typingFlow.map { isTyping ->
-//                         chatItem.copy(isTyping = isTyping)
+//
+//                         // Наблюдение за онлайном
+//                         val statusFlow = observeUserStatusByIdUseCase.execute(idCompanion)
+//                         // Объединяем статические данные с реактивными
+//                         combine(
+//                             flowOf(companionInfo), // Одиночный запрос
+//                             statusFlow // Реактивный статус
+//                         ) { info, status ->
+//                             chatItem.copy(
+//                                 isOnline = if (status.status == Status.ONLINE) true else false,
+//                                 nameChat = companionInfo?.fullName ?: "Unknown"
+//                             )
+//                         }
+//                     } else {
+//                         flowOf(chatItem)
+//                         // Наблюдение за печатью (если нужно)
+////                     val typingFlow = observeTypingStatus(chatItem.id)
+////
+////                     typingFlow.map { isTyping ->
+////                         chatItem.copy(isTyping = isTyping)
+////                     }
+//
 //                     }
-
-                     }
-                 }
-                 // Объединяем все чаты в один поток
-                 combine(chatFlows) { it.toList() }
-             }.collect{
-                 _state.value = state.value.copy(
-                     chatList = it,
-                     isLoading = false
-                 )
-
-             }
+//                 }
+//                 // Объединяем все чаты в один поток
+//                 combine(chatFlows) { it.toList() }
+//             }.collect{
+//                 _state.value = state.value.copy(
+//                     chatList = it,
+//                     isLoading = false
+//                 )
+//
+//             }
 
          }
 
 
      }
+
+    private suspend fun observeChatRoomsAdvanced() {
+        observeRoomsUserUseCase.execute(currentUserId)
+            .collectLatest { listRooms ->
+                listRooms.map { roomId ->
+                    remote.getChatRoomById(roomId)?.let { chatRoom ->
+                        if (chatRoom.type == TypeRoom.PRIVATE) {
+                            // Для приватных чатов
+                            val idCompanion = chatRoom.members.first { it != currentUsrUid }
+                            val statusFlow = observeUserStatusByIdUseCase.execute(idCompanion)
+                            val summariesFlow = remote.observeRoomSammaries(chatRoom.id)
+                            // Объединяем statusFlow и summariesFlow
+                            combine(statusFlow, summariesFlow) { status, summaries ->
+                                ChatItemAdvenced(
+                                    chatRoom = chatRoom,
+                                    status = status,
+                                    summaries = summaries
+                                )
+
+                            }
+                        } else {
+                            // Для не приватных чатов
+                            val summariesFlow = remote.observeRoomSammaries(chatRoom.id)
+
+                            // Используем статический статус OFFLINE
+                            combine(flowOf(StatusUser(status = Status.OFFLINE, 0)), summariesFlow) { status, summaries ->
+                                ChatItemAdvenced(
+                                    chatRoom = chatRoom,
+                                    status = status,
+                                    summaries = summaries
+                                )
+                            }
+                        }
+                    } ?: emptyFlow() // Если chatRoom == null, возвращаем пустой поток
+                }
+                    .merge() // Объединяем все потоки в один
+                    .collect { chatItemAdvanced ->
+                        val status = chatItemAdvanced.status
+                        val summaries = chatItemAdvanced.summaries
+                        val room = chatItemAdvanced.chatRoom
+                        Log.d(TAG,"Status: ${status.status} Summaries: ${summaries.typingUsersStatus} Room: ${room.iconUrl}")
+                        // Обрабатываем каждый ChatItemAdvanced
+                        // Например, обновляем UI
+//                        _state.value = state.value.copy(
+//                          chatList = it,
+//                          isLoading = false
+ //                )
+                    }
+            }
+    }
      private fun observeChatRooms(){
          userChats=observeRoomsUserUseCase
              .execute(currentUserId).flatMapLatest {
                      listRooms->
-                 combine(
+                     combine(
                      listRooms.map {
                              roomsId->
-                         observeChatRoomUseCase.execute(roomsId)
+
+                         //getChatRoomById()
+                            observeChatRoomUseCase.execute(roomsId)
                      }
                  ){
                      it.toList().map { it.toChatItemUi() }

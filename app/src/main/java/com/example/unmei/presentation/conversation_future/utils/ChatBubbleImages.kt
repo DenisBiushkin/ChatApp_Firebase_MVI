@@ -45,6 +45,7 @@ import com.example.unmei.presentation.conversation_future.model.MessageListItemU
 import  com.example.unmei.R
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.util.MessageIconStatus
+import java.time.LocalDateTime
 
 @Composable
 @Preview(showBackground = true)
@@ -53,7 +54,7 @@ fun showChatBubbleImages(){
     val item = MessageListItemUI(
         fullName = "",
         text = "",
-        timestamp = 762768972,
+        timestamp = LocalDateTime.now(),
         timeString = "11:03",
         isChanged = true,
         status = MessageStatus.None
@@ -95,7 +96,7 @@ fun ChatBubbleImages(
 //            items(10){
         Image(
             modifier = Modifier
-                .aspectRatio(1f)
+           //     .aspectRatio(1f)
             // .clip(RoundedCornerShape(20.dp))
             ,contentScale = ContentScale.Crop,
             painter = rememberAsyncImagePainter(model = imageUri)

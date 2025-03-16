@@ -8,3 +8,6 @@ data class ChatRoomResponse(
         val members:Map<String,Boolean> = emptyMap(),
         val lastMessage: String? = null
     )
+
+
+
