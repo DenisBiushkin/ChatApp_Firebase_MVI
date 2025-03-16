@@ -42,8 +42,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -135,52 +137,39 @@ class ChatListViewModel @Inject constructor(
         observeRoomsUserUseCase.execute(currentUserId)
             .collectLatest { listRooms ->
                 listRooms.map { roomId ->
-                    remote.getChatRoomById(roomId)?.let { chatRoom ->
-                        if (chatRoom.type == TypeRoom.PRIVATE) {
-                            // Для приватных чатов
+                    val flow=  remote.getChatRoomById(roomId)?.let {
+                            chatRoom ->
+                        val summariesFlow = remote.observeRoomSammaries(chatRoom.id)
+                        val statusFlow = if (chatRoom.type == TypeRoom.PRIVATE) {
                             val idCompanion = chatRoom.members.first { it != currentUsrUid }
-                            val statusFlow = observeUserStatusByIdUseCase.execute(idCompanion)
-                            val summariesFlow = remote.observeRoomSammaries(chatRoom.id)
-                            // Объединяем statusFlow и summariesFlow
-                            combine(statusFlow, summariesFlow) { status, summaries ->
-                                ChatItemAdvenced(
-                                    chatRoom = chatRoom,
-                                    status = status,
-                                    summaries = summaries
-                                )
-
-                            }
+                            observeUserStatusByIdUseCase.execute(idCompanion)
                         } else {
-                            // Для не приватных чатов
-                            val summariesFlow = remote.observeRoomSammaries(chatRoom.id)
-
-                            // Используем статический статус OFFLINE
-                            combine(flowOf(StatusUser(status = Status.OFFLINE, 0)), summariesFlow) { status, summaries ->
-                                ChatItemAdvenced(
-                                    chatRoom = chatRoom,
-                                    status = status,
-                                    summaries = summaries
-                                )
-                            }
+                            flowOf(StatusUser(status = Status.OFFLINE, 0))
+                        }
+                        combine(statusFlow, summariesFlow) { status, summaries ->
+                            ChatItemAdvenced(
+                                chatRoom = chatRoom,
+                                status = status,
+                                summaries = summaries
+                            )
                         }
                     } ?: emptyFlow() // Если chatRoom == null, возвращаем пустой поток
-                }
-                    .merge() // Объединяем все потоки в один
-                    .collect { chatItemAdvanced ->
-                        val status = chatItemAdvanced.status
-                        val summaries = chatItemAdvanced.summaries
-                        val room = chatItemAdvanced.chatRoom
-                        Log.d(TAG,"Status: ${status.status} Summaries: ${summaries.typingUsersStatus} Room: ${room.iconUrl}")
-                        // Обрабатываем каждый ChatItemAdvanced
-                        // Например, обновляем UI
-//                        _state.value = state.value.copy(
-//                          chatList = it,
-//                          isLoading = false
- //                )
+                    combine(flow){
+                        it.toList()
+                    }
+                }.merge()
+                    .collect {  chatItems ->
+                        chatItems.forEach { chatItem ->
+                            Log.d(TAG, "Status: ${chatItem.status.status} Summaries: ${chatItem.summaries.typingUsersStatus} Room: ${chatItem.chatRoom.iconUrl}")
+                        }
+                        _state.value = state.value.copy(
+                             chatListAdv = chatItems,
+                             isLoading = false
+                        )
                     }
             }
     }
-     private fun observeChatRooms(){
+    private fun observeChatRooms(){
          userChats=observeRoomsUserUseCase
              .execute(currentUserId).flatMapLatest {
                      listRooms->

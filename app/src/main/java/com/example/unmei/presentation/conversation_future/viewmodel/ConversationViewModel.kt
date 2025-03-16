@@ -18,7 +18,9 @@ import com.example.unmei.presentation.conversation_future.model.ConversationEven
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
 import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
 import com.example.unmei.presentation.conversation_future.model.MessageType
+import com.example.unmei.util.ConstansApp.MESAGES_SUMMERIES_DB
 import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
+import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
@@ -56,7 +58,7 @@ class ConversationViewModel @Inject constructor(
     private var lastLoadedTimestamp: Long = Long.MAX_VALUE
     private var lastLoadedIdMessage: String = ""
     private val currentUsrUid = Firebase.auth.currentUser!!.uid
-    private val chatId="-OGfKvopKTMOCp_bxJqe"
+    private val chatId="-OLURjaOA0bbkiWLD3jz"
 
 
 
@@ -66,7 +68,7 @@ class ConversationViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            initFirstMassages(chatId)
+          //  initFirstMassages(chatId)
 
            // Log.d(TAG,.toString())
 
@@ -291,11 +293,17 @@ class ConversationViewModel @Inject constructor(
     }
    // @Deprecated("Не подходит под новый ТИП сообщения")
     suspend fun sendMessage(message: Message){
-            val uidMessage= refMessages.push().key!!
-                refMessages.child(chatId).child(uidMessage).
-                setValue(MessageResponse().fromMessageToResp(message).copy(
-                    id= uidMessage
-                )).await()
+        val uidMessage= refMessages.push().key!!
+        val msg= MessageResponse().fromMessageToResp(message).copy(
+            id= uidMessage
+        )
+       val reference =FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB).reference
+       val updates = mapOf(
+           "${MESSAGES_REFERENCE_DB}/$chatId/$uidMessage" to msg,
+           "$MESAGES_SUMMERIES_DB/$chatId/lastMessage" to msg
+           //Удалить UID чата у каждого участника
+       )
+       reference.updateChildren(updates).await()
     }
 
 

@@ -65,6 +65,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import com.example.unmei.domain.model.Status
 import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUI
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
@@ -161,7 +163,7 @@ fun ScreenContent(
 //        Button(onClick = { viewmodel.sendCommand() }) {
 //            Text(text = "Click send to server")
 //        }
-            val list =state.value.chatList
+          //  val list =state.value.chatList
             LazyColumn {
                 if(state.value.isLoading){
 
@@ -169,18 +171,23 @@ fun ScreenContent(
                         AnimatedShimmerEffectChatItem()
                     }
                 }else{
-                    items(list) {
+                    items(state.value.chatListAdv) {
                             it->
+                        val text = if (!it.summaries.typingUsersStatus.isEmpty()){
+                            "Печатает...."
+                        }else{
+                            if (it.summaries.lastMessage ==null) "" else it.summaries.lastMessage.text.toString()
+                        }
                         val item = ChatListItemUI(
                             messageStatus = MessageStatus.Send,
                             notificationMessageStatus = NotificationMessageStatus.On,
-                            isOnline = state.value.isOnline,
-                            fullName = it.nameChat,//Marcile Donato
-                            painterUser = painterResource(id = R.drawable.test_user),
-                            messageText = "Вы: Привет, как твои дела?",
+                            isOnline = it.status.status == Status.ONLINE,
+                            fullName = it.chatRoom.chatName,//Marcile Donato
+                            painterUser = rememberAsyncImagePainter(model =  it.chatRoom.iconUrl),
+                            messageText = text ,
                             //пока что String
-                            timeStamp = it.timestamp,
-                            groupUid = it.chatId,
+                            timeStamp =  it.chatRoom.timestamp,
+                            groupUid = it.chatRoom.id,
                             companionUid = "12"
                         )
                         ChatItem(

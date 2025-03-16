@@ -300,13 +300,10 @@ class RemoteDataSource(
         val listener = object : ValueEventListener {
             @OptIn(UnstableApi::class)
             override fun onDataChange(snapshot: DataSnapshot) {
-
-
                 val roomsMap = snapshot.value as? Map<String, Boolean> ?: emptyMap()
                 val roomsUser = RoomsUser(roomsMap)
                 Log.d(TAG,"UserRoms DATA: "+roomsUser.rooms)
                 trySend( roomsUser )
-
             }
             override fun onCancelled(error: DatabaseError) {
                 //
