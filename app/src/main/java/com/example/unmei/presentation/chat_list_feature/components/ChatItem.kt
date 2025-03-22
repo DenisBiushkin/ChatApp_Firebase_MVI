@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,13 +70,19 @@ fun showChatItem(){
             groupUid = ""
         )
         ChatItem(
-            item= item,
             onClick = {
 
             },
             onLongClick = {
 
+            },
+            chatName = item.fullName,
+            iconPainter = item.painterUser,
+            isOnline = item.isOnline,
+            chatContent = {
+
             }
+
         )
     }
 
@@ -87,29 +94,26 @@ fun ChatItem(
     height: Dp = 70.dp,
     colorUnderLine:Color =Color.Black.copy(alpha = 0.7f),
     underLineWidth:Float =1f,
-    item: ChatListItemUI,
-    onClick:(ChatListItemUI)->Unit,
-    onLongClick:(ChatListItemUI)->Unit,
+    onClick:()->Unit,
+    onLongClick:()->Unit,
+    notificationMessageStatus:NotificationMessageStatus=NotificationMessageStatus.On,
+    lastMessageTimeString: String = "",
+    chatContent: @Composable() (RowScope.()->Unit),
+    chatName:String = "",
+    iconPainter: Painter,
+    isOnline: Boolean = false,
+    messageStatus:MessageStatus = MessageStatus.Send
 ){
-    //мб перенести эту логику в viewmodel
-    val timeStamp: Long =1737392296
-    val formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy")
-    val date = Instant.ofEpochMilli(item.timeStamp)
-        .atZone(ZoneOffset.UTC) // Устанавливаем временную зону
-        .toLocalDate() // Преобразуем в локальную дату
-    val text = date.format(formatter)
-    val russianDayOfWeek = date.month.getDisplayName(TextStyle.SHORT, Locale("ru"))
-    val dateString =  date.dayOfMonth.toString()+" "+russianDayOfWeek
     Row (
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = height, max = height)
             .combinedClickable(
                 onClick = {
-                    onClick(item)
+                    onClick()
                 },
                 onLongClick = {
-                    onLongClick(item)
+                    onLongClick()
                 }
             )
     ){
@@ -120,9 +124,9 @@ fun ChatItem(
           , contentAlignment =Alignment.Center
         ){
               BoxWithImageUser(
-                  painterUser =item.painterUser,
+                  painterUser =iconPainter,
                   height =height,
-                  isOnline =item. isOnline
+                  isOnline =isOnline
               )
         }
         BoxWithUnderline(
@@ -161,44 +165,44 @@ fun ChatItem(
                                  //отредактировать
                                  .widthIn(max= 200.dp)
                              ,
-                             text =item.fullName,
+                             text=chatName,
                              fontWeight = FontWeight.Medium,
                              maxLines = 1,
                              fontSize = 17.sp,
                              overflow = TextOverflow.Ellipsis
                          )
                          Spacer(modifier = Modifier.width(5.dp))
-                         when(item.notificationMessageStatus){
-                             NotificationMessageStatus.Off ->{
-                                 Icon(
-                                     modifier = Modifier.size(20.dp),
-                                     imageVector =  ImageVector.vectorResource(id = R.drawable.volume_off_24px),
-                                     contentDescription =null,
-                                     tint = Color.Gray.copy(alpha = 0.5f)
-                                 )
-                             }
-                             NotificationMessageStatus.On -> {
 
-                             }
-                         }
+//                         when(notificationMessageStatus){
+//                             NotificationMessageStatus.Off ->{
+//                                 Icon(
+//                                     modifier = Modifier.size(20.dp),
+//                                     imageVector =  ImageVector.vectorResource(id = R.drawable.volume_off_24px),
+//                                     contentDescription =null,
+//                                     tint = Color.Gray.copy(alpha = 0.5f)
+//                                 )
+//                             }
+//                             NotificationMessageStatus.On -> {
+//
+//                             }
+//                         }
                      }
                      Row (
                          verticalAlignment = Alignment.CenterVertically
                      ){
                          MessageIconStatus(
-                             status =item. messageStatus,
+                             status = messageStatus,
                              sizeIcon = 25.dp,
                              colorIcon = Color.Green
                          )
                          Spacer(modifier = Modifier.width(4.dp))
                          Text(
-                             text = dateString,
+                             text = lastMessageTimeString,
                              color = Color.Gray,
                              fontSize = 14.sp
                          )
 
                      }
-
                  }
                  //Нижняя часть
                  Row (
@@ -211,15 +215,21 @@ fun ChatItem(
                              end = 6.dp,
                          )
                      ,
-                     horizontalArrangement = Arrangement.SpaceBetween
-                 ){
-                   Text(
-                       text = item.messageText,
-                       fontSize = 15.sp,
-                       fontWeight = FontWeight.Normal,
-                       color= Color.Black.copy(alpha = 0.7f)
-                   )
-                 }
+                     horizontalArrangement = Arrangement.SpaceBetween,
+                     content = chatContent
+                 )
+//                 {
+//
+//                     ////&&&&\\\\\\\
+//                   Text(
+//                       text = item.messageText,
+//                       fontSize = 15.sp,
+//                       fontWeight = FontWeight.Normal,
+//                       color= Color.Black.copy(alpha = 0.7f)
+//                   )
+//
+//
+//                 }
              }
         }
     }

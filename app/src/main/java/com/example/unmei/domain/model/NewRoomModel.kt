@@ -9,5 +9,6 @@ data class NewRoomModel(
        val iconUri: Uri = Uri.EMPTY,
        val membersIds: List<String>,
        val moderatorsIds:List<String> = emptyList(),
-       val standartUrlIcon:String = ""
+       val standartUrlIcon:String = "",
+       val message: Message? = null
     )

@@ -11,7 +11,7 @@ data class RoomSummariesResp(
                 RoomSummaries(
                         lastMessage = lastMessage?.let { it.toMessage() },
                         unreadedCount= unreadedCount,
-                        typingUsersStatus = typingUsersStatus.keys.toList()
+                        typingUsersStatus = typingUsersStatus.keys.toSet()
                 )
         }
 }

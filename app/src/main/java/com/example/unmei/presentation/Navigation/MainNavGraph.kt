@@ -36,23 +36,22 @@ fun NavGraphBuilder.mainNavGraph(
             route=Screens.Chat.route,
             arguments = listOf(
                 navArgument(
-                    name = ConstansApp.CHAT_AGUIMENT_GROUPUID,
+                    name = ConstansApp.CHAT_ARGUMENT_JSON,
                 ){
                   type = NavType.StringType
                 },
-                navArgument(
-                    name = ConstansApp.CHAT_ARGUMENT_COMPANIONUID,
-                ){
-                    type = NavType.StringType
-                }
+
             )
         ){
             //переделать, чтобы засунуть данные сразу в конструктор ViewModel
             val viewModel = hiltViewModel<ConversationViewModel>()
-            val groupUid = it.arguments!!.getString(ConstansApp.CHAT_AGUIMENT_GROUPUID)!!
-            val companionuid = it.arguments!!.getString(ConstansApp.CHAT_ARGUMENT_COMPANIONUID)!!
-            Log.d(ConstansDev.TAG,"Receive Arguments $groupUid  $companionuid")
-            viewModel.saveNecessaryInfo(groupUid,companionuid)
+
+            val jsonData = it.arguments!!.getString(ConstansApp.CHAT_ARGUMENT_JSON)!!
+            val exsitenceData = Screens.Chat.fromJsonToExistenceData(jsonData)
+
+            Log.d(ConstansDev.TAG,"Receive Arguments $exsitenceData")
+
+            viewModel.saveNecessaryInfo(exsitenceData)
             ChatScreen(
                 navController = navController,
                 viewModel = viewModel

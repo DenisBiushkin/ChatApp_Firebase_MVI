@@ -1,5 +1,7 @@
 package com.example.unmei.presentation.chat_list_feature.model
 
+import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.TypeRoom
 
 
 data class ChatItemUI(
@@ -14,6 +16,8 @@ data class ChatItemUI(
      val typing:Boolean= false,
      val icon:String?
 )
+
+
 
 //какая информация нам нужна?
 //chatid ,members,type,moderators, nameChat, icon

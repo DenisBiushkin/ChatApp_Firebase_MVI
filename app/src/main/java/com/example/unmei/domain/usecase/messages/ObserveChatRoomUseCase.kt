@@ -1,12 +1,8 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.messages
 
-import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
-import dagger.hilt.InstallIn
 import kotlinx.coroutines.flow.Flow
-import org.example.Mappers.base.Mapper
-import javax.inject.Inject
 
 class ObserveChatRoomUseCase (
     private val repository: MainRepository,

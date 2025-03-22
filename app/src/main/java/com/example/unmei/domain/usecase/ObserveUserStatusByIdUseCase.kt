@@ -11,4 +11,5 @@ class ObserveUserStatusByIdUseCase (
     fun execute(userId:String): Flow<StatusUser>{
         return repository.observeStatusUserById(userId)
     }
+
 }

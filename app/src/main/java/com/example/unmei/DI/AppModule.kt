@@ -2,7 +2,6 @@ package com.example.unmei.DI
 
 
 import android.app.Application
-import android.content.Context
 import androidx.room.Room
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.network.RemoteDataSource
@@ -12,15 +11,16 @@ import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
-import com.example.unmei.domain.usecase.CreatePrivateChatUseCase
+import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
 import com.example.unmei.domain.usecase.GetUserByIdUseCase
-import com.example.unmei.domain.usecase.ObserveChatRoomUseCase
-import com.example.unmei.domain.usecase.ObserveRoomsUserUseCase
+import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
+import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.usecase.ObserveUserUseCase
 import com.example.unmei.domain.usecase.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.SaveUserUseCase
 import com.example.unmei.domain.usecase.SetStatusUserUseCase
+import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
@@ -87,7 +87,7 @@ object AppModule {
         return ObserveUserUseCase(mainRepository)
     }
     @Provides
-    fun provideObserveChatItemUseCase(mainRepository: MainRepository):ObserveRoomsUserUseCase{
+    fun provideObserveChatItemUseCase(mainRepository: MainRepository): ObserveRoomsUserUseCase {
         return ObserveRoomsUserUseCase(mainRepository)
     }
 
@@ -116,8 +116,12 @@ object AppModule {
     }
 
     @Provides
-    fun provideCreatePrivateChatUseCase(mainRepository: MainRepository):CreatePrivateChatUseCase {
+    fun provideCreatePrivateChatUseCase(mainRepository: MainRepository): CreatePrivateChatUseCase {
         return  CreatePrivateChatUseCase(mainRepository)
+    }
+    @Provides
+    fun provideSendMessageUseCaseById(mainRepository: MainRepository): SendMessageUseCaseById {
+        return  SendMessageUseCaseById(mainRepository)
     }
 
 }

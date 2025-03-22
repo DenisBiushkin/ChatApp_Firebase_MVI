@@ -38,6 +38,7 @@ interface MainRepository {
 
 
     suspend fun createNewChatAdvence( newRoomModel: NewRoomModel):Resource<String>
-
     suspend fun deleteChatAdvance(roomId:String):Resource<Unit>
+    suspend fun  getExistencePrivateGroupByUids(companionUid_1:String,companionUid_2:String):String?
+    suspend fun sendMessageAdv(message: Message,chatId:String):Resource<Unit>
 }

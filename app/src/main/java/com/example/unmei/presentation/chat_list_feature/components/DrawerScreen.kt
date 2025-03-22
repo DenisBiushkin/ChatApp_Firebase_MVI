@@ -71,6 +71,8 @@ import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUI
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
+import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
+import com.example.unmei.presentation.chat_list_feature.model.contentMessage
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansDev.TAG
 
@@ -172,34 +174,48 @@ fun ScreenContent(
                     }
                 }else{
                     items(state.value.chatListAdv) {
-                            it->
-                        val text = if (!it.summaries.typingUsersStatus.isEmpty()){
-                            "Печатает...."
-                        }else{
-                            if (it.summaries.lastMessage ==null) "" else it.summaries.lastMessage.text.toString()
-                        }
-                        val item = ChatListItemUI(
-                            messageStatus = MessageStatus.Send,
-                            notificationMessageStatus = NotificationMessageStatus.On,
-                            isOnline = it.status.status == Status.ONLINE,
-                            fullName = it.chatRoom.chatName,//Marcile Donato
-                            painterUser = rememberAsyncImagePainter(model =  it.chatRoom.iconUrl),
-                            messageText = text ,
-                            //пока что String
-                            timeStamp =  it.chatRoom.timestamp,
-                            groupUid = it.chatRoom.id,
-                            companionUid = "12"
-                        )
                         ChatItem(
-                            item = item,
                             onClick = {
-                                navController.navigate(Screens.Chat.withInfo(groupUid = it.groupUid, companionUid = it.companionUid!!))
+                                navController.navigate(Screens.Chat.withExistenceData(
+                                    chatExist = true,
+                                    chatName = it.chatName,
+                                    chatUrl = it.iconUrl,
+                                    companionUid = "companionUid",
+                                    chatUid = it.chatId
+                                ))
                             },
                             onLongClick = {
-                                //  Log.d(TAG,"Long click")
                                 showBottomSheet.value= true
+                            },
+                            chatName = it.chatName,
+                            iconPainter = rememberAsyncImagePainter(model =  it.iconUrl),
+                            isOnline = it.isOnline,
+                            lastMessageTimeString = it.lastMessageTimeString,
+                            chatContent = {
+                                when(it.typingStatus){
+                                    TypingStatus.None ->{
+                                        it.contentMessage?.let {
+                                            contentMessage->
+                                            Text(
+                                                text =contentMessage.contentSender+contentMessage.message.text,
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color= Color.Black.copy(alpha = 0.7f)
+                                            )
+                                        }
 
+                                    }
+                                    is TypingStatus.Typing -> {
+                                        Text(
+                                            text = it.typingStatus.whoTyping,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color= Color.Black.copy(alpha = 0.7f)
+                                        )
+                                    }
+                                }
                             }
+
                         )
                     }
                 }

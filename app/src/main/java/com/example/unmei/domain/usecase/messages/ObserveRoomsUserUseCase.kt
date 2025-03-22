@@ -1,12 +1,8 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.messages
 
-import com.example.unmei.domain.model.ChatRoom
-import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.repository.MainRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.mapNotNull
 
 class ObserveRoomsUserUseCase(

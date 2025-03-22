@@ -29,6 +29,7 @@ import com.example.unmei.util.ConstansApp.PRESENCE_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_STORAGE
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
+import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.google.firebase.database.ChildEventListener
@@ -37,6 +38,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
@@ -57,13 +59,14 @@ class RemoteDataSource(
     private  val roomsRef = db.getReference(ROOMS_REFERENCE_DB)
     private  val messagesRef= db.getReference(MESSAGES_REFERENCE_DB)
     private  val presenceUsersRef= db.getReference(PRESENCE_USERS_REFERENCE_DB)
+    private val chatsByUsers = db.getReference(CHATS_BY_USERS_REFERENCE_DB)
     private val reference = db.getReference()
 
     private  val messagesSummariesRef= db.getReference(MESAGES_SUMMERIES_DB)
     private val storageRoomsRef=storage.getReference("Rooms")
 
 
-
+//100 working
     fun observeRoomSammaries(
         roomId:String
     ):Flow<RoomSummaries> = callbackFlow{
@@ -111,12 +114,16 @@ class RemoteDataSource(
                 return null
         }
     }
+
+    //Unknown Working(working)
+    //
     @OptIn(UnstableApi::class)
     suspend fun createNewRoomAdvence(
         newRoomModel: NewRoomModel
     ):Resource<String>{
         try {
             val key= roomsRef.push().key.toString()
+            val keyMessage = messagesRef.push().key.toString()
             var roomIconUrl = newRoomModel.standartUrlIcon
             when(newRoomModel.type){
                 TypeRoom.PRIVATE -> {
@@ -143,22 +150,33 @@ class RemoteDataSource(
                 members = newRoomModel.membersIds.map { it to true }.toMap(),
                 activeUsers = emptyMap()
             )
+            val mesgResp=newRoomModel.message?.let { MessageResponse().fromMessageToResp(it.copy(id = keyMessage))}
             val summaries = RoomSummariesResp(
-               lastMessage = null,
+                lastMessage =mesgResp,
                 unreadedCount = newRoomModel.membersIds.map { it to 0 }.toMap()
             )
-            val updates = mapOf(
+
+            val updates = mutableMapOf(
                 "${ROOMS_REFERENCE_DB}/$key" to room,
-                "${MESSAGES_REFERENCE_DB}/$key" to null,
+                "${MESSAGES_REFERENCE_DB}/$key/$keyMessage" to mesgResp,
                 "${MESAGES_SUMMERIES_DB}/$key" to summaries
-                //ДОБАВИТЬ UID чата каждому участнику
             )
+            newRoomModel.membersIds.forEach {
+                //ДОБАВИТЬ UID чата каждому участнику
+                updates["${USERS_REFERENCE_DB}/$it/rooms/$key"]=true
+            }
+            if(newRoomModel.type== TypeRoom.PRIVATE){
+                val uniqueKey = chatsByUsersGenKey(members = newRoomModel.membersIds)
+                Log.d(TAG,"Unique_Key: $uniqueKey")
+                updates["${CHATS_BY_USERS_REFERENCE_DB}/$uniqueKey"] = key
+            }
             reference.updateChildren(updates).await()
             return Resource.Success(data = key)
         }catch (e:Exception){
             return Resource.Error(message = e.toString())
         }
     }
+    //рабочая 22.03
     suspend fun cascadeDeleteRoomsAdvence(
         roomId:String
     ):Resource<Unit>{
@@ -170,6 +188,7 @@ class RemoteDataSource(
                 "${ROOMS_REFERENCE_DB}/$roomId" to null,
                 "${MESSAGES_REFERENCE_DB}/$roomId" to null,
                 "${MESAGES_SUMMERIES_DB}/$roomId" to null
+
                 //Удалить UID чата у каждого участника
             )
             reference.updateChildren(updates).await()
@@ -294,7 +313,15 @@ class RemoteDataSource(
         }
     }
 
-
+    suspend fun getUserByIdRemote(userId: String):User?{
+        val reference= usersRef.child(userId)
+        try {
+            val data=reference.get().await()
+            return data.getValue(User::class.java)
+        }catch (e:Exception){
+            return null
+        }
+    }
     fun observeUserRooms(userId: String):Flow<RoomsUser> = callbackFlow {
         val reference= usersRef.child(userId).child("rooms")
         val listener = object : ValueEventListener {
@@ -411,22 +438,6 @@ class RemoteDataSource(
             return  Resource.Error(message=e.toString())
         }
     }
-
-    //рабочая
-    suspend fun cascadingRoomDeleteWithMessage(roomId:String):Resource<Unit>{
-        val reference = db.getReference()
-        try{
-            val updates = mapOf(
-                "${ROOMS_REFERENCE_DB}/$roomId" to null,
-                "${MESSAGES_REFERENCE_DB}/$roomId" to null,
-            )
-            reference.updateChildren(updates).await()
-            return Resource.Success(data = Unit)
-        }catch (e:Exception){
-            return Resource.Error(message = e.toString())
-        }
-    }
-
     //рабочая
     suspend fun createPrivateRoom(users:List<String>,message: Message):Resource<String>{
         val reference = db.getReference()
@@ -447,7 +458,7 @@ class RemoteDataSource(
                 is Resource.Success -> {
                     val roomId = requestData.data
                     val messageId=messagesRef.push().key
-                    val chatByUserKey=chatsByUsersGenKey(members)
+                    val chatByUserKey=chatsByUsersGenKey(members.keys.toList())
                     val updates = mapOf(
                         "${MESSAGES_REFERENCE_DB}/$roomId/$messageId" to message,
                         "${CHATS_BY_USERS_REFERENCE_DB}/$chatByUserKey" to roomId
@@ -460,6 +471,7 @@ class RemoteDataSource(
             return Resource.Error(message = e.toString())
         }
     }
+
 //рабочая
     suspend fun saveIdRoomInUsers(users:List<String>,roomId:String):Resource<Unit>{
         val reference = db.getReference()
@@ -499,8 +511,45 @@ class RemoteDataSource(
     }
 
 
-    private fun chatsByUsersGenKey(members:Map<String,Boolean>):String{
-        val keys = members.keys.toList()
+    //рабочая на 22.03
+    suspend fun getExistenceChatByUids(companionUid_1:String,companionUid_2:String):String?{
+          val uniqueKey = chatsByUsersGenKey(listOf(companionUid_1,companionUid_2))
+          try {
+              val data = chatsByUsers.child(uniqueKey).get().await()
+              if (data.exists()){
+                  val chatUId =data.getValue(String::class.java)
+                  return chatUId
+
+              }else{
+                  return null
+              }
+          }catch (e:Exception){
+              return null
+          }
+    }
+    //свежая на 22.03
+    suspend fun sendMessageAdvRemote(message: Message,chatId:String):Resource<Unit>{
+        val uidMessage= messagesRef.push().key!!
+        val msg= MessageResponse().fromMessageToResp(message).copy(
+            id= uidMessage
+        )
+        val updates = mapOf(
+            "${MESSAGES_REFERENCE_DB}/$chatId/$uidMessage" to msg,
+            "$MESAGES_SUMMERIES_DB/$chatId/lastMessage" to msg
+            //Удалить UID чата у каждого участника
+        )
+        try{
+            reference.updateChildren(updates).await()
+            return Resource.Success(Unit)
+        }catch (e:Exception){
+            return Resource.Error(message = e.toString())
+        }
+    }
+
+
+    private fun chatsByUsersGenKey(members:List<String>):String{
+        //генерирует уникальный ключ связывающий 2 пользователя
+        val keys = members
         val sorted =keys.map { it.toCharArray().sorted().joinToString("") }
         return sorted.sorted().joinToString ("_")
     }

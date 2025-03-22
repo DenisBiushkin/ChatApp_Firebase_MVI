@@ -96,6 +96,7 @@ import coil.compose.rememberAsyncImagePainter
 
 import com.example.unmei.R
 import com.example.unmei.presentation.conversation_future.ContentResolverClient
+import com.example.unmei.presentation.conversation_future.model.ConversationContentState
 import com.example.unmei.presentation.conversation_future.model.ConversationEvent
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
 import com.example.unmei.presentation.conversation_future.model.MessageType
@@ -142,8 +143,8 @@ fun  ChatScreen(
             TopBarChatScreen(
                 onClickBack ={navController.popBackStack()},
                 onClickProfile = {},
-                iconChatPainter =  painterResource(id = R.drawable.test_user),
-                titleChat = "Unknown",
+                iconChatPainter = rememberAsyncImagePainter(model = state.value.chatIconUrl),
+                titleChat = state.value.chatFullName,
                 statusChat = "offline"
             )
 
@@ -203,12 +204,26 @@ fun  ChatScreen(
         modifier = Modifier.imePadding()
     ) {
         paddingValues ->
-        ContentChatScreen(
-            modifier = Modifier.padding(paddingValues),
-            state = state,
-            lazyState= lazyState,
-            viewModel
-        )
+        when(state.value.contentState){
+            ConversationContentState.EmptyType ->{
+                ChatScreenEmptyContent(
+                    modifier = Modifier.padding(paddingValues),
+                    backgroundColor = chatBacgroundColor
+                )
+            }
+            ConversationContentState.Loading -> {
+                    CircularProgressIndicator()
+                }
+            ConversationContentState.Messaging -> {
+                ContentChatScreen(
+                    modifier = Modifier.padding(paddingValues),
+                    state = state,
+                    lazyState= lazyState,
+                    viewModel
+                )
+            }
+        }
+
 
         Log.d(TAG,state.value.selectedMessages.keys.toList().toString())
 
@@ -216,7 +231,7 @@ fun  ChatScreen(
             bottomSheetState = bottomSheetState,
             visibility = state.value.bottomSheetVisibility,
             onDismissRequest = {
-              viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet)
+                viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet)
             },
             onSelectedMedia = {
                 viewModel.onEvent(ConversationEvent.SelectedMediaToSend(it))
@@ -546,10 +561,6 @@ fun ContentChatScreen(
             lazyState.canScrollForward
         }
     }
-    if (state.value.loadingScreen){
-        CircularProgressIndicator()
-    }else{
-
         LazyColumn(
             state = lazyState,
             modifier = modifier
@@ -615,7 +626,7 @@ fun ContentChatScreen(
 
 
         }
-    }
+
 
 
 

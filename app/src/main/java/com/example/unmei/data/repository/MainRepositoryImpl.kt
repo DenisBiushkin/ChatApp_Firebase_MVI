@@ -20,10 +20,22 @@ import org.example.Mappers.base.Mapper
 import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(
-   private val localDataSource: LocalDataSource, //  Room
+    private val localDataSource: LocalDataSource, //  Room
     private val remoteDataSource: RemoteDataSource ,// Firebase,
     private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
+    override suspend fun getExistencePrivateGroupByUids(
+        companionUid_1: String,
+        companionUid_2: String
+    ): String?{
+        //дернуть из room
+        return remoteDataSource.getExistenceChatByUids(companionUid_1,companionUid_2)
+        //записать в room
+    }
+
+    override suspend fun sendMessageAdv(message: Message, chatId: String): Resource<Unit> {
+       return remoteDataSource.sendMessageAdvRemote(message,chatId)
+    }
 
     override suspend fun createNewChatAdvence(newRoomModel: NewRoomModel): Resource<String> {
         return remoteDataSource.createNewRoomAdvence(newRoomModel)
@@ -54,7 +66,7 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUserById(userId: String): User? {
-        return null
+        return remoteDataSource.getUserByIdRemote(userId)
     }
 
     override fun observeMessagesInChat(chatId: String): Flow<ExtendedResource<Message>> {
