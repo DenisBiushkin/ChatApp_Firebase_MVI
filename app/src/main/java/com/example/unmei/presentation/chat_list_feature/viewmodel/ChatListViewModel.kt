@@ -7,6 +7,7 @@ import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
+import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
@@ -64,76 +65,27 @@ class ChatListViewModel @Inject constructor(
 ):ViewModel() {
     private  val _state = MutableStateFlow<ChatVMState>(ChatVMState())
     val state: StateFlow<ChatVMState> = _state.asStateFlow()
-
-
+    private lateinit var currentUser:User
     private val currentUsrUid = Firebase.auth.currentUser!!.uid
 
-    val db= FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB)
-    val groupsRef = ""
-    val refGroups= db.getReference("groups")
-    val refMessages=db.getReference("messages")
-
-    private val currentUserId ="u1DDSWtIHOSpcHIkLZl0SZGEsmB3";
     private lateinit var userChats:StateFlow<List<ChatItemUI>>
 
 
 
      init {
-
-        // observeChatRooms()
-         val currentUserUid = "u1DDSWtIHOSpcHIkLZl0SZGEsmB3"
          viewModelScope.launch {
-
+             currentUser = getUserByIdUseCase.execute(currentUsrUid)?:User()
+             _state.value = state.value.copy(
+                 fullName = currentUser.fullName,
+                 iconUrl = currentUser.photo,
+                 signInData = "SignIn With Google"
+             )
              observeChatRoomsAdvanced()
-//             val userChatsWithStatus = userChats.flatMapLatest { listChat ->
-//                 val chatFlows = listChat.map { chatItem ->
-//                     if (chatItem.type == "private") {
-//                         val idCompanion = chatItem.members.first { it != currentUserUid }
-//                         // Одиночный запрос: загружаем данные собеседника
-//                         val companionInfo =
-//                             getUserByIdUseCase.execute(idCompanion) // suspend-функция
-//
-//
-//                         // Наблюдение за онлайном
-//                         val statusFlow = observeUserStatusByIdUseCase.execute(idCompanion)
-//                         // Объединяем статические данные с реактивными
-//                         combine(
-//                             flowOf(companionInfo), // Одиночный запрос
-//                             statusFlow // Реактивный статус
-//                         ) { info, status ->
-//                             chatItem.copy(
-//                                 isOnline = if (status.status == Status.ONLINE) true else false,
-//                                 nameChat = companionInfo?.fullName ?: "Unknown"
-//                             )
-//                         }
-//                     } else {
-//                         flowOf(chatItem)
-//                         // Наблюдение за печатью (если нужно)
-////                     val typingFlow = observeTypingStatus(chatItem.id)
-////
-////                     typingFlow.map { isTyping ->
-////                         chatItem.copy(isTyping = isTyping)
-////                     }
-//
-//                     }
-//                 }
-//                 // Объединяем все чаты в один поток
-//                 combine(chatFlows) { it.toList() }
-//             }.collect{
-//                 _state.value = state.value.copy(
-//                     chatList = it,
-//                     isLoading = false
-//                 )
-//
-//             }
-
          }
-
-
      }
 
     private suspend fun observeChatRoomsAdvanced() {
-        observeRoomsUserUseCase.execute(currentUserId)
+        observeRoomsUserUseCase.execute(currentUsrUid)
             .collectLatest { listRooms ->
                 val chatFlows = listRooms.mapNotNull { roomId ->
                     remote.getChatRoomById(roomId)?.let { chatRoom ->
@@ -180,7 +132,7 @@ class ChatListViewModel @Inject constructor(
                                     timestamp = it.summaries.lastMessage?.timestamp ?: 0L,
                                     typingStatus = if (!it.summaries.typingUsersStatus.isEmpty()){
                                         val typingUsersSet = it.summaries.typingUsersStatus.toMutableSet()
-                                            typingUsersSet.remove(currentUserId)
+                                            typingUsersSet.remove(currentUsrUid)
                                         var whoTyping:String ="Участник"
                                         if (it.chatRoom.type == TypeRoom.PRIVATE){
                                             whoTyping = it.chatRoom.chatName
@@ -195,7 +147,7 @@ class ChatListViewModel @Inject constructor(
                                         if (it.chatRoom.type== TypeRoom.PUBLIC){
                                             sender="Участник"
                                         }else{
-                                            if (it.summaries.lastMessage.senderId!=currentUserId)
+                                            if (it.summaries.lastMessage.senderId!=currentUsrUid)
                                                 sender = it.chatRoom.chatName
                                         }
                                         contentMessage(
@@ -224,56 +176,6 @@ class ChatListViewModel @Inject constructor(
         return date.dayOfMonth.toString()+" "+russianDayOfWeek
 
     }
-
-
-    private fun observeChatRooms(){
-         userChats=observeRoomsUserUseCase
-             .execute(currentUserId).flatMapLatest {
-                     listRooms->
-                     combine(
-                     listRooms.map {
-                             roomsId->
-
-                         //getChatRoomById()
-                            observeChatRoomUseCase.execute(roomsId)
-                     }
-                 ){
-                     it.toList().map { it.toChatItemUi() }
-                 }
-             }.stateIn(
-                 viewModelScope,
-                 SharingStarted.Lazily,//после появления первого подписчика
-                 emptyList()
-             )
-     }
-
-
-
-
-    fun observeUser(userid:String = "auegBKgwyvbwge7PQs9nfFRRFfj1"){
-        viewModelScope.launch {
-            observeUserStatusByIdUseCase.execute(userid).collect{
-                data ->
-                _state.value = state.value.copy(
-                    isOnline = when(data.status){
-                        Status.ONLINE -> true
-                        else-> false
-                    }
-                )
-            }
-
-//            observeUserUseCase.execute(userid).collect{
-//                    user->
-//                _state.value = state.value.copy(
-//                    isOnline = user.online
-//                )
-//                    //Log.d(TAG,user.online.toString())
-//              //  Log.d(TAG,user.rooms.toString())
-//
-//            }
-        }
-    }
-
 
 }
 

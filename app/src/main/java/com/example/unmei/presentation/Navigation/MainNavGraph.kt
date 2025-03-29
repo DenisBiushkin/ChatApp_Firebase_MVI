@@ -11,7 +11,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.unmei.presentation.conversation_future.components.ChatScreen
 import com.example.unmei.presentation.chat_list_feature.components.DrawerScreen
-import com.example.unmei.presentation.chat_list_feature.components.MainScreen
+
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansApp
@@ -30,7 +30,7 @@ fun NavGraphBuilder.mainNavGraph(
             DrawerScreen(navController = navController, googleAuthUiClient = googleAuthUiClient)
         }
         composable(route = Screens.Main.route){
-            MainScreen(navController=navController)
+           // MainScreen(navController=navController)
         }
         composable(
             route=Screens.Chat.route,
@@ -49,7 +49,7 @@ fun NavGraphBuilder.mainNavGraph(
             val jsonData = it.arguments!!.getString(ConstansApp.CHAT_ARGUMENT_JSON)!!
             val exsitenceData = Screens.Chat.fromJsonToExistenceData(jsonData)
 
-            Log.d(ConstansDev.TAG,"Receive Arguments $exsitenceData")
+            //Log.d(ConstansDev.TAG,"Receive Arguments $exsitenceData")
 
             viewModel.saveNecessaryInfo(exsitenceData)
             ChatScreen(
