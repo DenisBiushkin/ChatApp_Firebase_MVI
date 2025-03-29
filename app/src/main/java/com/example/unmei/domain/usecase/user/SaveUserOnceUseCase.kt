@@ -1,4 +1,4 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.user
 
 import android.util.Log
 import com.example.unmei.domain.model.User

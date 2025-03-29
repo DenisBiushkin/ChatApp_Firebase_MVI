@@ -1,9 +1,8 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.user
 
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.util.Resource
-import javax.inject.Inject
 
 class SetStatusUserUseCase(
     private val repository: MainRepository

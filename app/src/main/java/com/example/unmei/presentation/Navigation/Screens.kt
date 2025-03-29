@@ -16,6 +16,19 @@ sealed class Screens(
 
     object Main:Screens("main_screen")
     object Drawer:Screens("drawer_screen")
+    object Friends:Screens(route = "friends_screen"){
+
+    }
+    object Profile:Screens(route ="profile_info/{${ConstansApp.PROFILE_ARGUMENT_JSON}}" ){
+        fun withJsonData(
+            userUid:String
+        ): String {
+            return  "profile_info/${Json.encodeToString(userUid)}"
+        }
+        fun fromJsonData(data:String):String{
+            return Json.decodeFromString(data)
+        }
+    }
     object Chat:Screens("chat_screen/{${ConstansApp.CHAT_ARGUMENT_JSON}}"){
 
 

@@ -9,38 +9,29 @@ import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
-import com.example.unmei.domain.usecase.GetUserByIdUseCase
+import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
-import com.example.unmei.domain.usecase.ObserveUserStatusByIdUseCase
-import com.example.unmei.domain.usecase.ObserveUserUseCase
-import com.example.unmei.domain.usecase.SetStatusUserUseCase
+import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
+import com.example.unmei.domain.usecase.user.ObserveUserUseCase
+import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.presentation.chat_list_feature.model.ChatItemAdvenced
 import com.example.unmei.presentation.chat_list_feature.model.ChatItemUI
 import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUiAdv
 import com.example.unmei.presentation.chat_list_feature.model.ChatVMState
 import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
 import com.example.unmei.presentation.chat_list_feature.model.contentMessage
-import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
@@ -53,13 +44,10 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
-    val  observeUserUseCase: ObserveUserUseCase,
     val observeRoomsUserUseCase: ObserveRoomsUserUseCase,
-    val observeChatRoomUseCase: ObserveChatRoomUseCase,
     val observeUserStatusByIdUseCase: ObserveUserStatusByIdUseCase,
     val getUserByIdUseCase: GetUserByIdUseCase,
     val repository: MainRepository,
-    val setSetStatusUserUseCase: SetStatusUserUseCase,
     val remote:RemoteDataSource
 
 ):ViewModel() {
@@ -78,7 +66,8 @@ class ChatListViewModel @Inject constructor(
              _state.value = state.value.copy(
                  fullName = currentUser.fullName,
                  iconUrl = currentUser.photo,
-                 signInData = "SignIn With Google"
+                 signInData = "SignIn With Google",
+                 userId = currentUsrUid
              )
              observeChatRoomsAdvanced()
          }
@@ -92,6 +81,7 @@ class ChatListViewModel @Inject constructor(
                         val summariesFlow = remote.observeRoomSammaries(chatRoom.id)
                         var newChatRoom = chatRoom
                         val statusFlow = if (chatRoom.type == TypeRoom.PRIVATE) {
+
                             val idCompanion = chatRoom.members.first { it != currentUsrUid }
                             val userData = getUserByIdUseCase.execute(idCompanion)
                             Log.d(TAG,"USerDATA $userData")

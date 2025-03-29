@@ -7,6 +7,7 @@ data class ChatVMState (
     val isOnline :Boolean = false,
     val fullName:String ="",
     val iconUrl:String="",
-    val signInData:String=""
+    val signInData:String="",
+    val userId:String=""
 
 )

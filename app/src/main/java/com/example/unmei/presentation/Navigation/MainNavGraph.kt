@@ -3,6 +3,7 @@ package com.example.unmei.presentation.Navigation
 import android.util.Log
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavArgument
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -13,9 +14,14 @@ import com.example.unmei.presentation.conversation_future.components.ChatScreen
 import com.example.unmei.presentation.chat_list_feature.components.DrawerScreen
 
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
+import com.example.unmei.presentation.friends_feature.components.FriendsScreen
+import com.example.unmei.presentation.friends_feature.viewmodel.FriendsViewModel
+import com.example.unmei.presentation.profile_user_feature.components.ProfileUserFull
+import com.example.unmei.presentation.profile_user_feature.viewmodel.ProfileUserViewModel
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansDev
+import com.example.unmei.util.ConstansDev.TAG
 
 fun NavGraphBuilder.mainNavGraph(
     navController: NavHostController,
@@ -31,6 +37,34 @@ fun NavGraphBuilder.mainNavGraph(
         }
         composable(route = Screens.Main.route){
            // MainScreen(navController=navController)
+        }
+        composable(
+            route = Screens.Friends.route,
+
+        ){
+
+            val viewModel = hiltViewModel<FriendsViewModel>()
+            FriendsScreen(
+                navController= navController,
+                viewModel = viewModel
+            )
+        }
+        composable(
+            route=Screens.Profile.route,
+            arguments = listOf(
+                navArgument(name = ConstansApp.PROFILE_ARGUMENT_JSON){
+                    type = NavType.StringType
+                }
+            )
+        ){
+            val navData= it.arguments!!.getString(ConstansApp.PROFILE_ARGUMENT_JSON)!!
+            Log.d(TAG,"Profile NavArg: "+navData)
+            val viewModel = hiltViewModel<ProfileUserViewModel>()
+            viewModel.saveData(Screens.Profile.fromJsonData(navData))
+            ProfileUserFull(
+                navController = navController,
+                viewmodel = viewModel
+            )
         }
         composable(
             route=Screens.Chat.route,

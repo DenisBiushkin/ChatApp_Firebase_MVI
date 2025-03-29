@@ -60,12 +60,17 @@ fun DrawerContentFull(
         NavigationItemDrawer(
             title="Группы",
             imageVector= ImageVector.vectorResource(id = R.drawable.group_24px),
-            navRoute = Screens.Chat.route
+            navRoute = ""
+        ),
+        NavigationItemDrawer(
+            title="Друзья",
+            imageVector= ImageVector.vectorResource(id = R.drawable.diversity_3_24px),
+            navRoute = Screens.Friends.route
         ),
         NavigationItemDrawer(
             title="Настройки",
             imageVector= ImageVector.vectorResource(id = R.drawable.settings_24px),
-            navRoute = Screens.Main.route
+            navRoute = ""
         ),
         NavigationItemDrawer(
             title="Выход",

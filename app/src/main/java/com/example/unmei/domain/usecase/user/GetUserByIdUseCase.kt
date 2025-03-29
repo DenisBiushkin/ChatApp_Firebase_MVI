@@ -1,8 +1,7 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.user
 
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
-import com.example.unmei.util.Resource
 
 class GetUserByIdUseCase(
     private val repository: MainRepository

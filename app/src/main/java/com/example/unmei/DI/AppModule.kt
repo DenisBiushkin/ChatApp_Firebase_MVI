@@ -12,14 +12,14 @@ import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
-import com.example.unmei.domain.usecase.GetUserByIdUseCase
+import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
-import com.example.unmei.domain.usecase.ObserveUserStatusByIdUseCase
-import com.example.unmei.domain.usecase.ObserveUserUseCase
-import com.example.unmei.domain.usecase.SaveUserOnceUseCase
-import com.example.unmei.domain.usecase.SaveUserUseCase
-import com.example.unmei.domain.usecase.SetStatusUserUseCase
+import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
+import com.example.unmei.domain.usecase.user.ObserveUserUseCase
+import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
+import com.example.unmei.domain.usecase.user.SaveUserUseCase
+import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
@@ -74,16 +74,16 @@ object AppModule {
         )
     }
     @Provides
-    fun provideSaveUserUseCase(mainRepository: MainRepository):SaveUserUseCase{
+    fun provideSaveUserUseCase(mainRepository: MainRepository): SaveUserUseCase {
         return SaveUserUseCase(mainRepository)
     }
     @Provides
-    fun provideSaveUserOnceUseCase(mainRepository: MainRepository):SaveUserOnceUseCase{
+    fun provideSaveUserOnceUseCase(mainRepository: MainRepository): SaveUserOnceUseCase {
         return SaveUserOnceUseCase(mainRepository)
     }
 
     @Provides
-    fun provideObserveUserUseCase(mainRepository: MainRepository):ObserveUserUseCase{
+    fun provideObserveUserUseCase(mainRepository: MainRepository): ObserveUserUseCase {
         return ObserveUserUseCase(mainRepository)
     }
     @Provides
@@ -102,12 +102,12 @@ object AppModule {
     }
 
     @Provides
-    fun provideObserveUserStatusByIdUseCase(mainRepository: MainRepository): ObserveUserStatusByIdUseCase{
+    fun provideObserveUserStatusByIdUseCase(mainRepository: MainRepository): ObserveUserStatusByIdUseCase {
         return  ObserveUserStatusByIdUseCase(mainRepository)
     }
 
     @Provides
-    fun provideGetUserByIdUseCase(mainRepository: MainRepository): GetUserByIdUseCase{
+    fun provideGetUserByIdUseCase(mainRepository: MainRepository): GetUserByIdUseCase {
         return GetUserByIdUseCase(mainRepository)
     }
     @Provides

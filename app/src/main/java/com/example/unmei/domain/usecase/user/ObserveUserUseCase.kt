@@ -1,9 +1,8 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.user
 
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 
 
 class ObserveUserUseCase (

@@ -2,10 +2,8 @@ package com.example.unmei.presentation.sign_in_feature.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.unmei.data.repository.MainRepositoryImpl
 import com.example.unmei.domain.model.User
-import com.example.unmei.domain.usecase.SaveUserOnceUseCase
+import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
 import com.example.unmei.presentation.sign_in_feature.model.SignInState
 import com.example.unmei.presentation.sign_in_feature.model.SignInResult
 import com.example.unmei.util.Resource

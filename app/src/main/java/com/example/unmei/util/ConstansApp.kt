@@ -10,6 +10,7 @@ object ConstansApp {
     val CHAT_AGUIMENT_GROUPUID = "groupUid"
     val CHAT_ARGUMENT_COMPANIONUID = "companionUid"
     val CHAT_ARGUMENT_JSON="json_existence_data"
+    val PROFILE_ARGUMENT_JSON="json_profile_data"
 
     //DB
     val USERS_REFERENCE_DB="users_unmei"

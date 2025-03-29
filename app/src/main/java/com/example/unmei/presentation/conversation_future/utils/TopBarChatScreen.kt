@@ -62,7 +62,8 @@ fun TopBarChatScreen(
                     modifier = Modifier
                         .clip(CircleShape)
                         .size(50.dp)
-                    , painter =iconChatPainter,
+                    ,
+                    painter =iconChatPainter,
                     contentDescription =""
                 )
                 Column (

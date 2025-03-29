@@ -79,7 +79,9 @@ fun DrawerScreen(
 
                     DrawerContentFull(
                         navController=navController,
-                        iconOnClick = {},
+                        iconOnClick = {
+                            navController.navigate(Screens.Profile.withJsonData(state.value.userId))
+                        },
                         fullName = state.value.fullName,
                         iconUrl = state.value.iconUrl,
                         signInData = state.value.signInData,

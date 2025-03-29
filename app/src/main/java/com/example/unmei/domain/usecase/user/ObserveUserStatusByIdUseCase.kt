@@ -1,4 +1,4 @@
-package com.example.unmei.domain.usecase
+package com.example.unmei.domain.usecase.user
 
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.repository.MainRepository
