@@ -86,6 +86,8 @@ dependencies {
     implementation ("com.google.firebase:firebase-storage-ktx")
     // Also add the dependency for the Google Play services library and specify its version
     implementation("com.google.android.gms:play-services-auth:21.3.0")
+    //FCM Messaging
+    implementation ("com.google.firebase:firebase-messaging-ktx")
 
     //Compose
     implementation ("androidx.navigation:navigation-compose:2.5.3")

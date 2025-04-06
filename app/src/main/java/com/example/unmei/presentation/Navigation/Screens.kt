@@ -50,13 +50,11 @@ sealed class Screens(
                 companionUid = companionUid,
                 chatUid = chatUid
             )
-
             //нельзя напрямую передать json так как он содержит ! {} ?
-            return "chat_screen/${URLEncoder.encode(Json.encodeToString(data), "UTF-8")}"
+            return "chat_screen/${data.toJson()}"
         }
         fun fromJsonToExistenceData(stringUrlJson: String):NavigateConversationData{
-            val jsonString = URLDecoder.decode(stringUrlJson, "UTF-8")
-            return Json.decodeFromString(jsonString)
+            return NavigateConversationData.fromJson(stringUrlJson)
         }
 
     }

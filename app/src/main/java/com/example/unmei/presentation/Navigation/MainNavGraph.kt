@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.example.unmei.presentation.conversation_future.components.ChatScreen
 import com.example.unmei.presentation.chat_list_feature.components.DrawerScreen
@@ -19,7 +20,10 @@ import com.example.unmei.presentation.friends_feature.viewmodel.FriendsViewModel
 import com.example.unmei.presentation.profile_user_feature.components.ProfileUserFull
 import com.example.unmei.presentation.profile_user_feature.viewmodel.ProfileUserViewModel
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
+import com.example.unmei.presentation.util.model.NavigateConversationData
 import com.example.unmei.util.ConstansApp
+import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
+import com.example.unmei.util.ConstansApp.CHAT_URI_DEEPLINK
 import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 
@@ -49,13 +53,14 @@ fun NavGraphBuilder.mainNavGraph(
                 viewModel = viewModel
             )
         }
+
         composable(
             route=Screens.Profile.route,
             arguments = listOf(
                 navArgument(name = ConstansApp.PROFILE_ARGUMENT_JSON){
                     type = NavType.StringType
                 }
-            )
+            ),
         ){
             val navData= it.arguments!!.getString(ConstansApp.PROFILE_ARGUMENT_JSON)!!
             Log.d(TAG,"Profile NavArg: "+navData)
@@ -66,30 +71,36 @@ fun NavGraphBuilder.mainNavGraph(
                 viewmodel = viewModel
             )
         }
+
         composable(
             route=Screens.Chat.route,
             arguments = listOf(
                 navArgument(
-                    name = ConstansApp.CHAT_ARGUMENT_JSON,
+                    name = CHAT_ARGUMENT_JSON,
                 ){
                   type = NavType.StringType
                 },
-
+            ),
+            deepLinks = listOf(
+                navDeepLink{
+                    uriPattern= "$CHAT_URI_DEEPLINK/{${CHAT_ARGUMENT_JSON}}"
+                }
             )
         ){
             //переделать, чтобы засунуть данные сразу в конструктор ViewModel
             val viewModel = hiltViewModel<ConversationViewModel>()
 
-            val jsonData = it.arguments!!.getString(ConstansApp.CHAT_ARGUMENT_JSON)!!
+            val jsonData = it.arguments!!.getString(CHAT_ARGUMENT_JSON)!!
             val exsitenceData = Screens.Chat.fromJsonToExistenceData(jsonData)
 
-            //Log.d(ConstansDev.TAG,"Receive Arguments $exsitenceData")
+            Log.d(ConstansDev.TAG,"Receive Arguments $exsitenceData")
 
             viewModel.saveNecessaryInfo(exsitenceData)
             ChatScreen(
                 navController = navController,
                 viewModel = viewModel
             )
+
         }
     }
 }
