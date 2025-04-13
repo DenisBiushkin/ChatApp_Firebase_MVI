@@ -17,6 +17,7 @@ class PushNotificationService(
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        Log.d(TAG,"Message Received: ${message.notification?.title.toString()}")
         //переопределть service
     }
 }

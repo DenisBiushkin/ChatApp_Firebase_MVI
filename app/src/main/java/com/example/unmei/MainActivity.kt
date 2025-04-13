@@ -195,12 +195,7 @@ fun createStyleMessageNotification(
         MainActivity::class.java
     )
 val intent = Intent(context,MainActivity::class.java)
-    val pendingIntent = PendingIntent.getActivity(context,0,intent,
-         PendingIntent.FLAG_IMMUTABLE)
 
-//    val openAction = NotificationCompat.Action.Builder(
-//                      // что сделать
-//    ).build()
     val clickPendingIntent :PendingIntent = TaskStackBuilder.create(context).run {
         addNextIntentWithParentStack(clickIntent)
         getPendingIntent(1, PendingIntent.FLAG_IMMUTABLE)!!

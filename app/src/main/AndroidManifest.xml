@@ -40,7 +40,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--хотя работает и без фильтра-->
+            <!--хотя работает и без фильтра(код ниже делает это доступным для других приложений)-->
             <intent-filter>
                 <!--стандартное действие просмотра-->
                 <action android:name="android.intent.action.VIEW" />

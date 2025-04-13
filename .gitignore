@@ -15,3 +15,4 @@
 local.properties
 /app/google-services.json
 /app/src/main/java/com/example/unmei/util/ConstansDev.kt
+app/service-account-fcm.json
