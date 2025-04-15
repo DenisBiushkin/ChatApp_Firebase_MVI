@@ -54,6 +54,8 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+
+        resources.excludes.add("META-INF/DEPENDENCIES")
     }
 
 }
@@ -112,6 +114,11 @@ dependencies {
     //retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+
+
+    //google auth for FCM token
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0") // проверь последнюю версию
+    implementation("com.google.http-client:google-http-client-gson:1.41.0")
 
 
 

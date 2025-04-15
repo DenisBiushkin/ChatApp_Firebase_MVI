@@ -12,7 +12,13 @@ object ConstansApp {
     val CHAT_ARGUMENT_JSON="json_existence_data"
     val PROFILE_ARGUMENT_JSON="json_profile_data"
 
+    //deeplink
     val CHAT_URI_DEEPLINK="myapp://chat_screen"
+
+    //Retrofit
+    val FCM_SEND_NOTIFICATION_BASE_URL="https://fcm.googleapis.com/"
+    val FCM_TOKEN_GET_URL="https://www.googleapis.com/auth/firebase.messaging"
+    val FCM_SERVICE_ACCOUNT_FILENAME="service-account-fcm.json"
 
     //DB
     val USERS_REFERENCE_DB="users_unmei"
