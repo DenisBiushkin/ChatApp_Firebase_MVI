@@ -1,6 +1,8 @@
 package com.example.unmei.service
 
 import android.util.Log
+import android.content.Intent
+import com.example.unmei.receiver.MessageReceiver
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -17,7 +19,11 @@ class PushNotificationService(
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        val intent = Intent(this,MessageReceiver::class.java)
         Log.d(TAG,"Message Received: ${message.notification?.title.toString()}")
+        sendBroadcast(intent)
+
+
         //переопределть service
     }
 }

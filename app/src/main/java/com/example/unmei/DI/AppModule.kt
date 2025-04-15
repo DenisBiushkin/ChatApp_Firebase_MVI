@@ -5,11 +5,14 @@ import android.app.Application
 import androidx.room.Room
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.network.RemoteDataSource
+import com.example.unmei.data.network.retrofit.FcmApi
 import com.example.unmei.data.repository.MainRepositoryImpl
+import com.example.unmei.data.repository.NotificationRepositoryImpl
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
@@ -29,6 +32,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.example.Mappers.base.Mapper
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -59,6 +65,16 @@ object AppModule {
             context= context
         )
     }
+    @Provides
+    @Singleton
+    fun provideNotificationRepositorty(
+        fcmApi:FcmApi
+    ):NotificationRepository{
+        return  NotificationRepositoryImpl(
+            db=FirebaseDatabase.getInstance(ConstansDev.YOUR_URL_DB),
+            fcmApi = fcmApi
+        )
+    }
 
     @Singleton
     @Provides
@@ -73,6 +89,16 @@ object AppModule {
             mapperChatRoom = mapperChatRoom
         )
     }
+    @Singleton
+    @Provides
+    fun provideFcmApi():FcmApi{
+        return Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:8080/")
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(FcmApi::class.java)
+    }
+
     @Provides
     fun provideSaveUserUseCase(mainRepository: MainRepository): SaveUserUseCase {
         return SaveUserUseCase(mainRepository)

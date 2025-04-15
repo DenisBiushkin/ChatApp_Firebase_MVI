@@ -33,8 +33,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import androidx.navigation.compose.rememberNavController
+import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.RoomDetail
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
+import com.example.unmei.domain.model.TypeRoom
+import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.presentation.Navigation.HostNavGraph
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
@@ -64,6 +68,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var setStatusUserUseCase: SetStatusUserUseCase
+
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
 
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
@@ -103,15 +110,29 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-
-
-
+//        CoroutineScope(Dispatchers.Main).launch {
+//            notificationRepository.notifySendMessageInRooms(
+//                roomDetail = RoomDetail(
+//                    "",
+//                    "",
+//                    TypeRoom.PUBLIC,
+//                    "",
+//                    "",
+//                    message = Message(
+//                        senderId = "",
+//                    )
+//                )
+//                ,
+//                listOf("")
+//            )
+//        }
         auth = Firebase.auth
         var startDestinationRoute = ConstansApp.AUTH_NAVIGATE_ROUTE
         val currentUser = auth.currentUser
 
         if(currentUser!=null){
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
+            saveFCMToken(currentUser.uid)
         }
 
         //ПОПРАВИТЬ
@@ -157,6 +178,25 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    //отредачить потом
+    private fun saveFCMToken(userId:String){
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.d(TAG, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+            val token = task.result
+            CoroutineScope(Dispatchers.IO).launch {
+                notificationRepository.saveNotificationTokenByUserId(
+                    token=token,
+                    userid =userId
+                )
+            }
+            val msg = token
+            Log.d(TAG, "FCM Token "+msg)
+        })
     }
 }
 

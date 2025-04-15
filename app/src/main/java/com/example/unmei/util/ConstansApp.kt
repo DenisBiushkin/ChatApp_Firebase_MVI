@@ -21,7 +21,14 @@ object ConstansApp {
     val CHATS_BY_USERS_REFERENCE_DB="chats_by_users"
     val PRESENCE_USERS_REFERENCE_DB="presence_users"
     val MESAGES_SUMMERIES_DB = "message_summaries"
+    val NOTIFICATION_TOKENS_DB="notification_tokens_users"
 
     //Storage
     val ROOMS_REFERENCE_STORAGE = "Rooms"
+
+    //Android Fraimworks
+    val BROCAST_MESSAGE_KEY="messageextra"
+    val KEY_TEXT_REPLY = "key_text_reply"
+    val NEW_MESSAGE_CHANNEL_ID="message_channel_id"
+    val MESSAGE_CHANNEL_NAME="Уведомления сообщений"
 }
