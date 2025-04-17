@@ -15,6 +15,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
@@ -22,6 +23,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.IconCompat
+import coil.ImageLoader
+import coil.request.ImageRequest
 import com.example.unmei.R
 import com.example.unmei.receiver.ReadedMessageReceiver
 import com.example.unmei.receiver.ReplyMessageReceiver
@@ -60,9 +63,12 @@ class MessageNotificationHelper (
 
 
 
-    fun createNotification(
-
+    fun createNotificationWithReply(
         channelId:String,
+        title:String,
+        body:String,
+        icon:IconCompat
+
     ): NotificationCompat.Builder {
         val flag =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -101,26 +107,37 @@ class MessageNotificationHelper (
         ).build()
 
 
-        val icon= IconCompat.createWithResource(context, R.drawable.erishkagel)
+
 
         val user = Person.Builder()
-            .setName("Cha He In")
+            .setName(title)
             .setImportant(true)
             .setIcon(icon)
             .build()
         val style = NotificationCompat.MessagingStyle(user)
-            .setConversationTitle("Cha He In")
+            .setConversationTitle(title)
             .setGroupConversation(false)
-           .addMessage("ок", System.currentTimeMillis(), user)
+           .addMessage(body, System.currentTimeMillis(), user)
 
         return NotificationCompat.Builder(context,channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            //.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setStyle(style)
-            //.setOnlyAlertOnce(true)
+             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setOnlyAlertOnce(true)
             .addAction(replyAction)
             .addAction(readedAction)
             .setColor(0x0000FF)
+            .setStyle(style)
+    }
+    suspend fun loadBitmapFromUrl(context: Context, imageUrl: String): IconCompat? {
+        val loader = ImageLoader(context)
+        val request = ImageRequest.Builder(context)
+            .data(imageUrl)
+            .allowHardware(false) // Важно: нужен software Bitmap
+            .build()
+
+        val result = loader.execute(request)
+        val bitmap=(result.drawable as? BitmapDrawable)?.bitmap ?: return null
+        return  IconCompat.createWithBitmap( bitmap)
     }
 
     fun createNotificationChannel(

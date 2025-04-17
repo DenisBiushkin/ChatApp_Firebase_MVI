@@ -25,6 +25,10 @@ data class FcmData(
     val roomId:String,
     val typeRoom:String,
 
+    val title: String,
+    val body: String,
+    val image:String? = null,
+
     val bodyType:String,
     val senderFullName:String? = null,
     val senderIconUrl:String? = null
@@ -38,13 +42,13 @@ fun RemoteMessage.toMyFcmData():FcmData {
 @Serializable
 data class NtfMessage(
     val token: String="", // токен устройства
-    val notification: Notification,
+    val notification: Notification?=null,//не использовать т.к payload и onReceivedMessage не срабатывает
     val data:FcmData
 )
 @Serializable
 data class Notification(
     val title: String,
     val body: String,
-    val image:String
+    val image:String? = null
 )
 

@@ -78,15 +78,13 @@ class NotificationRepositoryImpl @Inject constructor(
                 body = FcmMessage(
                     message = NtfMessage(
                         token= it,
-                        notification = Notification(
-                            title = roomDetail.roomName,
-                            body =message.text?:"Empty text",
-                            image = roomDetail.roomIconUrl
-                        ),
                         data = FcmData(
                             roomId = roomDetail.roomId,
                             typeRoom = roomDetail.typeRoom.value,
-                            bodyType = "text"
+                            bodyType = "text",
+                            title = roomDetail.roomName,
+                            body =message.text?:"Empty text",
+                            image = roomDetail.roomIconUrl
                         )
                     )
                 )

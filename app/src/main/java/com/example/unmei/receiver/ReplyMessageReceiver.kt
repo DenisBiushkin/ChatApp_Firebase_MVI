@@ -56,13 +56,13 @@ class ReplyMessageReceiver @Inject constructor(
                 return
             }
 
-            NotificationManagerCompat.from(currentContext)
-                .notify(2,
-                    helper.createNotification(NEW_MESSAGE_CHANNEL_ID)
-                    .setStyle(style)
-                   // .setContentTitle("Отправлено!")
-                    .build()
-                )
+//            NotificationManagerCompat.from(currentContext)
+//                .notify(2,
+//                    helper.createNotificationWithReply(NEW_MESSAGE_CHANNEL_ID,"","")
+//                    .setStyle(style)
+//                   // .setContentTitle("Отправлено!")
+//                    .build()
+//                )
 
         }
     }

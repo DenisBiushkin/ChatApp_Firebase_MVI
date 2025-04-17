@@ -2,6 +2,7 @@ package com.example.unmei.service
 
 import android.util.Log
 import android.content.Intent
+import android.widget.Toast
 import com.example.unmei.data.model.FcmMessage
 import com.example.unmei.data.model.Notification
 import com.example.unmei.data.model.NtfMessage
@@ -27,18 +28,15 @@ class PushNotificationService(
         val myFcmData=message.toMyFcmData()
         return FcmMessage(
             message = NtfMessage(
-                notification = Notification(
-                    title =message.notification?.title ?:"Broken notification",
-                    body = message.notification?.body ?:"Broken body notification",
-                    image = message.notification?.icon ?:""
-                ),
+                notification =null,
                 data = myFcmData
             )
         )
     }
     override fun onMessageReceived(message: RemoteMessage) {
+
         Log.d(TAG,"onMessageReceived (PushNotificationService)")
-        //super.onMessageReceived(message)
+      //  super.onMessageReceived(message)
         val myfcmMessage=getMyFcmMessage(message)
         val intent = Intent(this,MessageReceiver::class.java).apply {
             putExtra(MESSAGE_REC_KEY,myfcmMessage.toJson())

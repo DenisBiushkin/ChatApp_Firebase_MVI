@@ -147,8 +147,8 @@ class MainActivity : ComponentActivity() {
             ),
             0
         )
-//        val channelId ="Message_Channel"
-//        val channel = createNotificationChannel(this,channelId,"Message Notification")
+        val channelId ="Message_Channel"
+        val channel = createNotificationChannel(this,ConstansApp.NEW_MESSAGE_CHANNEL_ID,ConstansApp.MESSAGE_CHANNEL_NAME)
 //        val notification= createStyleMessageNotification(this,channelId)
 //
 //        if (ActivityCompat.checkSelfPermission(
