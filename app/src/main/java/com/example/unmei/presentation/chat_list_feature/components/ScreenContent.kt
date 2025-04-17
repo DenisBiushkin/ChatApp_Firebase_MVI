@@ -63,7 +63,7 @@ fun ScreenContent(
                                     chatExist = true,
                                     chatName = it.chatName,
                                     chatUrl = it.iconUrl,
-                                    companionUid = "companionUid",
+                                    companionUid = it.members.filter { it!=state.value.userId }?.first() ?:"",
                                     chatUid = it.chatId
                                 ))
                             },

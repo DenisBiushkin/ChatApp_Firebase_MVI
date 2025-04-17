@@ -15,13 +15,18 @@ import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.IconCompat
 
 import com.example.unmei.R
+import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
 import com.example.unmei.util.MessageNotificationHelper
 import com.example.unmei.util.ConstansApp.KEY_TEXT_REPLY
 import com.example.unmei.util.ConstansApp.NEW_MESSAGE_CHANNEL_ID
 import com.example.unmei.util.ConstansDev.TAG
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
-class ReplyMessageReceiver :BroadcastReceiver() {
+class ReplyMessageReceiver @Inject constructor(
+   // private val sendMessageUseCase: NotifySendMessageUseCase
+):BroadcastReceiver() {
 
 
     override fun onReceive(context: Context?, intent: Intent?) {

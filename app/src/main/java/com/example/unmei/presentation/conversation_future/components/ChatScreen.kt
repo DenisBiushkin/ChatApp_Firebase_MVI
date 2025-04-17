@@ -143,7 +143,7 @@ fun  ChatScreen(
             TopBarChatScreen(
                 onClickBack ={navController.popBackStack()},
                 onClickProfile = {},
-                iconChatPainter = rememberAsyncImagePainter(model = "https://firebasestorage.googleapis.com/v0/b/repository-d6c1a.appspot.com/o/TestImages/Marcile_donato.jpg?alt=media&token=524e6685-cbdf-4bed-9da3-095e56832093"),
+                iconChatPainter = rememberAsyncImagePainter(model =state.value.chatIconUrl),
                 titleChat = state.value.chatFullName,
                 statusChat = "offline"
             )

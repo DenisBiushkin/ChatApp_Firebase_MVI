@@ -57,7 +57,6 @@ sealed class Screens(
         fun fromJsonToExistenceData(stringUrlJson: String):NavigateConversationData{
 
 
-              //  Log.d(TAG,"Url After "+data.chatUrl)
             return NavigateConversationData.fromJson(stringUrlJson)
         }
 

@@ -37,4 +37,5 @@ object ConstansApp {
     val KEY_TEXT_REPLY = "key_text_reply"
     val NEW_MESSAGE_CHANNEL_ID="message_channel_id"
     val MESSAGE_CHANNEL_NAME="Уведомления сообщений"
+    val MESSAGE_REC_KEY="receive_message_extra"
 }

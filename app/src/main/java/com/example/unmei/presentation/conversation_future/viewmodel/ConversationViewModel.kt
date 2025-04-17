@@ -401,6 +401,7 @@ class ConversationViewModel @Inject constructor(
         message: Message,
         chatId: String
     ){
+        Log.d(TAG,"Sending Message id: $chatId")
         viewModelScope.launch {
             val result=sendMessageUseCaseById.execute(message,chatId)
             when (result){
@@ -422,8 +423,9 @@ class ConversationViewModel @Inject constructor(
                         roomName = currentUser.fullName,
                         typeRoom = TypeRoom.PRIVATE,
                     )
+                    if(state.value.companionId.isEmpty()) return@launch
                     notifySendMessageUseCase.execute(
-                        notificationRecipientsId = listOf(currentUsrUid),
+                        notificationRecipientsId = listOf(state.value.companionId),
                         roomDetail = roomDetail,
                         message=message
                     )
