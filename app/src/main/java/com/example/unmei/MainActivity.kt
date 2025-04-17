@@ -113,17 +113,20 @@ class MainActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             notificationRepository.notifySendMessageInRooms(
                 roomDetail = RoomDetail(
-                    "",
-                    "",
-                    TypeRoom.PUBLIC,
-                    "",
-                    "",
-                    message = Message(
-                        senderId = "",
-                    )
+                    roomId = "",
+                    roomIconUrl = "",
+                    typeRoom = TypeRoom.PUBLIC,
+                    roomName = "",
+
+                    senderIconUrl = "",
+                    senderFullName = "",
+
                 )
                 ,
-                listOf("u1DDSWtIHOSpcHIkLZl0SZGEsmB3")
+                notificationRecipientsId = listOf("u1DDSWtIHOSpcHIkLZl0SZGEsmB3"),
+                message =Message(
+                    senderId = "",
+                )
             )
         }
         auth = Firebase.auth

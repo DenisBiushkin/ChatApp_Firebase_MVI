@@ -50,10 +50,14 @@ sealed class Screens(
                 companionUid = companionUid,
                 chatUid = chatUid
             )
+          //  Log.d(TAG,"Url Before "+chatUrl)
             //нельзя напрямую передать json так как он содержит ! {} ?
             return "chat_screen/${data.toJson()}"
         }
         fun fromJsonToExistenceData(stringUrlJson: String):NavigateConversationData{
+
+
+              //  Log.d(TAG,"Url After "+data.chatUrl)
             return NavigateConversationData.fromJson(stringUrlJson)
         }
 

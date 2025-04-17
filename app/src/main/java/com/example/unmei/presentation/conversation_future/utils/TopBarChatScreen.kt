@@ -1,9 +1,11 @@
 package com.example.unmei.presentation.conversation_future.utils
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +67,8 @@ fun TopBarChatScreen(
                         .clip(CircleShape)
                         .size(50.dp)
                     ,
-                    painter =iconChatPainter,
+                   // painter = rememberAsyncImagePainter(model = "https://firebasestorage.googleapis.com/v0/b/repository-d6c1a.appspot.com/o/TestImages%2FMarcile_donato.jpg?alt=media&token=524e6685-cbdf-4bed-9da3-095e56832093"),
+                  painter =iconChatPainter,
                     contentDescription =""
                 )
                 Column (

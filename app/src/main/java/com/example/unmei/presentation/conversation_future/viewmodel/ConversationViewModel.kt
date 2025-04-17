@@ -9,8 +9,13 @@ import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.model.Attachment
+import com.example.unmei.domain.model.RoomDetail
+import com.example.unmei.domain.model.TypeRoom
+import com.example.unmei.domain.model.User
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
+import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
+import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.conversation_future.model.ConversationContentState
@@ -39,10 +44,13 @@ import javax.inject.Inject
 @RequiresApi(35)
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-  val remote:RemoteDataSource,
-    val repository: MainRepository,
-    val createPrivateChatUseCase: CreatePrivateChatUseCase,
-    val sendMessageUseCaseById:  SendMessageUseCaseById
+    private val remote:RemoteDataSource,
+    private val repository: MainRepository,
+    private val createPrivateChatUseCase: CreatePrivateChatUseCase,
+    private val sendMessageUseCaseById:  SendMessageUseCaseById,
+    private val notifySendMessageUseCase: NotifySendMessageUseCase,
+    //из room должно быть
+    private val getUserByIdUseCase: GetUserByIdUseCase
 ):ViewModel() {
 
     val _state = MutableStateFlow<ConversationVMState>(ConversationVMState())
@@ -113,6 +121,8 @@ class ConversationViewModel @Inject constructor(
         }
     }
     fun saveNecessaryInfo(conversationNavData: NavigateConversationData){
+
+       // Log.d(TAG,"ChatICon "+conversationNavData.chatUrl)
         _state.value = state.value.copy(
             chatFullName = conversationNavData.chatName,
             chatIconUrl = conversationNavData.chatUrl,
@@ -395,13 +405,28 @@ class ConversationViewModel @Inject constructor(
             val result=sendMessageUseCaseById.execute(message,chatId)
             when (result){
                 is Resource.Error -> {
-
                 }
                 is Resource.Loading ->{
-
                 }
                 is Resource.Success -> {
+                    //Брать Текущего пользователя
+                    //Из ROOM!!! а не сети
+                    val currentUser=getUserByIdUseCase.execute(currentUsrUid)?:User(
+                        fullName = currentUsrUid,
+                        photo = ""
+                    )
 
+                    val roomDetail =RoomDetail(
+                        roomId =chatId,
+                        roomIconUrl =currentUser.photo ,
+                        roomName = currentUser.fullName,
+                        typeRoom = TypeRoom.PRIVATE,
+                    )
+                    notifySendMessageUseCase.execute(
+                        notificationRecipientsId = listOf(currentUsrUid),
+                        roomDetail = roomDetail,
+                        message=message
+                    )
                 }
             }
         }
@@ -420,8 +445,10 @@ class ConversationViewModel @Inject constructor(
                 createNewChat(newMessage)
                 return
             }
+
             //send Message
             sendMessageById(message = newMessage, chatId = state.value.groupId)
+
 
         }
     }

@@ -2,11 +2,14 @@ package com.example.unmei.data.repository
 
 import android.content.Context
 import android.util.Log
+import com.example.unmei.data.model.FcmData
 import com.example.unmei.data.model.FcmMessage
 import com.example.unmei.data.model.Notification
 import com.example.unmei.data.model.NtfMessage
 import com.example.unmei.data.network.retrofit.FcmApi
+import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.RoomDetail
+import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.util.ConstansApp.FCM_TOKEN_GET_URL
 import com.example.unmei.util.ConstansApp.NOTIFICATION_TOKENS_DB
@@ -38,15 +41,18 @@ class NotificationRepositoryImpl @Inject constructor(
     private  val tokensByUsers = db.getReference(NOTIFICATION_TOKENS_DB)
 
     private lateinit var roomDetail: RoomDetail
+    private lateinit var message: Message
     private lateinit var  notificationRecipientsId:List<String>
     private  var toTokenList = mutableListOf<String>()
 
     override suspend fun notifySendMessageInRooms(
         roomDetail: RoomDetail,
+        message: Message,
         notificationRecipientsId: List<String>
     ) {
         this.roomDetail = roomDetail
         this.notificationRecipientsId=notificationRecipientsId
+        this.message = message
         prepereBeforeSend()
         sendPushNotificationByToTokens()
     }
@@ -61,14 +67,21 @@ class NotificationRepositoryImpl @Inject constructor(
     private suspend fun sendPushNotificationByToTokens(){
         fcmApi.sendMessage(
             body = FcmMessage(
-                NtfMessage(
+                message = NtfMessage(
                     token= toTokenList.first(),
-                    Notification(
-                        title = "First Notification",
-                        body = "Working Notification Line With Interceptor"
+                    notification = Notification(
+                        title = roomDetail.roomName,
+                        body =message.text?:"Empty text",
+                        image = roomDetail.roomIconUrl
+                    ),
+                    data = FcmData(
+                        roomId = roomDetail.roomId,
+                        typeRoom = roomDetail.typeRoom.value,
+                        bodyType = "text"
                     )
                 )
             )
+
         )
     }
 

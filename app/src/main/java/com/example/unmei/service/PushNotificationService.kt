@@ -2,6 +2,7 @@ package com.example.unmei.service
 
 import android.util.Log
 import android.content.Intent
+import com.example.unmei.data.model.toMyFcmData
 import com.example.unmei.receiver.MessageReceiver
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -19,7 +20,16 @@ class PushNotificationService(
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+
+
+
+
         val intent = Intent(this,MessageReceiver::class.java)
+        val data = message.data
+
+        Log.d(TAG,"MyFcmData "+message.toMyFcmData())
+
+
         Log.d(TAG,"Message Received: ${message.notification?.title.toString()}")
         sendBroadcast(intent)
 
