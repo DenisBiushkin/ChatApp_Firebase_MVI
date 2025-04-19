@@ -3,6 +3,7 @@ package com.example.unmei
 import android.app.Application
 import android.util.Log
 import android.widget.Toast
+import com.example.unmei.android_frameworks.notification.MessageNotificationHelper
 import com.example.unmei.util.ConstansApp.NOTIFICATION_TOKENS_DB
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
@@ -16,5 +17,7 @@ class App: Application() {
 
     override fun onCreate() {
         super.onCreate()
+//        MessageNotificationHelper.init(this)
+//        MessageNotificationHelper.get().createNotificationChannel()
     }
 }

@@ -27,7 +27,7 @@ data class FcmData(
 
     val title: String,
     val body: String,
-    val image:String? = null,
+    val image:String,
 
     val bodyType:String,
     val senderFullName:String? = null,
@@ -42,7 +42,7 @@ fun RemoteMessage.toMyFcmData():FcmData {
 @Serializable
 data class NtfMessage(
     val token: String="", // токен устройства
-    val notification: Notification?=null,//не использовать т.к payload и onReceivedMessage не срабатывает
+    val notification: Notification?=null,//не используется т.к payload и onReceivedMessage не срабатывает
     val data:FcmData
 )
 @Serializable

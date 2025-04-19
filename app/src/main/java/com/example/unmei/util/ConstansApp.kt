@@ -38,4 +38,7 @@ object ConstansApp {
     val NEW_MESSAGE_CHANNEL_ID="message_channel_id"
     val MESSAGE_CHANNEL_NAME="Уведомления сообщений"
     val MESSAGE_REC_KEY="receive_message_extra"
+    val NOTIFICATION_ID_PENDING_EXTRAS="notificationIdExtrasPending"
+    val MESSAGE_GROUP_KEY="message_group"
+    val MESSAGE_SUMMERY_ID=-1
 }

@@ -1,13 +1,11 @@
-package com.example.unmei.service
+package com.example.unmei.android_frameworks.service
 
 import android.util.Log
 import android.content.Intent
-import android.widget.Toast
 import com.example.unmei.data.model.FcmMessage
-import com.example.unmei.data.model.Notification
 import com.example.unmei.data.model.NtfMessage
 import com.example.unmei.data.model.toMyFcmData
-import com.example.unmei.receiver.MessageReceiver
+import com.example.unmei.android_frameworks.receiver.MessageReceiver
 import com.example.unmei.util.ConstansApp.MESSAGE_REC_KEY
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -20,6 +18,8 @@ class PushNotificationService(
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG,"Token FCM: $token")
+
+
         //update server
         //saveTokenServer(token:String) suspend
     }
@@ -28,17 +28,15 @@ class PushNotificationService(
         val myFcmData=message.toMyFcmData()
         return FcmMessage(
             message = NtfMessage(
-                notification =null,
+                notification =null,//исключаем использование стандартного уведомления
                 data = myFcmData
             )
         )
     }
     override fun onMessageReceived(message: RemoteMessage) {
-
         Log.d(TAG,"onMessageReceived (PushNotificationService)")
-      //  super.onMessageReceived(message)
         val myfcmMessage=getMyFcmMessage(message)
-        val intent = Intent(this,MessageReceiver::class.java).apply {
+        val intent = Intent(this, MessageReceiver::class.java).apply {
             putExtra(MESSAGE_REC_KEY,myfcmMessage.toJson())
         }
 //        Log.d(TAG,"MyFcmData "+message.toMyFcmData())

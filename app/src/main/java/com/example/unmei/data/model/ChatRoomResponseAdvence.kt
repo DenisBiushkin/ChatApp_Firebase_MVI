@@ -10,6 +10,8 @@ data class ChatRoomResponseAdvence(
         val timestamp:Any? = null,
         val moderators: Map<String,Boolean> = emptyMap(),//для группового чата
         val members:Map<String,Boolean>  = emptyMap(),
+        //мб и не надо
+        //active users прямо в приложении
         val activeUsers:Map<String,Boolean>  = emptyMap(),
 ){
         fun toChatRoomAdvence():ChatRoomAdvence = this.run {
