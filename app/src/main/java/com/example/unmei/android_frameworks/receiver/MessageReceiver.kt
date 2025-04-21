@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.unmei.DI.ReceiverEntryPoint
 import com.example.unmei.data.model.FcmMessage
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.util.ConstansApp.MESSAGE_REC_KEY
@@ -16,13 +17,17 @@ import com.example.unmei.android_frameworks.notification.NotificationIdGenerator
 import com.example.unmei.util.ConstansApp.MESSAGE_GROUP_KEY
 import com.example.unmei.util.ConstansApp.MESSAGE_SUMMERY_ID
 import com.example.unmei.util.ConstansApp.NEW_MESSAGE_CHANNEL_ID
+import dagger.hilt.android.EntryPointAccessors
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+//нельзя сделать прямую инъекцию так как BroadcastReceiver зареган в manifest
+//а не создается динамичекси
 //@AndroidEntryPoint
-class MessageReceiver  @Inject constructor(
+class MessageReceiver  (
 
 ):BroadcastReceiver() {
 
@@ -31,8 +36,14 @@ class MessageReceiver  @Inject constructor(
         val json = intent?.getStringExtra(MESSAGE_REC_KEY) ?: return
 
         val data = FcmMessage.fromJson(json).message.data
-        val helper= MessageNotificationHelper(safeContext)
         val notificationId= NotificationIdGenerator.fromString(data.roomId)
+
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ReceiverEntryPoint::class.java
+        )
+        val helper=entryPoint.provideMessageNotificationHelper()
+
         val notificationManager = NotificationManagerCompat.from(safeContext)
 
 

@@ -1,5 +1,6 @@
 package com.example.unmei.android_frameworks.notification
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,9 +8,12 @@ import android.app.PendingIntent
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ShortcutInfo
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
@@ -80,7 +84,7 @@ class MessageNotificationHelper (
         val replyPendingIntent = PendingIntent.getBroadcast(
             context, notificationId,
             replyIntent,
-            0)
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
 
 
         val readedPendingntent = PendingIntent.getBroadcast(
@@ -199,6 +203,7 @@ class MessageNotificationHelper (
         }
         return notificationManager
     }
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun messageNotification(
         notifChannelId:String,
         notificationId: Int,
@@ -219,6 +224,7 @@ class MessageNotificationHelper (
           //  .setOnlyAlertOnce(true)
             .addAction(pairActions.first)
             .addAction(pairActions.second)
+
     }
     fun summaryGroupNotification(
         notifChannelId:String,

@@ -110,32 +110,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        CoroutineScope(Dispatchers.IO).launch {
-            notificationRepository.notifySendMessageInRooms(
-                roomDetail = RoomDetail(
-                    roomId = "",
-                    roomIconUrl = "",
-                    typeRoom = TypeRoom.PUBLIC,
-                    roomName = "",
 
-                    senderIconUrl = "",
-                    senderFullName = "",
-
-                )
-                ,
-                notificationRecipientsId = listOf("u1DDSWtIHOSpcHIkLZl0SZGEsmB3"),
-                message =Message(
-                    senderId = "",
-                )
-            )
-        }
         auth = Firebase.auth
         var startDestinationRoute = ConstansApp.AUTH_NAVIGATE_ROUTE
         val currentUser = auth.currentUser
 
         if(currentUser!=null){
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
-            saveFCMToken(currentUser.uid)
+             saveFCMToken(currentUser.uid)
         }
 
         //ПОПРАВИТЬ

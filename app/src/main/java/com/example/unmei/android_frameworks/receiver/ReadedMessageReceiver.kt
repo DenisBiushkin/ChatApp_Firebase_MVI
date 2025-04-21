@@ -20,6 +20,8 @@ class ReadedMessageReceiver:BroadcastReceiver() {
         val helper= MessageNotificationHelper(safeContext)
 
 
+        //отметить как прочимтанное UseCase
+
         Log.d(TAG,"ReadedMessageReceiver")
         NotificationManagerCompat.from(context).cancel(data.notificationId)
     }

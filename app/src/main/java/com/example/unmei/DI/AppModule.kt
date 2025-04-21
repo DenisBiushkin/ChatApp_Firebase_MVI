@@ -3,6 +3,7 @@ package com.example.unmei.DI
 
 import android.app.Application
 import androidx.room.Room
+import com.example.unmei.android_frameworks.notification.MessageNotificationHelper
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.network.retrofit.FcmApi
@@ -35,6 +36,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
@@ -104,6 +106,7 @@ object AppModule {
     fun provideFcmProvider(
         context: Application
     ):FirebaseTokenProvider= FirebaseTokenProvider(context)
+
     @Singleton
     @Provides
     fun provideFcmTokenManager(
@@ -127,6 +130,17 @@ object AppModule {
             .build()
             .create(FcmApi::class.java)
     }
+
+
+    @Provides
+    fun provideMessageNotificationHelper(
+        context: Application
+    ): MessageNotificationHelper{
+        return MessageNotificationHelper(context)
+    }
+
+
+
 
     @Provides
     fun provideSaveUserUseCase(mainRepository: MainRepository): SaveUserUseCase {

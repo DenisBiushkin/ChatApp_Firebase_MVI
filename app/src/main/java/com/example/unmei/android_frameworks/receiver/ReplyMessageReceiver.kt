@@ -11,14 +11,21 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
-import androidx.core.graphics.drawable.IconCompat
+import com.example.unmei.DI.ReceiverEntryPoint
 
-import com.example.unmei.R
 import com.example.unmei.android_frameworks.receiver.model.NotificationDataExtra
-import com.example.unmei.android_frameworks.notification.MessageNotificationHelper
+import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.RoomDetail
 import com.example.unmei.util.ConstansApp.KEY_TEXT_REPLY
 import com.example.unmei.util.ConstansApp.NOTIFICATION_ID_PENDING_EXTRAS
 import com.example.unmei.util.ConstansDev.TAG
+import com.example.unmei.util.Resource
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -33,23 +40,53 @@ class ReplyMessageReceiver @Inject constructor(
         val safeContext = context ?: return
         val json = intent.getStringExtra(NOTIFICATION_ID_PENDING_EXTRAS) ?: return
 
-        val data = NotificationDataExtra.fromJson(json)
-        val helper= MessageNotificationHelper(safeContext)
+        val extrasData = NotificationDataExtra.fromJson(json)
         val textMessage=remoteInput.getCharSequence(KEY_TEXT_REPLY).toString()
-        Log.d(TAG,"Activate: ReplyMessageReceiver")
-        val person= Person.Builder()
-            .setName("Вы")
-            .build()
-        val style = NotificationCompat.MessagingStyle(person)
-            .addMessage(textMessage,System.currentTimeMillis(),person)
 
-        if (ActivityCompat.checkSelfPermission(
-                safeContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
+        val entryPoint = EntryPointAccessors.fromApplication(
+            safeContext.applicationContext,
+            ReceiverEntryPoint::class.java
+        )
+        val helper=entryPoint.provideMessageNotificationHelper()
+        val sendMessageUseCaseById=entryPoint.provideSendMessageUseCase()
+        val notifySendMessageUseCase=entryPoint.provideNotifySendMessageUseCase()
+        val currentUser=Firebase.auth.currentUser
+
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val result=sendMessageUseCaseById.execute(
+                message = Message(
+                    senderId = currentUser!!.uid,
+                    text = textMessage
+                ),
+                chatId = extrasData.roomId!!
+            )
+            when(result){
+                is Resource.Error -> {}
+                is Resource.Loading -> {}
+                is Resource.Success -> {}
+            }
+
+            pendingResult.finish()
         }
+
+    }
+    fun test(){
+//        Log.d(TAG,"Activate: ReplyMessageReceiver")
+//        val person= Person.Builder()
+//            .setName("Вы")
+//            .build()
+//        val style = NotificationCompat.MessagingStyle(person)
+//            .addMessage(textMessage,System.currentTimeMillis(),person)
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                safeContext,
+//                Manifest.permission.POST_NOTIFICATIONS
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            return
+//        }
 
 //            NotificationManagerCompat.from(currentContext)
 //                .notify(2,
