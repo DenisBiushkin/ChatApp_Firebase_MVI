@@ -264,18 +264,20 @@ fun BoxWithUnderline(
 }
 @Composable
 fun BoxWithImageUser(
+    modifier: Modifier=Modifier,
     painterUser: Painter,
     isOnline:Boolean= false,
     height: Dp,
+    statusCircleRadius:Dp = 8.dp
 ){
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(height - 10.dp)
             .drawWithCache {
                 val width = size.width
                 val height = size.height
-                val whiteCircleRadius = 8.dp.toPx()
-                val greenCircleRadius = 5.dp.toPx()
+                val whiteCircleRadius = statusCircleRadius.toPx()
+                val greenCircleRadius = whiteCircleRadius*0.7.toFloat()
                 val centerWhite = Pair(height - whiteCircleRadius, width - whiteCircleRadius)
                 onDrawWithContent {
                     drawContent()

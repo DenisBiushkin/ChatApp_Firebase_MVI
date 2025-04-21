@@ -2,6 +2,7 @@ package com.example.unmei.presentation.conversation_future.components
 
 import android.net.Uri
 import android.util.Log
+
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,19 +21,30 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -45,8 +57,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,7 +80,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 
 
@@ -70,6 +93,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -83,33 +107,32 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-
 import com.example.unmei.R
+
 import com.example.unmei.presentation.conversation_future.ContentResolverClient
 import com.example.unmei.presentation.conversation_future.model.ConversationContentState
 import com.example.unmei.presentation.conversation_future.model.ConversationEvent
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
 import com.example.unmei.presentation.conversation_future.model.MessageType
 import com.example.unmei.presentation.conversation_future.utils.BaseRowWithSelectItemMessage
-import com.example.unmei.presentation.conversation_future.utils.BottomBarChatScreen
 import com.example.unmei.presentation.conversation_future.utils.BottomButtonSelectMedia
 
 import com.example.unmei.presentation.conversation_future.utils.ChatBubbleImages
 import com.example.unmei.presentation.conversation_future.utils.ChatBubbleWithPattern
 import com.example.unmei.presentation.conversation_future.utils.LoadingCircleProgressNewMessages
 import com.example.unmei.presentation.conversation_future.utils.MessageContent
-import com.example.unmei.presentation.conversation_future.utils.TimeMessage
-import com.example.unmei.presentation.conversation_future.utils.TopBarChatScreen
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 import com.example.unmei.presentation.util.ui.theme.colorApp
@@ -126,7 +149,7 @@ fun showChatScreen(){
    )
 }
 @RequiresApi(35)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun  ChatScreen(
     navController: NavController,
@@ -136,8 +159,6 @@ fun  ChatScreen(
     val state = viewModel.state.collectAsState()
     val lazyState = rememberLazyListState()
     val bottomSheetState = rememberModalBottomSheetState()
-
-
     Scaffold(
         topBar = {
             TopBarChatScreen(
@@ -147,8 +168,7 @@ fun  ChatScreen(
                 titleChat = state.value.chatFullName,
                 statusChat = "offline"
             )
-
-            AnimatedVisibility(
+                        AnimatedVisibility(
                 visible = state.value.optionsVisibility
                 , enter = fadeIn(),
                 exit = fadeOut()
@@ -188,6 +208,7 @@ fun  ChatScreen(
                     }
                 )
             }
+
         },
         bottomBar = {
             BottomBarChatScreen(
@@ -199,11 +220,19 @@ fun  ChatScreen(
 
                 }
             )
+
         },
         //учитывает появление клавиатуры
-        modifier = Modifier.imePadding()
+        modifier = Modifier
+            .fillMaxSize()
+
+
+           // .windowInsetsPadding(WindowInsets.ime)
+             // учитывает появление клавиатуры
     ) {
         paddingValues ->
+
+
         when(state.value.contentState){
             ConversationContentState.EmptyType ->{
                 ChatScreenEmptyContent(
@@ -216,7 +245,11 @@ fun  ChatScreen(
                 }
             ConversationContentState.Messaging -> {
                 ContentChatScreen(
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier
+                        .padding(paddingValues)
+                          .consumeWindowInsets(paddingValues)
+
+                    ,
                     state = state,
                     lazyState= lazyState,
                     viewModel
@@ -239,9 +272,10 @@ fun  ChatScreen(
         )
 
 
-        
+
     }
 }
+
 
 
 

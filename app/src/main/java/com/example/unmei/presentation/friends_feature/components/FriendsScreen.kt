@@ -27,10 +27,12 @@ fun FriendsScreen(
     navController: NavController,
     viewModel:FriendsViewModel
 ){
-     Box(
-         modifier = Modifier.fillMaxSize(),
-         contentAlignment = Alignment.Center
-         ){
-         Text(text = "Пока что клепается")
-     }
+
+        FriendScreenFull(
+            onClickBack = {
+                navController.popBackStack()
+            },
+            onClickSandMessage = {}
+        )
+
 }
