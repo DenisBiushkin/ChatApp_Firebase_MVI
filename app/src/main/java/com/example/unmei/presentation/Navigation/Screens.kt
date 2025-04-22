@@ -13,6 +13,8 @@ sealed class Screens(
     val route:String
 ) {
     object SignIn:Screens(route="signIn_screen")
+    object Registration:Screens(route="registration_screen")
+
 
     object Main:Screens("main_screen")
     object Drawer:Screens("drawer_screen")

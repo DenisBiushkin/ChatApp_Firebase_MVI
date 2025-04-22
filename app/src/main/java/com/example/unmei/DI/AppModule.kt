@@ -23,6 +23,7 @@ import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
 import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
+import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserUseCase
@@ -197,6 +198,11 @@ object AppModule {
         notificationRepository:NotificationRepository
     ): NotifySendMessageUseCase {
         return NotifySendMessageUseCase(notificationRepository)
+    }
+
+    @Provides
+    fun provideObserveRoomSummariesUseCase(mainRepository: MainRepository): ObserveRoomSummariesUseCase{
+        return ObserveRoomSummariesUseCase(mainRepository)
     }
 
 }

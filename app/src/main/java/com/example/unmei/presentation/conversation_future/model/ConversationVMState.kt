@@ -19,9 +19,11 @@ data class ConversationVMState(
     val loadingOldMessages:Boolean = false,
     val optionsVisibility: Boolean = false,
     val bottomSheetVisibility: Boolean = false,
+
     val chatFullName:String="",
     val chatIconUrl:String ="",
-    val statusChat:String="",
+    val statusChat:String ="" ,
+    val isTyping:Boolean = false,
 
     val groupId : String = "",//хз тут ли должен быть
     val companionId : String = ""//хз тут ли должен быть

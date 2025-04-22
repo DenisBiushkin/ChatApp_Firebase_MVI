@@ -5,17 +5,23 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.model.Attachment
 import com.example.unmei.domain.model.RoomDetail
+import com.example.unmei.domain.model.RoomSummaries
+import com.example.unmei.domain.model.Status
+import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
 import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
+import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
+import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.conversation_future.model.ConversationContentState
@@ -35,9 +41,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -49,6 +64,8 @@ class ConversationViewModel @Inject constructor(
     private val createPrivateChatUseCase: CreatePrivateChatUseCase,
     private val sendMessageUseCaseById:  SendMessageUseCaseById,
     private val notifySendMessageUseCase: NotifySendMessageUseCase,
+    private val observeUserStatusByIdUseCase: ObserveUserStatusByIdUseCase,
+    private val observeRoomSummariesUseCase: ObserveRoomSummariesUseCase,
     //из room должно быть
     private val getUserByIdUseCase: GetUserByIdUseCase
 ):ViewModel() {
@@ -64,20 +81,51 @@ class ConversationViewModel @Inject constructor(
 
 
     init {
-        val ids= listOf(
-            "-OLz7BinABjm_psVir_I",
-            "-OLz8kC0LlCf6J0RAK86",
-            "-OLzA_yLjxKTCTu_Tr0y",
-            "-OLzDKz-R0BvRyLr_b5X",
-            "-OLz1bAdRr97nMTu_cCz",
-            "-OLz2_jrc8-8fp4LZUB1",
 
-        )
+
+    }
+
+    private fun observeStatusChat(){
         viewModelScope.launch {
-          ids.forEach {
-              remote.cascadeDeleteRoomsAdvence(it)
-          }
+           val statusFlow =observeUserStatusByIdUseCase.execute(state.value.companionId)
+            val summariesFlow = observeRoomSummariesUseCase.execute(state.value.groupId)
+            combine(summariesFlow,statusFlow){ summary, presence ->
+                Pair( presence,summary)
+            }.collect{
+                val statusUser = it.first
+                val summeriesChat= it.second
+                when(statusUser.status){
+                    Status.OFFLINE ->_state.value=state.value.copy(
+                    statusChat = getAdvancedStatusUser(statusUser.lastSeen)
+                    )
+                    Status.ONLINE -> _state.value=state.value.copy(statusChat ="Online")
+                    Status.RECENTLY -> _state.value=state.value.copy(statusChat ="был(а) недавно")
+                }
+
+                _state.value=state.value.copy(
+                    isTyping = summeriesChat.typingUsersStatus.contains(state.value.companionId)
+                )
+
+            }
         }
+    }
+    private fun getAdvancedStatusUser(timeStamp:Long):String{
+        val now = LocalDateTime.now().toLocalDate()
+        val date = Instant.ofEpochMilli(timeStamp)
+            .atZone(ZoneOffset.UTC) // Устанавливаем временную зону
+            .toLocalDate() // Преобразуем в локальную дату
+        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        if (now==date){
+           return "был(а) в "+sdf.format(Date(timeStamp))
+        }
+        if(
+            (now.year==date.year)&&(now.dayOfMonth==date.dayOfMonth+1)
+            ){
+            return "был(а) вчера в "+sdf.format(Date(timeStamp))
+        }
+        val russianDayOfWeek = date.month.getDisplayName(TextStyle.SHORT, Locale("ru"))
+        return "был(а) "+date.dayOfMonth.toString()+" "+russianDayOfWeek+" в "+sdf.format(Date(timeStamp))
 
     }
 
@@ -143,7 +191,11 @@ class ConversationViewModel @Inject constructor(
 
         //getGroupById
         //
+        observeStatusChat()
         observeMessages(state.value.groupId)
+
+
+
     }
 
     private fun selectContentState(){

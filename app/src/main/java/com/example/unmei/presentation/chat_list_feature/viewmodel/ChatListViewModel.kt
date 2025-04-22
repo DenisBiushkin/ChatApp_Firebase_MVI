@@ -82,6 +82,7 @@ class ChatListViewModel @Inject constructor(
                         var newChatRoom = chatRoom
                         val statusFlow = if (chatRoom.type == TypeRoom.PRIVATE) {
 
+
                             val idCompanion = chatRoom.members.first { it != currentUsrUid }
                             val userData = getUserByIdUseCase.execute(idCompanion)
                             Log.d(TAG,"USerDATA $userData")

@@ -14,4 +14,5 @@ data class RoomSummariesResp(
                         typingUsersStatus = typingUsersStatus.keys.toSet()
                 )
         }
+
 }

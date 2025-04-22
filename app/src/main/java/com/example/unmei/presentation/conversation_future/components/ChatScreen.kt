@@ -166,9 +166,10 @@ fun  ChatScreen(
                 onClickProfile = {},
                 iconChatPainter = rememberAsyncImagePainter(model =state.value.chatIconUrl),
                 titleChat = state.value.chatFullName,
-                statusChat = "offline"
+                statusChat = state.value.statusChat,
+                isTyping=state.value.isTyping
             )
-                        AnimatedVisibility(
+            AnimatedVisibility(
                 visible = state.value.optionsVisibility
                 , enter = fadeIn(),
                 exit = fadeOut()

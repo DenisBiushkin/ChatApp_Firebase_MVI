@@ -22,8 +22,6 @@ data class MessageResponse(
     val text: String? = null,
     val attachment: String? = null,
 ){
-
-
     fun toMessage():Message =this.run {
 
 

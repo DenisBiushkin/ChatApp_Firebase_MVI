@@ -3,6 +3,7 @@ package com.example.unmei.domain.repository
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.NewRoomModel
+import com.example.unmei.domain.model.RoomSummaries
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
@@ -34,6 +35,8 @@ interface MainRepository {
     fun observeMessagesInChat(chatId: String):Flow<ExtendedResource<Message>>
 
     fun deleteMessagesInChat(messagesId:List<String>,chatId: String):Flow<Resource<Unit>>
+
+    fun observeRoomSummaries(chatId: String):Flow<RoomSummaries>
 
 
 

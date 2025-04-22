@@ -7,6 +7,7 @@ import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.domain.model.ChatRoom
 import com.example.unmei.domain.model.Message
 import com.example.unmei.domain.model.NewRoomModel
+import com.example.unmei.domain.model.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
@@ -73,10 +74,16 @@ class MainRepositoryImpl @Inject constructor(
         return remoteDataSource.observeMessagesInChat(chatId)
     }
 
+
+///Users
     override fun observeStatusUserById(userId: String): Flow<StatusUser> {
         return remoteDataSource.observeStatusUserById(userId).mapNotNull {
             it.toStatusUser()
         }
+    }
+
+    override fun observeRoomSummaries(chatId: String): Flow<RoomSummaries> {
+       return remoteDataSource.observeRoomSammaries(chatId)
     }
 
     override suspend fun isUserExist(userId:String):Boolean{

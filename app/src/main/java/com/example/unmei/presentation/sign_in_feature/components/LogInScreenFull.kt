@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.sign_in_feature.viewmodel.SignInWithGoogleViewModel
 import com.example.unmei.util.ConstansDev.TAG
 import kotlinx.coroutines.launch
@@ -89,7 +90,7 @@ fun LoginInScreenFull(
             }
         },
         createAccountOnClick = {
-
+            navController.navigate(Screens.Registration.route)
         },
     )
 }

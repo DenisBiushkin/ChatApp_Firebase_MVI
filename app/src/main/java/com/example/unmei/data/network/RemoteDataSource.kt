@@ -74,9 +74,13 @@ class RemoteDataSource(
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val data = snapshot.getValue(RoomSummariesResp::class.java)
-                data?.let {
-                    trySend(it.toRoomSummaries())
-                }
+//                data?.let {
+//                    trySend(it.toRoomSummaries())
+//                }
+                if(data!=null)
+                    trySend(data.toRoomSummaries())
+                else
+                    trySend(RoomSummaries())
             }
 
             override fun onCancelled(error: DatabaseError) {

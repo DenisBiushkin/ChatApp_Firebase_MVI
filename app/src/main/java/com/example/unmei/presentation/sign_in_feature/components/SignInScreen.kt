@@ -228,7 +228,9 @@ private fun LoginSection(
 }
 
 @Composable
-fun TopPart() {
+fun TopPart(
+    topLogo:String = "Вход"
+) {
     val uiColor = if (isSystemInDarkTheme()) Color.White else Black
     Box(
         contentAlignment = Alignment.TopCenter
@@ -246,12 +248,14 @@ fun TopPart() {
                 .padding(start = 0.dp)
                 .padding(top = 80.dp), verticalAlignment = Alignment.CenterVertically
         ) {
+
             Image(
                 modifier = Modifier.size(120.dp),
                 painter = painterResource(id = R.drawable.login_tohsaka),
                 contentDescription = stringResource(id = R.string.logo),
                 contentScale = ContentScale.Crop
             )
+
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
@@ -270,7 +274,7 @@ fun TopPart() {
             modifier = Modifier
                 .padding(bottom = 10.dp)
                 .align(alignment = Alignment.BottomCenter)//выровнить
-            , text ="Вход",
+            , text =topLogo,
             style = MaterialTheme.typography.headlineLarge,
             color = uiColor
         )

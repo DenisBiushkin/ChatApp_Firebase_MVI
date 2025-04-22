@@ -39,6 +39,7 @@ fun TopBarChatScreen(
     onClickBack:()->Unit,
     onClickProfile: () -> Unit,
     statusChat:String,
+    isTyping:Boolean,
     titleChat:String,
     iconChatPainter: Painter
 ){
@@ -82,14 +83,26 @@ fun TopBarChatScreen(
                         fontSize = 20.sp
                     )
                     //Жестко отредачить и добавить анимацию когда кто то печатает
-                    Text(
-                        modifier = Modifier.padding(top = 0.dp),
+                    if (isTyping){
+                        Text(
+                            modifier = Modifier.padding(top = 0.dp),
 
-                        text = statusChat,
-                        color= colorTextLight,
-                        maxLines = 1,
-                        fontSize = 15.sp
-                    )
+                            text = "Печатает...",
+                            color= colorTextLight,
+                            maxLines = 1,
+                            fontSize = 15.sp
+                        )
+                    }else{
+                        Text(
+                            modifier = Modifier.padding(top = 0.dp),
+
+                            text = statusChat,
+                            color= colorTextLight,
+                            maxLines = 1,
+                            fontSize = 15.sp
+                        )
+                    }
+
                 }
             }
         },

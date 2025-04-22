@@ -20,9 +20,11 @@ import com.example.unmei.presentation.util.ui.theme.unfocusedTextFieldText
 fun LoginTextField(
     modifier: Modifier= Modifier,
     label:String,
+    enableTrailing:Boolean=true,
     trailing:String,//заверщающая строка
     onvalueChanged:(String)->Unit,
-    textvalue:String
+    textvalue:String,
+
 ){
 
     val uiColor = if (isSystemInDarkTheme()) Color.White else Black
@@ -46,7 +48,8 @@ fun LoginTextField(
             focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer//выбран(в фокусе)
         ),
         trailingIcon ={//значек с правого конца конйтенера
-            TextButton(onClick = { /*TODO*/ }) {
+            if (enableTrailing){
+                TextButton(onClick = { /*TODO*/ }) {
                     Text(
                         text = trailing,
                         style=MaterialTheme
@@ -55,7 +58,9 @@ fun LoginTextField(
                             .copy(fontWeight = FontWeight.Bold),
                         color=uiColor
                     )
+                }
             }
+
         }
 
     )
