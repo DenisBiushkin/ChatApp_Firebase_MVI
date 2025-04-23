@@ -8,6 +8,7 @@ import com.example.unmei.util.ConstansApp.NOTIFICATION_TOKENS_DB
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.tasks.await
@@ -17,6 +18,7 @@ class App: Application() {
 
     override fun onCreate() {
         super.onCreate()
+     //   FirebaseApp.initializeApp(this)
 //        MessageNotificationHelper.init(this)
 //        MessageNotificationHelper.get().createNotificationChannel()
     }

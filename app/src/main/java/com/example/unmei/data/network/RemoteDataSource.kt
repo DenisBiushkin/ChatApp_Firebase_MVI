@@ -214,8 +214,14 @@ class RemoteDataSource(
         }
     }
     @Deprecated(message = "Доработать добавление статуса online в presence")
-    suspend fun saveUserData(user:User){
-        usersRef.child(user.uid).setValue(user).await()
+    suspend fun saveUserData(user:User):Resource<Unit>{
+        try {
+            usersRef.child(user.uid).setValue(user).await()
+            return Resource.Success(Unit)
+        }catch (e:Exception){
+            return Resource.Error(message = e.toString())
+        }
+
     }
 
     fun observeUser(userId: String): Flow<User> = callbackFlow {

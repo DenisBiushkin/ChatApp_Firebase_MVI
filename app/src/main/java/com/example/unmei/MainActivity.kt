@@ -63,7 +63,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var auth: FirebaseAuth
+   // @Inject
+    lateinit var auth: FirebaseAuth
 
 
     @Inject

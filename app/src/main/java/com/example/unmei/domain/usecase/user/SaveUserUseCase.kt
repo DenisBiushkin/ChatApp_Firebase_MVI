@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class SaveUserUseCase (
     private val mainRepository: MainRepository
 ){
-  fun execute(user: User): Flow<Resource<Boolean>> {
+  suspend fun execute(user: User): Resource<Unit> {
       return mainRepository.saveUser(user)
   }
 }

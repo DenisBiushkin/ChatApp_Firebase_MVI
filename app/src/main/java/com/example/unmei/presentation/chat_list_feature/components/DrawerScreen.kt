@@ -92,7 +92,7 @@ fun DrawerScreen(
                             Log.d(TAG,"Осуществляется выход")
                             scopeExitAccount.launch {
                                 googleAuthUiClient.signOut()
-                                navController.clearBackStack(Screens.SignIn.route)
+                                //navController.clearBackStack(Screens.SignIn.route)
                                 navController.navigate(Screens.SignIn.route)
                             }
 

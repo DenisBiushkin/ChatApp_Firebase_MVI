@@ -90,18 +90,10 @@ class MainRepositoryImpl @Inject constructor(
         return remoteDataSource.isUserExists(userId)
     }
 
-    override fun saveUser(user: User): Flow<Resource<Boolean>> {
-        return flow {
-            try{
-                emit(Resource.Loading())
+    override suspend fun saveUser(user: User): Resource<Unit> {
 
-                remoteDataSource.saveUserData(user=user)
+        return  remoteDataSource.saveUserData(user=user)
 
-                emit(Resource.Success(data = true))
-            }catch(e:Exception){
-                emit(Resource.Error(message = e.toString()))
-            }
-        }
     }
 
     override suspend fun observeUser(userId: String): Flow <User> {

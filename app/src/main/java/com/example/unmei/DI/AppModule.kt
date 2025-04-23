@@ -8,6 +8,7 @@ import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.network.retrofit.FcmApi
 import com.example.unmei.data.network.retrofit.NotificationTokenHeaderInterceptor
+import com.example.unmei.data.repository.AuthRepositoryImpl
 import com.example.unmei.data.repository.MainRepositoryImpl
 import com.example.unmei.data.repository.NotificationRepositoryImpl
 import com.example.unmei.data.repository.token.FcmTokenManager
@@ -16,6 +17,7 @@ import com.example.unmei.data.repository.token.FirebaseTokenProvider
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.repository.AuthRepository
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
@@ -33,7 +35,9 @@ import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.util.ConstansApp.FCM_SEND_NOTIFICATION_BASE_URL
 import com.example.unmei.util.ConstansDev
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
@@ -140,6 +144,14 @@ object AppModule {
         return MessageNotificationHelper(context)
     }
 
+    @Provides
+    @Singleton
+    fun provideAuthRepository(
+        mainRepository: MainRepository,
+    ):AuthRepository{
+        return  AuthRepositoryImpl(mainRepository)
+    }
+
 
 
 
@@ -204,5 +216,6 @@ object AppModule {
     fun provideObserveRoomSummariesUseCase(mainRepository: MainRepository): ObserveRoomSummariesUseCase{
         return ObserveRoomSummariesUseCase(mainRepository)
     }
+
 
 }

@@ -3,21 +3,26 @@ package com.example.unmei.presentation.sign_in_feature.components
 import android.app.Activity.RESULT_OK
 import android.content.IntentSender
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.unmei.presentation.Navigation.Screens
+import com.example.unmei.presentation.sign_in_feature.model.SignInVMEvent
 import com.example.unmei.presentation.sign_in_feature.viewmodel.SignInWithGoogleViewModel
 import com.example.unmei.util.ConstansDev.TAG
 import kotlinx.coroutines.launch
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
+import com.example.unmei.presentation.util.LoadingScreen
 import com.example.unmei.util.ConstansApp.MAIN_NAVIGATE_ROUTE
 
 @Composable
@@ -28,13 +33,6 @@ fun LoginInScreenFull(
 ){
 
     val state=viewModel.state.collectAsState()
-
-    val passwordTextField = remember {
-        mutableStateOf("")
-    }
-    val emailTextField = remember {
-        mutableStateOf("")
-    }
     val scopeSignInFirebase = rememberCoroutineScope()
     val scopeGoogleOneTap = rememberCoroutineScope()
     //тот же самый лаунчер только для Сompose,также указывается контракт
@@ -60,20 +58,34 @@ fun LoginInScreenFull(
             popUpTo(MAIN_NAVIGATE_ROUTE) { inclusive = false }
         }
     }
+    val loaclContext=LocalContext.current
+    LaunchedEffect(state.value.showAlert) {
+        if (state.value.showAlert) {
+            Toast.makeText(loaclContext, state.value.textAlert, Toast.LENGTH_LONG).show()
+            viewModel.resetState()
+        }
+    }
+//не робит
+        if (state.value.isLoading) {
+            LoadingScreen ()
+        }
+
+
+
     SignInScreen(
-        emailField = emailTextField.value,
+        emailField = state.value.emailField,
         emailFieldOnChange = {
-            emailTextField.value=it
+           viewModel.onEvent(SignInVMEvent.EmailValueChange(it))
         },
-        passwordField = passwordTextField.value,
+        passwordField = state.value.passwordField,
         passwordFieldOnChange = {
-            passwordTextField.value=it
+            viewModel.onEvent(SignInVMEvent.PasswordValueChange(it))
         },
         forgotOnClick = {
 
         },
         signInOnClick = {
-
+            viewModel.onEvent(SignInVMEvent.SignInWithEmail)
         },
         signInWithGoogleOnClick = {
                 //navController.navigate(MAIN_NAVIGATE_ROUTE)

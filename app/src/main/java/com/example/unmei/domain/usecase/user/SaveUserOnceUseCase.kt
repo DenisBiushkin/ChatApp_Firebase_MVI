@@ -11,18 +11,15 @@ import kotlinx.coroutines.flow.flow
 class SaveUserOnceUseCase (
     private val mainRepository: MainRepository
 ){
-    suspend fun execute(user: User): Flow<Resource<Boolean>> {
+    suspend fun execute(user: User): Resource<Unit>{
 
         val userExist = mainRepository.isUserExist(user.uid)
-        Log.d(ConstansDev.TAG,"Пользователь "+userExist)
+        //Log.d(ConstansDev.TAG,"Пользователь "+userExist)
         if (!userExist){
-
             return mainRepository.saveUser(user)
-
         }else{
-            return flow<Resource<Boolean>> {
-                emit(Resource.Success(true))
-            }
+            return Resource.Success(Unit)
+
         }
     }
 }

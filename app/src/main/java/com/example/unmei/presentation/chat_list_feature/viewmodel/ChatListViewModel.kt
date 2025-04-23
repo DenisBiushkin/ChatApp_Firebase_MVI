@@ -75,6 +75,7 @@ class ChatListViewModel @Inject constructor(
 
     private suspend fun observeChatRoomsAdvanced() {
         observeRoomsUserUseCase.execute(currentUsrUid)
+
             .collectLatest { listRooms ->
                 val chatFlows = listRooms.mapNotNull { roomId ->
                     remote.getChatRoomById(roomId)?.let { chatRoom ->

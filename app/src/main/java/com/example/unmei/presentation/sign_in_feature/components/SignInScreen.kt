@@ -133,7 +133,7 @@ fun SignInScreen(
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(size = 4.dp),
-                    onClick = forgotOnClick
+                    onClick =  signInOnClick
                 ) {
                     Text(
                         text = "Войти",

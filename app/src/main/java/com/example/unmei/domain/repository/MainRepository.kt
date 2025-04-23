@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface MainRepository {
 
-    fun saveUser(user: User): Flow<Resource<Boolean>>
+    suspend fun saveUser(user: User): Resource<Unit>
 
     suspend fun isUserExist(userId:String):Boolean
 
