@@ -1,6 +1,6 @@
 package com.example.unmei.data.model
 
-import com.example.unmei.domain.model.RoomSummaries
+import com.example.unmei.domain.model.messages.RoomSummaries
 
 data class RoomSummariesResp(
         val lastMessage: MessageResponse? = null,

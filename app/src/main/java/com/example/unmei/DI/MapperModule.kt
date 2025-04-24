@@ -2,7 +2,7 @@ package com.example.unmei.DI
 
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.mapper.ChatRoomMapper
-import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.messages.ChatRoom
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -19,5 +19,5 @@ abstract class MapperModule {//abstarct потому что Binds работае
     @Binds
     abstract fun bindChatRoomMapper(
         mapper: ChatRoomMapper
-    ):Mapper<ChatRoomResponse,ChatRoom>
+    ):Mapper<ChatRoomResponse, ChatRoom>
 }

@@ -1,8 +1,7 @@
 package com.example.unmei.domain.usecase.messages
 
-import com.example.unmei.data.repository.NotificationRepositoryImpl
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.RoomDetail
+import com.example.unmei.domain.model.messages.Message
+import com.example.unmei.domain.model.messages.RoomDetail
 import com.example.unmei.domain.repository.NotificationRepository
 
 class NotifySendMessageUseCase(

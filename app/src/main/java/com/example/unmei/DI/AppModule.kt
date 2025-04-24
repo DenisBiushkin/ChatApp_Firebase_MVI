@@ -16,7 +16,7 @@ import com.example.unmei.data.repository.token.FcmTokenManagerImpl
 import com.example.unmei.data.repository.token.FirebaseTokenProvider
 import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
-import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.repository.AuthRepository
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.repository.NotificationRepository
@@ -35,20 +35,16 @@ import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.util.ConstansApp.FCM_SEND_NOTIFICATION_BASE_URL
 import com.example.unmei.util.ConstansDev
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import org.example.Mappers.base.Mapper
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.create
 import javax.inject.Singleton
 
 
@@ -97,7 +93,7 @@ object AppModule {
     fun provideMainRepository(
         localDataSource:LocalDataSource,
         remoteDataSource: RemoteDataSource,
-        mapperChatRoom: Mapper<ChatRoomResponse,ChatRoom>
+        mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
     ):MainRepository{
         return MainRepositoryImpl(
             localDataSource = localDataSource,

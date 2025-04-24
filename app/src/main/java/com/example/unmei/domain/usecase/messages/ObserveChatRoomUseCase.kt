@@ -1,6 +1,6 @@
 package com.example.unmei.domain.usecase.messages
 
-import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.repository.MainRepository
 import kotlinx.coroutines.flow.Flow
 

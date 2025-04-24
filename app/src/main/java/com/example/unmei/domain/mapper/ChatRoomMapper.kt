@@ -1,7 +1,7 @@
 package com.example.unmei.domain.mapper
 
 import com.example.unmei.data.model.ChatRoomResponse
-import com.example.unmei.domain.model.ChatRoom
+import com.example.unmei.domain.model.messages.ChatRoom
 import org.example.Mappers.base.Mapper
 import javax.inject.Inject
 

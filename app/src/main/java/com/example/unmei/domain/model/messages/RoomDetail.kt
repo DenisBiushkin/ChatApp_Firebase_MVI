@@ -1,4 +1,6 @@
-package com.example.unmei.domain.model
+package com.example.unmei.domain.model.messages
+
+import com.example.unmei.domain.model.TypeRoom
 
 data class RoomDetail(
     val roomId:String,//куда отправить сообщение +deeplink

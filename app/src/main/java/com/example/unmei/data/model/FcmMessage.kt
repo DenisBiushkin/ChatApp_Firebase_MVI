@@ -1,7 +1,5 @@
 package com.example.unmei.data.model
 
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.TypeRoom
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

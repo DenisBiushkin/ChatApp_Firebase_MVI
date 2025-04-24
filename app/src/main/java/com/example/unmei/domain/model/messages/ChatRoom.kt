@@ -1,4 +1,4 @@
-package com.example.unmei.domain.model
+package com.example.unmei.domain.model.messages
 
 import com.example.unmei.presentation.chat_list_feature.model.ChatItemUI
 

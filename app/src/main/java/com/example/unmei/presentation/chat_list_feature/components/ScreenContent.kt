@@ -22,16 +22,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.example.unmei.R
 import com.example.unmei.presentation.Navigation.Screens
+import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUiAdv
 import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
 import com.example.unmei.presentation.chat_list_feature.viewmodel.ChatListViewModel
+import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -45,81 +50,97 @@ fun ScreenContent(
     val showBottomSheet = remember {
         mutableStateOf(false)
     }
-        Box(
-            modifier = modifier,
-            contentAlignment = Alignment.Center
-        ) {
-            LazyColumn {
-                if(state.value.isLoading){
-                    items(10) {
-                        AnimatedShimmerEffectChatItem()
-                    }
-                }else{
-                    items(state.value.chatListAdv) {
-                        ChatItem(
-                            onClick = {
-                                navController.navigate(
-                                    Screens.Chat.withExistenceData(
-                                    chatExist = true,
-                                    chatName = it.chatName,
-                                    chatUrl = it.iconUrl,
-                                    companionUid = it.members.filter { it!=state.value.userId }?.first() ?:"",
-                                    chatUid = it.chatId
-                                ))
-                            },
-                            onLongClick = {
-                                showBottomSheet.value= true
-                            },
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        when (state.value.contentState) {
+            ContentStateScreen.EmptyType -> EmptyChatScreen()
+            ContentStateScreen.Loading -> ShimmerChatList()
+            ContentStateScreen.Content -> ContentChats(
+                listItems = state.value.chatListAdv,
+                onClickItem = {
+                    navController.navigate(
+                        Screens.Chat.withExistenceData(
+                            chatExist = true,
                             chatName = it.chatName,
-                            iconPainter = rememberAsyncImagePainter(model =  it.iconUrl),
-                            isOnline = it.isOnline,
-                            lastMessageTimeString = it.lastMessageTimeString,
-                            chatContent = {
-                                when(it.typingStatus){
-                                    TypingStatus.None ->{
-                                        it.contentMessage?.let {
-                                            contentMessage->
-                                            Text(
-                                                text =contentMessage.contentSender+contentMessage.message.text,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.Normal,
-                                                color= Color.Black.copy(alpha = 0.7f)
-                                            )
-                                        }
-
-                                    }
-                                    is TypingStatus.Typing -> {
-                                        Text(
-                                            text = it.typingStatus.whoTyping,
-                                            fontSize = 15.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color= Color.Black.copy(alpha = 0.7f)
-                                        )
-                                    }
-                                }
-                            }
-
+                            chatUrl = it.iconUrl,
+                            companionUid = it.members.filter { it != state.value.userId }
+                                ?.first() ?: "",
+                            chatUid = it.chatId
                         )
-                    }
+                    )
+                },
+                onLongClickItem = {
+                    showBottomSheet.value = true
                 }
-
-            }
-            if (showBottomSheet.value) {
-                ModalBottomSheet(
-                    dragHandle = {
-
-                    },
-                    sheetState = sheetState,
-                    onDismissRequest = {
-                        showBottomSheet.value = false
-                    }
-                ) {
-
-                    Box(modifier = Modifier.height(200.dp)){
-
-                    }
-                }
+            )
+        }
+    }
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            dragHandle = {},
+            sheetState = sheetState,
+            onDismissRequest = { showBottomSheet.value = false }
+        ) {
+            Box(modifier = Modifier.height(200.dp)){
             }
         }
+    }
+}
+@Composable
+fun ContentChats(
+    listItems:List<ChatListItemUiAdv>,
+    onClickItem:(ChatListItemUiAdv)->Unit,
+    onLongClickItem:(ChatListItemUiAdv)->Unit
+){
+    LazyColumn {
+        items(listItems){
+            val painter = rememberAsyncImagePainter(model = it.iconUrl)
+            val state = painter.state
+            ChatItem(
+                onClick = { onClickItem(it) },
+                onLongClick = { onLongClickItem(it) },
+                chatName = it.chatName,
+                iconPainter =painter
+                ,
+                isOnline = it.isOnline,
+                lastMessageTimeString = it.lastMessageTimeString,
+                chatContent = {
+                    //высвечивать контент
+                    when (it.typingStatus) {
+                        TypingStatus.None -> {
+                            it.contentMessage?.let { contentMessage ->
+                                Text(
+                                    text = contentMessage.contentSender + contentMessage.message.text,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Black.copy(alpha = 0.7f)
+                                )
+                            }
 
+                        }
+
+                        is TypingStatus.Typing -> {
+                            Text(
+                                text = it.typingStatus.whoTyping,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = Color.Black.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+
+            )
+        }
+    }
+}
+@Composable
+fun ShimmerChatList(){
+    LazyColumn {
+        items(10) {
+            AnimatedShimmerEffectChatItem()
+        }
+    }
 }

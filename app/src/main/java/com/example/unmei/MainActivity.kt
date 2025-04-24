@@ -7,14 +7,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.Context
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,22 +18,17 @@ import androidx.annotation.RequiresApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.TaskStackBuilder
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import androidx.navigation.compose.rememberNavController
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.RoomDetail
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
-import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.presentation.Navigation.HostNavGraph
@@ -45,7 +36,6 @@ import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
 import com.example.unmei.presentation.util.model.NavigateConversationData
 import com.example.unmei.presentation.util.ui.theme.UnmeiTheme
 import com.example.unmei.util.ConstansApp
-import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.tasks.OnCompleteListener
@@ -56,7 +46,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

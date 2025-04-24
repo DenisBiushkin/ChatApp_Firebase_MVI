@@ -5,15 +5,12 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.data.network.RemoteDataSource
-import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.repository.MainRepository
-import com.example.unmei.domain.model.Attachment
-import com.example.unmei.domain.model.RoomDetail
-import com.example.unmei.domain.model.RoomSummaries
+import com.example.unmei.domain.model.messages.Attachment
+import com.example.unmei.domain.model.messages.RoomDetail
 import com.example.unmei.domain.model.Status
-import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
@@ -24,7 +21,7 @@ import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
-import com.example.unmei.presentation.conversation_future.model.ConversationContentState
+import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
 import com.example.unmei.presentation.conversation_future.model.ConversationEvent
 import com.example.unmei.presentation.conversation_future.model.ConversationVMState
 import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
@@ -42,14 +39,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
@@ -175,7 +170,7 @@ class ConversationViewModel @Inject constructor(
             chatFullName = conversationNavData.chatName,
             chatIconUrl = conversationNavData.chatUrl,
             companionId = conversationNavData.companionUid,
-            contentState = ConversationContentState.Loading,
+            contentState = ContentStateScreen.Loading,
             chatExistence = conversationNavData.chatExist,
             groupId = conversationNavData.chatUid ?: ""
         )
@@ -185,7 +180,7 @@ class ConversationViewModel @Inject constructor(
 
     private suspend fun initConversation(){
         _state.value = state.value.copy(
-            contentState = ConversationContentState.Messaging,
+            contentState = ContentStateScreen.Content,
             chatExistence = true
         )
 
@@ -221,12 +216,12 @@ class ConversationViewModel @Inject constructor(
             //ГГ чата нет, первое отправленое сообщение должно
             // создать приватную группу и перевести chatExistenc=true
             _state.value = state.value.copy(
-                contentState = ConversationContentState.EmptyType
+                contentState = ContentStateScreen.EmptyType
             )
         }
     }
 
-    private fun createNewChat(message:Message){
+    private fun createNewChat(message: Message){
         viewModelScope.launch {
             val result =createPrivateChatUseCase.execute(
                 chatName = state.value.chatFullName,
@@ -466,12 +461,13 @@ class ConversationViewModel @Inject constructor(
                     //Из ROOM!!! а не сети
                     val currentUser=getUserByIdUseCase.execute(currentUsrUid)?:User(
                         fullName = currentUsrUid,
-                        photo = ""
+                        photoUrl = "",
+                        userName = ""
                     )
 
-                    val roomDetail =RoomDetail(
+                    val roomDetail = RoomDetail(
                         roomId =chatId,
-                        roomIconUrl =currentUser.photo ,
+                        roomIconUrl =currentUser.photoUrl ,
                         roomName = currentUser.fullName,
                         typeRoom = TypeRoom.PRIVATE,
                     )

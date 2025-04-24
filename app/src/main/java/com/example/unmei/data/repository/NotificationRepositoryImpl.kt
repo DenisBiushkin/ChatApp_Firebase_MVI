@@ -1,33 +1,19 @@
 package com.example.unmei.data.repository
 
 import android.content.Context
-import android.nfc.Tag
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.example.unmei.data.model.FcmData
 import com.example.unmei.data.model.FcmMessage
-import com.example.unmei.data.model.Notification
 import com.example.unmei.data.model.NtfMessage
 import com.example.unmei.data.network.retrofit.FcmApi
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.RoomDetail
-import com.example.unmei.domain.model.TypeRoom
+import com.example.unmei.domain.model.messages.Message
+import com.example.unmei.domain.model.messages.RoomDetail
 import com.example.unmei.domain.repository.NotificationRepository
-import com.example.unmei.util.ConstansApp.FCM_TOKEN_GET_URL
 import com.example.unmei.util.ConstansApp.NOTIFICATION_TOKENS_DB
-import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.io.InputStream
-import java.util.Collections
 import javax.inject.Inject
 
 

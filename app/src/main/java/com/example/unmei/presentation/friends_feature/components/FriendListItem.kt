@@ -18,13 +18,16 @@ import androidx.compose.foundation.layout.wrapContentWidth
 
 
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -58,6 +61,18 @@ fun showFriendListItem(){
             )
         }
     }
+
+//    Box(
+//        modifier = Modifier.fillMaxSize()
+//    ){
+//        BoxWithImageUser(
+//            modifier = Modifier,
+//            painterUser = painterResource(id = R.drawable.test_user),
+//            height = 50.dp,
+//            statusCircleRadius = 5.dp,
+//            isOnline = true
+//        )
+//    }
 }
 
 
@@ -72,17 +87,17 @@ fun FriendListItem(
 ) {
     val rowHeight = 60.dp
     Row(
-        modifier =  modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(rowHeight)
-            .clickable { onClickItem()}
+            .clickable { onClickItem() }
             .background(Color.White),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FriendImagePart(
             painterIcon = painterIcon,
             isOnline = isOnline,
-            modifier = Modifier.weight(0.12f),
+            modifier = Modifier.weight(0.13f),
             rowHeight = rowHeight
         )
 
@@ -94,7 +109,7 @@ fun FriendListItem(
 
         FriendActionsPart(
             onClickSendMessage = onClickSendMessage,
-            modifier = Modifier.weight(0.18f),
+            modifier = Modifier.weight(0.17f),
             rowHeight = rowHeight
         )
     }
@@ -107,8 +122,8 @@ fun FriendImagePart(
     rowHeight: Dp = 40.dp
 ) {
     Box(
-        modifier = modifier
-            .height(rowHeight),
+//        modifier = modifier
+//            .height(rowHeight),
         contentAlignment = Alignment.Center
     ) {
         BoxWithImageUser(
@@ -154,11 +169,18 @@ fun FriendActionsPart(
             .height(rowHeight),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            modifier = Modifier.clickable { onClickSendMessage() },
-            imageVector = ImageVector.vectorResource(id = R.drawable.chat_bubble_24px),
-            contentDescription = "",
-            tint = Color.Blue
-        )
+
+
+        IconButton(
+            modifier = Modifier.clip(CircleShape),
+            onClick = onClickSendMessage
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.chat_bubble_24px),
+                contentDescription = "",
+                tint = Color.Blue
+            )
+        }
+
     }
 }

@@ -41,4 +41,7 @@ object ConstansApp {
     val NOTIFICATION_ID_PENDING_EXTRAS="notificationIdExtrasPending"
     val MESSAGE_GROUP_KEY="message_group"
     val MESSAGE_SUMMERY_ID=-1
+
+    //
+    val STANDART_PROFILE_ICON_URL="https://firebasestorage.googleapis.com/v0/b/repository-d6c1a.appspot.com/o/Standart_images%2Findefine.png?alt=media&token=d75997e9-e6e1-41a5-abf1-0e3392da35ca"
 }

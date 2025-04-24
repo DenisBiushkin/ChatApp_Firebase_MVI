@@ -3,6 +3,7 @@ package com.example.unmei.data.repository
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.AuthRepository
 import com.example.unmei.domain.repository.MainRepository
+import com.example.unmei.util.ConstansApp.STANDART_PROFILE_ICON_URL
 import com.example.unmei.util.Resource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -24,7 +25,8 @@ class AuthRepositoryImpl(
             val newUser= User(
                 uid = data.user!!.uid,
                 fullName = fullName,
-                userName = fullName
+                userName = fullName,
+                photoUrl = STANDART_PROFILE_ICON_URL
             )
             mainRepository.saveUser(newUser)
             Resource.Success(Unit)

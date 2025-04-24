@@ -1,11 +1,10 @@
 package com.example.unmei.domain.usecase
 
 import android.net.Uri
-import com.example.unmei.domain.model.NewRoomModel
+import com.example.unmei.domain.model.messages.NewRoomModel
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.util.Resource
-import javax.inject.Inject
 
 
 @Deprecated("НЕ ИСПОЛЬЗОВАТЬ")

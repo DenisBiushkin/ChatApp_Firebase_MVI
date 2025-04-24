@@ -3,19 +3,20 @@ package com.example.unmei.data.network
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.OptIn
+
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.example.unmei.R
 import com.example.unmei.data.model.ChatRoomAdvence
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.model.ChatRoomResponseAdvence
 import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.model.RoomSummariesResp
 import com.example.unmei.data.model.StatusUserResponse
-import com.example.unmei.domain.model.ChatRoom
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.NewRoomModel
-import com.example.unmei.domain.model.RoomSummaries
+import com.example.unmei.data.model.UserResponse
+import com.example.unmei.domain.model.messages.ChatRoom
+import com.example.unmei.domain.model.messages.Message
+import com.example.unmei.domain.model.messages.NewRoomModel
+import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
@@ -29,7 +30,6 @@ import com.example.unmei.util.ConstansApp.PRESENCE_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_STORAGE
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
-import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.google.firebase.database.ChildEventListener
@@ -38,8 +38,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +45,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 
 import kotlinx.coroutines.tasks.await
-import okio.Path
 
 
 class RemoteDataSource(
@@ -213,10 +210,13 @@ class RemoteDataSource(
             false // Обрабатываем ошибки (например, отсутствует подключение)
         }
     }
+
+
     @Deprecated(message = "Доработать добавление статуса online в presence")
     suspend fun saveUserData(user:User):Resource<Unit>{
         try {
-            usersRef.child(user.uid).setValue(user).await()
+            val userResp =UserResponse.toUserResponse(user)
+            usersRef.child(userResp.uid).setValue(userResp).await()
             return Resource.Success(Unit)
         }catch (e:Exception){
             return Resource.Error(message = e.toString())
@@ -228,7 +228,13 @@ class RemoteDataSource(
         val reference= usersRef.child(userId)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-               trySend(snapshot.getValue(User::class.java) ?: User())
+                val data=snapshot.getValue(UserResponse::class.java)
+                if (data!=null){
+                    trySend(data.toUser())
+                    return
+                }
+
+               trySend( User(fullName = "unknown", userName = "unknown", photoUrl = ""))
             }
             override fun onCancelled(error: DatabaseError) {
               //
@@ -323,12 +329,16 @@ class RemoteDataSource(
         }
     }
 
+    @OptIn(UnstableApi::class)
     suspend fun getUserByIdRemote(userId: String):User?{
         val reference= usersRef.child(userId)
         try {
-            val data=reference.get().await()
-            return data.getValue(User::class.java)
+            val dataSnapshot=reference.get().await()
+            val data=dataSnapshot.getValue(UserResponse::class.java)
+
+            return data?.toUser()
         }catch (e:Exception){
+            Log.d(TAG,"EXCEPTION GET USER")
             return null
         }
     }
@@ -337,10 +347,14 @@ class RemoteDataSource(
         val listener = object : ValueEventListener {
             @OptIn(UnstableApi::class)
             override fun onDataChange(snapshot: DataSnapshot) {
+
+                if(!snapshot.exists()){
+                    trySend(RoomsUser(null))
+                }
                 val roomsMap = snapshot.value as? Map<String, Boolean> ?: emptyMap()
-                val roomsUser = RoomsUser(roomsMap)
-                Log.d(TAG,"UserRoms DATA: "+roomsUser.rooms)
-                trySend( roomsUser )
+                val roomsList = roomsMap.map { it.key}
+                //Log.d(TAG,"UserRoms DATA: "+roomsUser.rooms)
+                trySend(RoomsUser(roomsList) )
             }
             override fun onCancelled(error: DatabaseError) {
                 //
@@ -370,7 +384,7 @@ class RemoteDataSource(
 
 
     @Deprecated(message = "Не сипользовать сделал по другому")
-    fun createNewChat( group:ChatRoom):Flow<Resource<String>> = flow{
+    fun createNewChat( group: ChatRoom):Flow<Resource<String>> = flow{
         val roomId = roomsRef.push().key.toString()
         try{
             emit(Resource.Loading())
@@ -538,7 +552,7 @@ class RemoteDataSource(
           }
     }
     //свежая на 22.03
-    suspend fun sendMessageAdvRemote(message: Message,chatId:String):Resource<Unit>{
+    suspend fun sendMessageAdvRemote(message: Message, chatId:String):Resource<Unit>{
         val uidMessage= messagesRef.push().key!!
         val msg= MessageResponse().fromMessageToResp(message).copy(
             id= uidMessage

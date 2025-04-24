@@ -1,6 +1,6 @@
 package com.example.unmei.domain.usecase.messages
 
-import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.util.Resource
 

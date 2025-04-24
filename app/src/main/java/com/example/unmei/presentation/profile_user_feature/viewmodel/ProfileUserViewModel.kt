@@ -36,7 +36,7 @@ class ProfileUserViewModel @Inject constructor(
             getUserByIdUseCase.execute(state.value.userId)?.let {
                 _state.value= state.value.copy(
                     fullName = it.fullName,
-                    iconUrl = it.photo,
+                    iconUrl = it.photoUrl,
                     isMine = state.value.userId==currentUsrUid
                 )
                 return@launch

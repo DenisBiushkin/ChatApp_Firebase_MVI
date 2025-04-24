@@ -1,6 +1,6 @@
 package com.example.unmei.presentation.chat_list_feature.model
 
-import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.TypeRoom
 
 

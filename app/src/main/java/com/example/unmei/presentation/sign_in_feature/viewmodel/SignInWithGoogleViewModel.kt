@@ -10,6 +10,7 @@ import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
 import com.example.unmei.presentation.sign_in_feature.model.SignInVMState
 import com.example.unmei.presentation.sign_in_feature.model.SignInResult
 import com.example.unmei.presentation.sign_in_feature.model.SignInVMEvent
+import com.example.unmei.util.ConstansApp.STANDART_PROFILE_ICON_URL
 import com.example.unmei.util.Resource
 import com.example.unmei.util.ValidationSignInOrRegister
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,8 +38,8 @@ class SignInWithGoogleViewModel @Inject constructor(
             val currentUser = User(
                 uid = data.userId,
                 fullName = data.userName ?: "Unknown",
-                photo = data.ProfilePictureUrl ?: "Unknown",
-                age = "20"
+                userName =data.userName ?: "Unknown",
+                photoUrl = data.ProfilePictureUrl ?: STANDART_PROFILE_ICON_URL,
             )
             viewModelScope.launch {
                val res= saveUserOnceUseCase.execute(currentUser)

@@ -1,10 +1,8 @@
 package com.example.unmei.data.model
 
-import android.util.Log
-import com.example.unmei.domain.model.Message
+import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.TypeMessageResp
-import com.example.unmei.domain.model.Attachment
-import com.example.unmei.util.ConstansDev.TAG
+import com.example.unmei.domain.model.messages.Attachment
 import com.google.firebase.database.ServerValue
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,7 +20,7 @@ data class MessageResponse(
     val text: String? = null,
     val attachment: String? = null,
 ){
-    fun toMessage():Message =this.run {
+    fun toMessage(): Message =this.run {
 
 
         Message(

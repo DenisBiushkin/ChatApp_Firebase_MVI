@@ -1,6 +1,6 @@
 package com.example.unmei.presentation.conversation_future.model
 
-import com.example.unmei.domain.model.Attachment
+import com.example.unmei.domain.model.messages.Attachment
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import java.time.LocalDateTime
 

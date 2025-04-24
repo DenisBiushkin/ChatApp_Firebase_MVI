@@ -4,18 +4,16 @@ import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.source.LocalDataSource
-import com.example.unmei.domain.model.ChatRoom
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.NewRoomModel
-import com.example.unmei.domain.model.RoomSummaries
+import com.example.unmei.domain.model.messages.ChatRoom
+import com.example.unmei.domain.model.messages.Message
+import com.example.unmei.domain.model.messages.NewRoomModel
+import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.Resource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.example.Mappers.base.Mapper
 import javax.inject.Inject
@@ -103,6 +101,7 @@ class MainRepositoryImpl @Inject constructor(
     override fun createNewChat(group: ChatRoom): Flow<Resource<String>> {
         return remoteDataSource.createNewChat(group)
     }
+
 
     //переделать чтобы цепляла сначала данные из локальной БД!
     override fun observeChatRoom(roomId:String): Flow<ChatRoom> {

@@ -1,10 +1,7 @@
 package com.example.unmei.presentation.conversation_future.model
 
 import android.net.Uri
-import androidx.transition.Visibility
-import okhttp3.Request
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class ConversationVMState(
     val listMessage: List<MessageListItemUI> = emptyList(),
@@ -13,7 +10,7 @@ data class ConversationVMState(
     val selectedMessages: Map<String,Boolean> = emptyMap(),
 
     val loadingScreen: Boolean= true,
-    val contentState: ConversationContentState = ConversationContentState.Loading,
+    val contentState: ContentStateScreen = ContentStateScreen.Loading,
     val chatExistence: Boolean = true,//хз тут ли должен быть
 
     val loadingOldMessages:Boolean = false,
@@ -22,7 +19,7 @@ data class ConversationVMState(
 
     val chatFullName:String="",
     val chatIconUrl:String ="",
-    val statusChat:String ="" ,
+    val statusChat:String ="",
     val isTyping:Boolean = false,
 
     val groupId : String = "",//хз тут ли должен быть

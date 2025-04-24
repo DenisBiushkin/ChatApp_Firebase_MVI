@@ -1,24 +1,16 @@
 package com.example.unmei.android_frameworks.receiver
 
 
-import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 import com.example.unmei.DI.ReceiverEntryPoint
 
 import com.example.unmei.android_frameworks.receiver.model.NotificationDataExtra
-import com.example.unmei.domain.model.Message
-import com.example.unmei.domain.model.RoomDetail
+import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.util.ConstansApp.KEY_TEXT_REPLY
 import com.example.unmei.util.ConstansApp.NOTIFICATION_ID_PENDING_EXTRAS
-import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase

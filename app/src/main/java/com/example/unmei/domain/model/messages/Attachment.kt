@@ -1,9 +1,6 @@
-package com.example.unmei.domain.model
+package com.example.unmei.domain.model.messages
 
-import kotlinx.serialization.Polymorphic
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 
 sealed class Animal {
     abstract val name: String

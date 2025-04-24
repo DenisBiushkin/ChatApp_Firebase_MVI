@@ -1,5 +1,6 @@
-package com.example.unmei.domain.model
+package com.example.unmei.domain.model.messages
 
+import com.example.unmei.domain.model.TypeMessageResp
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
 import com.example.unmei.presentation.conversation_future.model.MessageType
@@ -9,16 +10,16 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 data class Message(
-        val id:String="",
-        val senderId: String,
-        val timestamp:Long = 0L,
-        val type: TypeMessageResp = TypeMessageResp.TEXT,
-        val edited: Boolean = false,//изменено
-        val readed: Boolean = false,//отправлено, прочитано
-        val text: String? = null,
-        val attachment: List<Attachment> ?= null,
+    val id:String="",
+    val senderId: String,
+    val timestamp:Long = 0L,
+    val type: TypeMessageResp = TypeMessageResp.TEXT,
+    val edited: Boolean = false,//изменено
+    val readed: Boolean = false,//отправлено, прочитано
+    val text: String? = null,
+    val attachment: List<Attachment> ?= null,
 
-){
+    ){
         fun toMessageListItemUI(owUid:String):MessageListItemUI = this.run {
                 MessageListItemUI(
                         text = text ?: "",
