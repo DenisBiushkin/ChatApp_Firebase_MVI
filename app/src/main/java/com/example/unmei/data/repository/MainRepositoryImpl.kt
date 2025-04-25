@@ -93,6 +93,26 @@ class MainRepositoryImpl @Inject constructor(
         return remoteDataSource.isUserExists(userId)
     }
 
+    override suspend fun updateUsernameInProfile(
+        userId: String,
+        newUserName: String,
+        oldUserName: String
+    ): Boolean {
+        return remoteDataSource.updateUsernameInProfileRemote(userId,newUserName,oldUserName)
+    }
+
+    override suspend fun updateFullNameInProfileRemote(
+        userId: String,
+        newFullName: String,
+        oldFullName: String
+    ): Boolean {
+        return remoteDataSource.updateFullNameInProfileRemote(userId,newFullName,oldFullName)
+    }
+
+    override suspend fun getExistenceUsername(username: String): Boolean {
+        return remoteDataSource.getExistenceUsername(username)
+    }
+
     override suspend fun saveUser(user: User): Resource<Unit> {
 
         return  remoteDataSource.saveUserData(user=user)
@@ -101,6 +121,10 @@ class MainRepositoryImpl @Inject constructor(
 
     override suspend fun getUsersWithStatus(userIds: List<String>): List<UserExtended>? {
         return remoteDataSource.getUsersWithStatusRemote(userIds)
+    }
+
+    override suspend fun getUsersIdsByFullName(fullName: String): List<String> {
+        return remoteDataSource.getUsersIdsByFullName(fullName)
     }
 
     override suspend fun observeUser(userId: String): Flow <User> {

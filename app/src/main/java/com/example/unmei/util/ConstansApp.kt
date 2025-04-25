@@ -28,6 +28,8 @@ object ConstansApp {
     val PRESENCE_USERS_REFERENCE_DB="presence_users"
     val MESAGES_SUMMERIES_DB = "message_summaries"
     val NOTIFICATION_TOKENS_DB="notification_tokens_users"
+    val USERID_BY_USERNAME_REFERENCE_DB="userid_by_username"
+    val USERID_BY_FULLNAME_REFERENCE_DB="userid_by_fullname"
 
     //Storage
     val ROOMS_REFERENCE_STORAGE = "Rooms"

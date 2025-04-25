@@ -30,6 +30,8 @@ import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.PRESENCE_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_STORAGE
+import com.example.unmei.util.ConstansApp.USERID_BY_FULLNAME_REFERENCE_DB
+import com.example.unmei.util.ConstansApp.USERID_BY_USERNAME_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
@@ -39,6 +41,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -49,6 +52,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 
 class RemoteDataSource(
@@ -61,6 +65,8 @@ class RemoteDataSource(
     private  val messagesRef= db.getReference(MESSAGES_REFERENCE_DB)
     private  val presenceUsersRef= db.getReference(PRESENCE_USERS_REFERENCE_DB)
     private val chatsByUsers = db.getReference(CHATS_BY_USERS_REFERENCE_DB)
+    private val idsByUserName =db.getReference(USERID_BY_USERNAME_REFERENCE_DB)
+    private val idsByFullName =db.getReference(USERID_BY_FULLNAME_REFERENCE_DB)
     private val reference = db.getReference()
 
     private  val messagesSummariesRef= db.getReference(MESAGES_SUMMERIES_DB)
@@ -92,7 +98,17 @@ class RemoteDataSource(
         awaitClose { reference.removeEventListener(listener) }
 
     }
-
+    suspend fun getUsersIdsByFullName(fullName:String):List<String>{
+        try {
+            val dataSnapshot=idsByFullName
+                .orderByKey()
+                .startAt(fullName)
+                .endAt("$fullName\uf8ff").get().await()
+            return dataSnapshot.getValue<Map<String,String>>()?.values?.toList() ?: emptyList()
+        }catch (e:Exception){
+            return emptyList()
+        }
+    }
     suspend fun getUsersWithStatusRemote(userIds: List<String>): List<UserExtended>? = coroutineScope {
         try {
             val deferredUsers = userIds.map { userId ->
@@ -258,7 +274,6 @@ class RemoteDataSource(
         }
     }
 
-
     @Deprecated(message = "Доработать добавление статуса online в presence")
     suspend fun saveUserData(user:User):Resource<Unit>{
         try {
@@ -269,6 +284,59 @@ class RemoteDataSource(
             return Resource.Error(message = e.toString())
         }
 
+    }
+    suspend fun updateUsernameInProfileRemote(
+        userId:String,
+        newUserName:String,
+        oldUserName:String
+    ):Boolean{
+        try{
+            //Если сюда попасть без проверки будет очень плохо
+
+            val updates = mapOf(
+                "$USERS_REFERENCE_DB/$userId/userName" to newUserName,
+                //Удаляем старый и добавляем новый поиск
+                "$USERID_BY_USERNAME_REFERENCE_DB/$oldUserName" to null,
+                "$USERID_BY_USERNAME_REFERENCE_DB/$newUserName" to userId,
+
+            )
+            Log.d(TAG,"updateUsernameInProfileRemote Идет сохранение")
+            reference.updateChildren(updates).await()
+            return true
+        }catch (e:Exception){
+            Log.d(TAG,"updateUsernameInProfileRemote ${e.message}")
+            return false
+        }
+    }
+    suspend fun updateFullNameInProfileRemote(
+        userId:String,
+        newFullName:String,
+        oldFullName:String
+    ):Boolean{
+        try{
+            val noSpacesLower = newFullName.replace(" ", "").toLowerCase(Locale.ROOT)
+            val oldFullNamenoSpaces= oldFullName.replace(" ", "").toLowerCase(Locale.ROOT)
+            val updates = mapOf(
+                //Удаляем старый и добавляем новый поиск
+                "$USERID_BY_FULLNAME_REFERENCE_DB/$oldFullNamenoSpaces/$userId" to null,
+                "$USERID_BY_FULLNAME_REFERENCE_DB/$noSpacesLower/$userId" to true,
+
+                "$USERS_REFERENCE_DB/$userId/fullName" to newFullName
+            )
+            db.reference.updateChildren(updates).await()
+            return true
+        }catch (e:Exception){
+            return false
+        }
+    }
+    suspend fun getExistenceUsername(username:String):Boolean{
+        return try{
+            val dataSnapshot=idsByUserName.child(username).get().await()
+            dataSnapshot.exists()
+        }catch(e:Exception) {
+            //Если какая то ошибка пусть лучше существуте такой Username
+             true
+        }
     }
 
     fun observeUser(userId: String): Flow<User> = callbackFlow {
@@ -623,6 +691,32 @@ class RemoteDataSource(
         val keys = members
         val sorted =keys.map { it.toCharArray().sorted().joinToString("") }
         return sorted.sorted().joinToString ("_")
+    }
+
+    //Friend
+    suspend fun addFriendByIdRemote(
+        userId: String,
+        friendId:String
+    ):Boolean{
+        try{
+            val updates= mapOf("friends/$friendId" to true)
+            usersRef.child(userId).updateChildren(updates).await()
+            return true
+        }catch (e:Exception){
+            return false
+        }
+    }
+    suspend fun deleteFriendByIdRemote(
+        userId: String,
+        friendId:String
+    ):Boolean{
+        try{
+            val updates= mapOf("friends/$friendId" to null)
+            usersRef.child(userId).updateChildren(updates).await()
+            return true
+        }catch (e:Exception){
+            return false
+        }
     }
 
 }

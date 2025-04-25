@@ -11,6 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.unmei.presentation.Navigation.Screens
+import com.example.unmei.presentation.friends_feature.model.FriendVMEvent
 import com.example.unmei.presentation.friends_feature.viewmodel.FriendsViewModel
 
 
@@ -34,8 +36,25 @@ fun FriendsScreen(
             onClickBack = {
                 navController.popBackStack()
             },
-            onClickSandMessage = {},
-            listFriends = state.value.myFriends
+            onClickSandMessage = {
+                navController.navigate(Screens.Chat.withExistenceData(
+                    chatExist = false,
+                    chatUrl = it.iconUrl,
+                    chatName = it.fullName,
+                    companionUid = it.uid
+                ))
+            },
+            onClickAddUser = {
+
+            },
+            listFriends = state.value.myFriends,
+            textField = state.value.searchQuery,
+            onFocusedChanged = {
+                it.isFocused
+            },
+            onTextFieldChanged = {
+                viewModel.onEvent(FriendVMEvent.SearchFieldChanged(it))
+            }
         )
 
 }

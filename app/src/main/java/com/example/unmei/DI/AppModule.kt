@@ -9,6 +9,7 @@ import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.network.retrofit.FcmApi
 import com.example.unmei.data.network.retrofit.NotificationTokenHeaderInterceptor
 import com.example.unmei.data.repository.AuthRepositoryImpl
+import com.example.unmei.data.repository.FriendRepositoryImpl
 import com.example.unmei.data.repository.MainRepositoryImpl
 import com.example.unmei.data.repository.NotificationRepositoryImpl
 import com.example.unmei.data.repository.token.FcmTokenManager
@@ -18,6 +19,7 @@ import com.example.unmei.data.source.LocalDataSource
 import com.example.unmei.data.source.UserDatabase
 import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.repository.AuthRepository
+import com.example.unmei.domain.repository.FriendRepository
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
@@ -105,6 +107,18 @@ object AppModule {
         )
     }
 
+    @Provides
+    @Singleton
+    fun provideFriendRepository(
+        localDataSource:LocalDataSource,
+        remoteDataSource: RemoteDataSource,
+    ): FriendRepository {
+        return FriendRepositoryImpl(
+            localDataSource=localDataSource,
+            remoteDataSource=remoteDataSource
+        )
+    }
+
     @Singleton
     @Provides
     fun provideFcmProvider(
@@ -141,6 +155,7 @@ object AppModule {
     ): MessageNotificationHelper{
         return MessageNotificationHelper(context)
     }
+
 
     @Provides
     @Singleton

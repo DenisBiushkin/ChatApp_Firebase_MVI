@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.unmei.R
+import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.presentation.friends_feature.model.FriendItemUi
+import com.example.unmei.presentation.friends_feature.model.FriendVMEvent
 
 
 @Preview(showBackground = true)
@@ -36,8 +39,16 @@ fun showfriendScreenFull(
 ){
     FriendScreenFull(
         listFriends = listOf(),
+        textField = "",
         onClickBack = {},
-        onClickSandMessage = {}
+        onClickSandMessage = {},
+        onClickAddUser = {},
+        onFocusedChanged = {
+
+        },
+        onTextFieldChanged = {
+
+        }
     )
 
 
@@ -45,8 +56,12 @@ fun showfriendScreenFull(
 @Composable
 fun FriendScreenFull(
     listFriends:List<FriendItemUi>,
+    textField:String,
     onClickBack: () -> Unit,
-    onClickSandMessage:()->Unit
+    onClickSandMessage:(FriendItemUi)->Unit,
+    onClickAddUser:(FriendItemUi)->Unit,
+    onFocusedChanged:(FocusState)->Unit,
+    onTextFieldChanged: (String)->Unit
 ){
 
     val query = remember {
@@ -69,9 +84,10 @@ fun FriendScreenFull(
                 modifier = Modifier.padding(
                     horizontal =  horizontalPadding
                 ),
-                query = query.value, onQueryChange ={
-                query.value = it
-            } )
+                query = textField,
+                onQueryChange =onTextFieldChanged,
+                onFocusedChanged =  onFocusedChanged
+            )
             LazyColumn(
                 modifier = Modifier
                     .padding(top = 5.dp,
@@ -85,10 +101,16 @@ fun FriendScreenFull(
                         isOnline =it.isOnline,
                         painterIcon = rememberAsyncImagePainter(model = it.iconUrl),
                         fullName = it.fullName,
-                        onClickSendMessage =onClickSandMessage,
-                        onClickAddUser = {},
+                        onClickSendMessage ={
+                            onClickSandMessage(it)
+                        },
+                        onClickAddUser = {
+                            onClickAddUser(it)
+                        },
                         isFriend = it.isFriend,
-                        onClickItem = {}
+                        onClickItem = {
+
+                        }
                     )
                 }
             }

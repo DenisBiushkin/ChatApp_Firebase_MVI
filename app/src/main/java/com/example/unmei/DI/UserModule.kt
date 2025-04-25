@@ -3,11 +3,14 @@ package com.example.unmei.DI
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.user.GetFriendsByUserId
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
+import com.example.unmei.domain.usecase.user.GetUsersExByFullName
 import com.example.unmei.domain.usecase.user.GetUsersWithStatus
 import com.example.unmei.domain.usecase.user.ObserveUserUseCase
 import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.user.SaveUserUseCase
 import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
+import com.example.unmei.domain.usecase.user.UpdateProfileFullNameById
+import com.example.unmei.domain.usecase.user.UpdateProfileUserNameById
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -50,4 +53,16 @@ object UserModule {
         return GetUsersWithStatus(mainRepository)
     }
 
+    @Provides
+    fun provideUpdateProfileUserNameById(mainRepository: MainRepository): UpdateProfileUserNameById{
+        return UpdateProfileUserNameById(mainRepository)
+    }
+    @Provides
+    fun provideUpdateProfileFullNameById(mainRepository: MainRepository): UpdateProfileFullNameById {
+        return UpdateProfileFullNameById(mainRepository)
+    }
+    @Provides
+    fun provideGetUsersExByFullName(mainRepository: MainRepository):GetUsersExByFullName{
+        return GetUsersExByFullName(mainRepository)
+    }
 }

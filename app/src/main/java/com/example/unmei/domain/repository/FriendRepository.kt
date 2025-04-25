@@ -1,12 +1,15 @@
 package com.example.unmei.domain.repository
 
+import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.util.Resource
 
 interface FriendRepository {
 
 
-    fun getFriendById(userId:String)
+    suspend fun getFriendById(userId:String):UserExtended?
 
-    fun addFriendById(userId: String,friendId:String):Boolean
+    suspend fun addFriendById(userId: String,friendId:String):Boolean
+
+    suspend fun deleteFriendById(userId: String,friendId:String):Boolean
 }
 

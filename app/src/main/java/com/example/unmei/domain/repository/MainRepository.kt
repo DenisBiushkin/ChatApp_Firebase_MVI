@@ -18,6 +18,11 @@ interface MainRepository {
 
     suspend fun isUserExist(userId:String):Boolean
 
+    suspend fun updateUsernameInProfile(userId:String, newUserName:String, oldUserName:String):Boolean
+    suspend fun updateFullNameInProfileRemote(userId:String, newFullName:String, oldFullName:String):Boolean
+    suspend fun getExistenceUsername(username:String):Boolean
+    suspend fun getUsersIdsByFullName(fullName:String):List<String>
+
     suspend fun  observeUser(userId: String):Flow<User>
 
     suspend fun getUserById(userId: String):User?
