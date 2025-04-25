@@ -1,5 +1,11 @@
 package com.example.unmei.domain.model
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+
+@Serializable
 data class User(
     val uid:String="",
     val fullName:String,
@@ -14,6 +20,15 @@ data class User(
 
     val friends: List<String> = emptyList(),
     val rooms: List<String> =  emptyList(),
-)
+){
+    fun toJson():String{
+        return Json.encodeToString(this)
+    }
+    companion object{
+        fun fromJson(jsonUser:String):User{
+            return Json.decodeFromString(jsonUser)
+        }
+    }
+}
 
 

@@ -10,6 +10,7 @@ import com.example.unmei.domain.model.messages.NewRoomModel
 import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.Resource
@@ -80,6 +81,10 @@ class MainRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getFriendsByUserId(userId: String): List<UserExtended>? {
+        return remoteDataSource.getFriendsByUserIdRemote(userId)
+    }
+
     override fun observeRoomSummaries(chatId: String): Flow<RoomSummaries> {
        return remoteDataSource.observeRoomSammaries(chatId)
     }
@@ -92,6 +97,10 @@ class MainRepositoryImpl @Inject constructor(
 
         return  remoteDataSource.saveUserData(user=user)
 
+    }
+
+    override suspend fun getUsersWithStatus(userIds: List<String>): List<UserExtended>? {
+        return remoteDataSource.getUsersWithStatusRemote(userIds)
     }
 
     override suspend fun observeUser(userId: String): Flow <User> {

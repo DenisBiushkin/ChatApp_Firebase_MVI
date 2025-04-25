@@ -109,6 +109,9 @@ dependencies {
     implementation ("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
 
+    //datastore
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
     //serializtion
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation(kotlin("script-runtime"))

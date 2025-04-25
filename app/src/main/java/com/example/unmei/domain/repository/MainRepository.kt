@@ -7,6 +7,7 @@ import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.Resource
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,10 @@ interface MainRepository {
 
     suspend fun setStatusUser(userId:String,status:StatusUser):Resource<String>
 
-   // suspend fun getUsersWithStatus(userId: List<String>):
+    suspend fun getUsersWithStatus(userIds: List<String>):List<UserExtended>?
+
+    suspend fun getFriendsByUserId(userId: String):List<UserExtended>?
+
 
     //MessagesRepository
     fun observeRoomsUser(userId:String): Flow<RoomsUser>

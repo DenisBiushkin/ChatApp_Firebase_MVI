@@ -22,6 +22,7 @@ import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.ConstansApp.CHATS_BY_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.MESAGES_SUMMERIES_DB
@@ -39,7 +40,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
@@ -89,6 +93,48 @@ class RemoteDataSource(
 
     }
 
+    suspend fun getUsersWithStatusRemote(userIds: List<String>): List<UserExtended>? = coroutineScope {
+        try {
+            val deferredUsers = userIds.map { userId ->
+                async {
+                    val user = getUserByIdRemote(userId)
+                    val status = getUserStatusRemote(userId)
+                    if (user != null && status != null) {
+                        UserExtended(user = user, statusUser = status)
+                    } else {
+                        null
+                    }
+                }
+            }
+
+            val result = deferredUsers.awaitAll().filterNotNull()
+
+            return@coroutineScope if (result.isNotEmpty()) result else null
+
+        } catch (e: Exception) {
+            return@coroutineScope null
+        }
+    }
+    private suspend fun getUserStatusRemote(userId:String):StatusUser?{
+        try{
+            val snapshot=presenceUsersRef.child(userId).get().await()
+            val data=snapshot.getValue(StatusUserResponse::class.java)?.toStatusUser()
+            return data
+        }catch (e:Exception){
+            return null
+        }
+    }
+    suspend fun getFriendsByUserIdRemote(userId:String) :List<UserExtended>?{
+        try{
+            val user=getUserByIdRemote(userId = userId) ?: return null
+            if(user.friends.isEmpty())
+                return null
+
+            return getUsersWithStatusRemote(user.friends)
+        }catch (e:Exception){
+            return null
+        }
+    }
     suspend fun saveToStorageByPath(
         filePath: String,
         fileName:String,
@@ -115,6 +161,7 @@ class RemoteDataSource(
                 return null
         }
     }
+
 
     //Unknown Working(working)
     //

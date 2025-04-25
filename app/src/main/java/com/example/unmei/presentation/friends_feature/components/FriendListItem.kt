@@ -57,7 +57,9 @@ fun showFriendListItem(){
                 painterIcon = painterResource(id = R.drawable.test_user),
                 fullName = "Marcile Donato",
                 onClickSendMessage = {},
-                onClickItem = {}
+                onClickAddUser = {},
+                onClickItem = {},
+                isFriend = it % 2==0
             )
         }
     }
@@ -82,8 +84,11 @@ fun FriendListItem(
     painterIcon: Painter,
     fullName: String,
     isOnline: Boolean,
+    isFriend:Boolean,
     onClickSendMessage: () -> Unit,
-    onClickItem:()->Unit
+    onClickAddUser: ()->Unit,
+    onClickItem:()->Unit,
+
 ) {
     val rowHeight = 60.dp
     Row(
@@ -106,9 +111,9 @@ fun FriendListItem(
             modifier = Modifier.weight(0.7f),
             rowHeight = rowHeight
         )
-
         FriendActionsPart(
-            onClickSendMessage = onClickSendMessage,
+            imageVector =  ImageVector.vectorResource(id = if(isFriend) R.drawable.chat_bubble_24px else R.drawable.person_add_24px),
+            onClickSendMessage = if (isFriend) onClickSendMessage else onClickAddUser,
             modifier = Modifier.weight(0.17f),
             rowHeight = rowHeight
         )
@@ -160,6 +165,7 @@ fun FriendDescriptionPart(
 
 @Composable
 fun FriendActionsPart(
+    imageVector: ImageVector,
     onClickSendMessage: () -> Unit,
     modifier: Modifier = Modifier,
     rowHeight: Dp = 40.dp
@@ -176,7 +182,7 @@ fun FriendActionsPart(
             onClick = onClickSendMessage
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.chat_bubble_24px),
+                imageVector =imageVector,
                 contentDescription = "",
                 tint = Color.Blue
             )

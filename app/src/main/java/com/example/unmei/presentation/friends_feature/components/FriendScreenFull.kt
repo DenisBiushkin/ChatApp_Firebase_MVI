@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -23,7 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.unmei.R
+import com.example.unmei.presentation.friends_feature.model.FriendItemUi
 
 
 @Preview(showBackground = true)
@@ -32,6 +35,7 @@ fun showfriendScreenFull(
 
 ){
     FriendScreenFull(
+        listFriends = listOf(),
         onClickBack = {},
         onClickSandMessage = {}
     )
@@ -40,6 +44,7 @@ fun showfriendScreenFull(
 }
 @Composable
 fun FriendScreenFull(
+    listFriends:List<FriendItemUi>,
     onClickBack: () -> Unit,
     onClickSandMessage:()->Unit
 ){
@@ -75,12 +80,14 @@ fun FriendScreenFull(
                     )
                     .fillMaxWidth()
             ) {
-                items(15){
+                items( listFriends){
                     FriendListItem(
-                        isOnline =it % 2==0,
-                        painterIcon = painterResource(id = R.drawable.test_user),
-                        fullName = "Marcile Donato",
+                        isOnline =it.isOnline,
+                        painterIcon = rememberAsyncImagePainter(model = it.iconUrl),
+                        fullName = it.fullName,
                         onClickSendMessage =onClickSandMessage,
+                        onClickAddUser = {},
+                        isFriend = it.isFriend,
                         onClickItem = {}
                     )
                 }

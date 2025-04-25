@@ -22,6 +22,7 @@ import com.example.unmei.presentation.chat_list_feature.model.ChatVMState
 import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
 import com.example.unmei.presentation.chat_list_feature.model.contentMessage
 import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
+import com.example.unmei.util.ChatSessionManager
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -40,6 +41,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.system.measureNanoTime
+import kotlin.time.measureTime
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -48,6 +51,7 @@ class ChatListViewModel @Inject constructor(
     val observeRoomsUserUseCase: ObserveRoomsUserUseCase,
     val observeUserStatusByIdUseCase: ObserveUserStatusByIdUseCase,
     val getUserByIdUseCase: GetUserByIdUseCase,
+    val chatSessionManager: ChatSessionManager,
     val repository: MainRepository,
     val remote:RemoteDataSource
 
@@ -59,6 +63,8 @@ class ChatListViewModel @Inject constructor(
 
      init {
          viewModelScope.launch {
+
+
              currentUser = getUserByIdUseCase.execute(currentUsrUid)?:User(fullName = "unknown", userName = "unknown", photoUrl = "")
              _state.value = state.value.copy(
                  fullName = currentUser.fullName,
@@ -66,6 +72,8 @@ class ChatListViewModel @Inject constructor(
                  signInData = "SignIn With Google",
                  userId = currentUsrUid
              )
+             chatSessionManager.setCurrentUser(currentUser)
+
              observeChatRoomsAdvanced()
          }
      }

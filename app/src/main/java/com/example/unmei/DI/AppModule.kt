@@ -33,6 +33,7 @@ import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.user.SaveUserUseCase
 import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
+import com.example.unmei.util.ChatSessionManager
 import com.example.unmei.util.ConstansApp.FCM_SEND_NOTIFICATION_BASE_URL
 import com.example.unmei.util.ConstansDev
 import com.google.firebase.database.FirebaseDatabase
@@ -51,6 +52,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
     @Provides
     @Singleton
     fun provideUserDataBase(app: Application): UserDatabase {
@@ -75,6 +77,7 @@ object AppModule {
             context= context
         )
     }
+
     @Provides
     @Singleton
     fun provideNotificationRepositorty(
@@ -132,7 +135,6 @@ object AppModule {
             .create(FcmApi::class.java)
     }
 
-
     @Provides
     fun provideMessageNotificationHelper(
         context: Application
@@ -148,70 +150,9 @@ object AppModule {
         return  AuthRepositoryImpl(mainRepository)
     }
 
-
-
-
     @Provides
-    fun provideSaveUserUseCase(mainRepository: MainRepository): SaveUserUseCase {
-        return SaveUserUseCase(mainRepository)
+    @Singleton
+    fun provideChatSessionManager(context: Application): ChatSessionManager {
+        return ChatSessionManager(context)
     }
-    @Provides
-    fun provideSaveUserOnceUseCase(mainRepository: MainRepository): SaveUserOnceUseCase {
-        return SaveUserOnceUseCase(mainRepository)
-    }
-
-    @Provides
-    fun provideObserveUserUseCase(mainRepository: MainRepository): ObserveUserUseCase {
-        return ObserveUserUseCase(mainRepository)
-    }
-    @Provides
-    fun provideObserveChatItemUseCase(mainRepository: MainRepository): ObserveRoomsUserUseCase {
-        return ObserveRoomsUserUseCase(mainRepository)
-    }
-
-    @Provides
-    fun provideObserveChatRoomUseCase(mainRepository: MainRepository): ObserveChatRoomUseCase {
-        return ObserveChatRoomUseCase(mainRepository)
-    }
-
-    @Provides
-    fun provideSetStatusUserUseCase(mainRepository: MainRepository): SetStatusUserUseCase {
-        return SetStatusUserUseCase(mainRepository)
-    }
-
-    @Provides
-    fun provideObserveUserStatusByIdUseCase(mainRepository: MainRepository): ObserveUserStatusByIdUseCase {
-        return  ObserveUserStatusByIdUseCase(mainRepository)
-    }
-
-    @Provides
-    fun provideGetUserByIdUseCase(mainRepository: MainRepository): GetUserByIdUseCase {
-        return GetUserByIdUseCase(mainRepository)
-    }
-    @Provides
-    fun provideCreateNewRoomAdvenceUseCase(mainRepository: MainRepository): CreateNewRoomAdvenceUseCase {
-        return  CreateNewRoomAdvenceUseCase(mainRepository)
-    }
-
-    @Provides
-    fun provideCreatePrivateChatUseCase(mainRepository: MainRepository): CreatePrivateChatUseCase {
-        return  CreatePrivateChatUseCase(mainRepository)
-    }
-    @Provides
-    fun provideSendMessageUseCaseById(mainRepository: MainRepository): SendMessageUseCaseById {
-        return  SendMessageUseCaseById(mainRepository)
-    }
-    @Provides
-    fun provideNotifySendMessageUseCase(
-        notificationRepository:NotificationRepository
-    ): NotifySendMessageUseCase {
-        return NotifySendMessageUseCase(notificationRepository)
-    }
-
-    @Provides
-    fun provideObserveRoomSummariesUseCase(mainRepository: MainRepository): ObserveRoomSummariesUseCase{
-        return ObserveRoomSummariesUseCase(mainRepository)
-    }
-
-
 }

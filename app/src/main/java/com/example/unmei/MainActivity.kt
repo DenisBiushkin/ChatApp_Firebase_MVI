@@ -121,28 +121,6 @@ class MainActivity : ComponentActivity() {
         )
         val channelId ="Message_Channel"
         val channel = createNotificationChannel(this,ConstansApp.NEW_MESSAGE_CHANNEL_ID,ConstansApp.MESSAGE_CHANNEL_NAME)
-//        val notification= createStyleMessageNotification(this,channelId)
-//
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.POST_NOTIFICATIONS
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return
-//        }
-//        channel.notify(12,notification)
-//
-//        CoroutineScope(Dispatchers.IO).launch {
-//           // delay(5000)
-//            //channel.cancel(12)
-//        }
 
         setContent {
             UnmeiTheme {
