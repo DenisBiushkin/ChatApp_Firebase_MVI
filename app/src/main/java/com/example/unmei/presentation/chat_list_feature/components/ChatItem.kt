@@ -2,6 +2,7 @@ package com.example.unmei.presentation.chat_list_feature.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -81,8 +82,8 @@ fun showChatItem(){
             isOnline = item.isOnline,
             chatContent = {
 
-            }
-
+            },
+            unredCount = 0
         )
     }
 
@@ -102,6 +103,7 @@ fun ChatItem(
     chatName:String = "",
     iconPainter: Painter,
     isOnline: Boolean = false,
+    unredCount:Int,
     messageStatus:MessageStatus = MessageStatus.Send
 ){
     Row (
@@ -216,8 +218,26 @@ fun ChatItem(
                          )
                      ,
                      horizontalArrangement = Arrangement.SpaceBetween,
-                     content = chatContent
-                 )
+
+                 ){
+                     chatContent()
+
+                     if(unredCount!=0){
+                         Spacer(modifier = Modifier.width(5.dp))
+                         Box(
+                             modifier = Modifier
+                                 .size(25.dp)
+                                 .background(
+                                     shape = CircleShape,
+                                     color = Color.Blue
+                                 ),
+                             contentAlignment = Alignment.Center
+                         ){
+                             Text(text = "$unredCount",color=Color.White)
+                         }
+                     }
+
+                 }
 //                 {
 //
 //                     ////&&&&\\\\\\\
@@ -277,7 +297,7 @@ fun BoxWithImageUser(
                 val width = size.width
                 val height = size.height
                 val whiteCircleRadius = statusCircleRadius.toPx()
-                val greenCircleRadius = whiteCircleRadius*0.7.toFloat()
+                val greenCircleRadius = whiteCircleRadius * 0.7.toFloat()
                 val centerWhite = Pair(height - whiteCircleRadius, width - whiteCircleRadius)
                 onDrawWithContent {
                     drawContent()

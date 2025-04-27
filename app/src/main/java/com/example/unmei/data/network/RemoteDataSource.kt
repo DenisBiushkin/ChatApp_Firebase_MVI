@@ -6,7 +6,7 @@ import androidx.annotation.OptIn
 
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
-import com.example.unmei.data.model.ChatRoomAdvence
+import com.example.unmei.data.model.ChatRoomAdvance
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.model.ChatRoomResponseAdvence
 import com.example.unmei.data.model.MessageResponse
@@ -22,6 +22,7 @@ import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.ConstansApp.CHATS_BY_USERS_REFERENCE_DB
@@ -172,7 +173,7 @@ class RemoteDataSource(
         }
     }
 
-    suspend fun getChatRoomById(roomId:String): ChatRoomAdvence?{
+    suspend fun getChatRoomById(roomId:String): ChatRoomAdvance?{
         try{
             val result = roomsRef.child(roomId).get().await()
             if (result.exists()){
@@ -495,16 +496,15 @@ class RemoteDataSource(
         awaitClose {reference.removeEventListener(listener) }
     }
 
-    fun observeChatRoom(roomId:String):Flow<ChatRoomResponse> = callbackFlow {
+    fun observeChatRoom(roomId:String):Flow<ChatRoomResponseAdvence> = callbackFlow {
         val reference = roomsRef.child(roomId)
         val listener= object : ValueEventListener {
             @OptIn(UnstableApi::class)
             override fun onDataChange(snapshot: DataSnapshot) {
-                val data= snapshot.getValue(ChatRoomResponse::class.java)?: ChatRoomResponse()
-                Log.d(TAG, "ChatRoom Data: " + data.id)
+                val data= snapshot.getValue(ChatRoomResponseAdvence::class.java)?: ChatRoomResponseAdvence()
+                Log.d(TAG, "ChatRoomAdvance Data: " + data.id)
                 trySend(data)
             }
-
             override fun onCancelled(error: DatabaseError) {
                 //
             }
@@ -698,6 +698,48 @@ class RemoteDataSource(
             return Resource.Success(Unit)
         }catch (e:Exception){
             return Resource.Error(message = e.toString())
+        }
+    }
+   //ок 27.04
+    suspend fun updateUnreadCountInRoomSummariesRemote(
+        roomId: String,
+        newUnreadCount:Map<String,Int>,
+    ):Boolean{
+        try {
+            val updates = newUnreadCount.map { (userId, unreadCount) ->
+                ("$MESAGES_SUMMERIES_DB/$roomId/unreadedCount/$userId" to unreadCount)
+            }.toMap()
+            reference.updateChildren(updates).await()
+            return true
+        }catch (e:Exception){
+            return false
+        }
+    }
+    suspend fun updateActiveUserInRoomRemote(
+        roomId: String,
+        userId: String,
+        active: UserActivity
+    ){
+        try {
+            val updates = mapOf(
+                "$ROOMS_REFERENCE_DB/$roomId/activeUsers/$userId" to active.value
+            )
+            reference.updateChildren(updates).await()
+        }catch (e:Exception){
+
+        }
+    }
+    suspend fun resetUnreadCountMessageRemote(
+        roomId: String,
+        userId: String
+    ){
+        try {
+            val updates = mapOf(
+                "$MESAGES_SUMMERIES_DB/$roomId/unreadedCount/$userId" to 0
+            )
+            reference.updateChildren(updates).await()
+        }catch (e:Exception){
+
         }
     }
 

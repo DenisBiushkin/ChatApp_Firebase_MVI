@@ -1,5 +1,6 @@
 package com.example.unmei.domain.repository
 
+import com.example.unmei.data.model.ChatRoomAdvance
 import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.messages.NewRoomModel
@@ -7,6 +8,7 @@ import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.Resource
@@ -38,7 +40,13 @@ interface MainRepository {
 
     //MessagesRepository
     fun observeRoomsUser(userId:String): Flow<RoomsUser>
-    fun observeChatRoom(roomId:String): Flow<ChatRoom>
+
+
+
+
+    fun observeChatRoomAdvance(roomId:String): Flow<ChatRoomAdvance>
+
+
     fun createNewChat(group : ChatRoom):Flow<Resource<String>>
     fun getBlockMessagesByChatId(chatId:String,count:Int = 20,lastMessageKey: String? = null): Flow<Resource<List<Message>>>
 
@@ -48,7 +56,10 @@ interface MainRepository {
 
     fun observeRoomSummaries(chatId: String):Flow<RoomSummaries>
 
-
+    //свежее (почти сырое)
+    suspend fun updateUnreadCountInRoomSummaries(roomId: String, newUnreadCount:Map<String,Int>):Boolean
+    suspend fun resetUnreadCountMessage(roomId: String, userId: String)
+    suspend fun updateActiveUserInRoomRemote(roomId: String, userId: String, active: UserActivity)
 
     suspend fun createNewChatAdvence( newRoomModel: NewRoomModel):Resource<String>
     suspend fun deleteChatAdvance(roomId:String):Resource<Unit>

@@ -4,8 +4,10 @@ import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
+import com.example.unmei.domain.usecase.messages.EnterChatUseCase
+import com.example.unmei.domain.usecase.messages.LeftChatUseCase
 import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
-import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
+import com.example.unmei.domain.usecase.messages.ObserveChatRoomAdvanceUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
@@ -26,8 +28,8 @@ object MessagesModule {
     }
 
     @Provides
-    fun provideObserveChatRoomUseCase(mainRepository: MainRepository): ObserveChatRoomUseCase {
-        return ObserveChatRoomUseCase(mainRepository)
+    fun provideObserveChatRoomUseCase(mainRepository: MainRepository): ObserveChatRoomAdvanceUseCase {
+        return ObserveChatRoomAdvanceUseCase(mainRepository)
     }
 
     @Provides
@@ -46,8 +48,11 @@ object MessagesModule {
     }
 
     @Provides
-    fun provideSendMessageUseCaseById(mainRepository: MainRepository): SendMessageUseCaseById {
-        return  SendMessageUseCaseById(mainRepository)
+    fun provideSendMessageUseCaseById(
+        mainRepository: MainRepository,
+        notificationRepository: NotificationRepository
+    ): SendMessageUseCaseById {
+        return  SendMessageUseCaseById(mainRepository,notificationRepository)
     }
 
     @Provides
@@ -60,6 +65,14 @@ object MessagesModule {
     @Provides
     fun provideObserveRoomSummariesUseCase(mainRepository: MainRepository): ObserveRoomSummariesUseCase {
         return ObserveRoomSummariesUseCase(mainRepository)
+    }
+    @Provides
+    fun provideLeftChatUseCase(mainRepository: MainRepository): LeftChatUseCase {
+        return LeftChatUseCase(mainRepository)
+    }
+    @Provides
+    fun provideEnterChatUseCase(mainRepository: MainRepository):EnterChatUseCase{
+        return EnterChatUseCase(mainRepository)
     }
 
 }

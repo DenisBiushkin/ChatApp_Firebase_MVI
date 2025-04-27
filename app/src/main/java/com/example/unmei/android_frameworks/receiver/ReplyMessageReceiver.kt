@@ -47,18 +47,18 @@ class ReplyMessageReceiver @Inject constructor(
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
 
-            val result=sendMessageUseCaseById.execute(
-                message = Message(
-                    senderId = currentUser!!.uid,
-                    text = textMessage
-                ),
-                chatId = extrasData.roomId!!
-            )
-            when(result){
-                is Resource.Error -> {}
-                is Resource.Loading -> {}
-                is Resource.Success -> {}
-            }
+//            val result=sendMessageUseCaseById.execute(
+//                message = Message(
+//                    senderId = currentUser!!.uid,
+//                    text = textMessage
+//                ),
+//                chatId = extrasData.roomId!!
+//            )
+//            when(result){
+//                is Resource.Error -> {}
+//                is Resource.Loading -> {}
+//                is Resource.Success -> {}
+//            }
 
             pendingResult.finish()
         }

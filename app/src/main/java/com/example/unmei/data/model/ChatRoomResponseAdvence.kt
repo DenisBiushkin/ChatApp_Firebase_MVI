@@ -14,8 +14,8 @@ data class ChatRoomResponseAdvence(
         //active users прямо в приложении
         val activeUsers:Map<String,Boolean>  = emptyMap(),
 ){
-        fun toChatRoomAdvence():ChatRoomAdvence = this.run {
-                ChatRoomAdvence(
+        fun toChatRoomAdvence():ChatRoomAdvance = this.run {
+                ChatRoomAdvance(
                         id=id,
                         type = when(type){
                                 "private" -> TypeRoom.PRIVATE
@@ -24,19 +24,22 @@ data class ChatRoomResponseAdvence(
                         chatName = chatName,
                         iconUrl = iconUrl,
                         timestamp =  if(timestamp is Long) timestamp else 0L,
-                        moderators = moderators.keys.toList(),
-                        members = members.keys.toList()
+                        moderators = moderators.keys.toSet(),
+                        members = members.keys.toSet(),
+
+                        activeUsers =activeUsers.keys.toSet()
                 )
         }
 }
 
-data class ChatRoomAdvence(
+data class ChatRoomAdvance(
         val id:String,
         val type: TypeRoom,
         val chatName: String,
         val iconUrl: String,
         val timestamp: Long,
-        val moderators: List<String> = emptyList(),
-        val members: List<String>,
-        val activeUsers: List<String> = emptyList()
+        val moderators: Set<String> = emptySet(),
+        val members:  Set<String> ,
+
+        val activeUsers: Set<String> = emptySet()
 )

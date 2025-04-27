@@ -105,6 +105,7 @@ fun ContentChats(
                 iconPainter =painter
                 ,
                 isOnline = it.isOnline,
+                unredCount = it.unreadedCountMessage,
                 lastMessageTimeString = it.lastMessageTimeString,
                 chatContent = {
                     //высвечивать контент

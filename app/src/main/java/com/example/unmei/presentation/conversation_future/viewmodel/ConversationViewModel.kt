@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.unmei.data.model.ChatRoomAdvance
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.repository.MainRepository
@@ -14,8 +16,12 @@ import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
+import com.example.unmei.domain.usecase.messages.EnterChatUseCase
+import com.example.unmei.domain.usecase.messages.LeftChatUseCase
 import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
+import com.example.unmei.domain.usecase.messages.ObserveChatRoomAdvanceUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
+import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
@@ -39,6 +45,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -61,6 +69,10 @@ class ConversationViewModel @Inject constructor(
     private val notifySendMessageUseCase: NotifySendMessageUseCase,
     private val observeUserStatusByIdUseCase: ObserveUserStatusByIdUseCase,
     private val observeRoomSummariesUseCase: ObserveRoomSummariesUseCase,
+
+    private val observeChatRoomAdvanceUseCase: ObserveChatRoomAdvanceUseCase,
+    private val enterChatUseCase: EnterChatUseCase,
+    private val leftChatUseCase: LeftChatUseCase,
     //из room должно быть
     private val getUserByIdUseCase: GetUserByIdUseCase
 ):ViewModel() {
@@ -74,21 +86,36 @@ class ConversationViewModel @Inject constructor(
 
     private var conversationInitJob: Job? = null
 
+    //Свежее(Почти сырое)
+     private val actualDataRoom = MutableStateFlow<ChatRoomAdvance?>(null)
+     private val actualUnreadCount = MutableStateFlow<Map<String,Int>>(emptyMap())
+
 
     init {
 
 
     }
+    private fun observeActualDataRoom(chatId: String){
+        observeChatRoomAdvanceUseCase.execute(chatId).onEach {
+                chatRoom ->
+              actualDataRoom.value =chatRoom
+        }.launchIn(
+            viewModelScope
+        )
+    }
 
     private fun observeStatusChat(){
         viewModelScope.launch {
-           val statusFlow =observeUserStatusByIdUseCase.execute(state.value.companionId)
+            val statusFlow =observeUserStatusByIdUseCase.execute(state.value.companionId)
             val summariesFlow = observeRoomSummariesUseCase.execute(state.value.groupId)
             combine(summariesFlow,statusFlow){ summary, presence ->
                 Pair( presence,summary)
             }.collect{
                 val statusUser = it.first
                 val summeriesChat= it.second
+                actualUnreadCount.value = it.second.unreadedCount
+
+
                 when(statusUser.status){
                     Status.OFFLINE ->_state.value=state.value.copy(
                     statusChat = getAdvancedStatusUser(statusUser.lastSeen)
@@ -164,7 +191,6 @@ class ConversationViewModel @Inject constructor(
         }
     }
     fun saveNecessaryInfo(conversationNavData: NavigateConversationData){
-
        // Log.d(TAG,"ChatICon "+conversationNavData.chatUrl)
         _state.value = state.value.copy(
             chatFullName = conversationNavData.chatName,
@@ -187,7 +213,10 @@ class ConversationViewModel @Inject constructor(
         //getGroupById
         //
         observeStatusChat()
+        observeActualDataRoom(state.value.groupId)
+        enterChatUseCase.execute(chatId = state.value.groupId,currentUsrUid )
         observeMessages(state.value.groupId)
+
 
 
 
@@ -450,7 +479,28 @@ class ConversationViewModel @Inject constructor(
     ){
         Log.d(TAG,"Sending Message id: $chatId")
         viewModelScope.launch {
-            val result=sendMessageUseCaseById.execute(message,chatId)
+
+            val actual = actualDataRoom.value ?: return@launch
+            var offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(currentUsrUid)
+
+            Log.d(TAG,"Кому отправить уведомление ${offlineUsersIds}")
+            val currentUser=getUserByIdUseCase.execute(currentUsrUid)?:User(
+                fullName = currentUsrUid,
+                photoUrl = "",
+                userName = ""
+            )
+            val roomDetail = RoomDetail(roomId =chatId, roomIconUrl =currentUser.photoUrl , roomName = currentUser.fullName, typeRoom = TypeRoom.PRIVATE,
+
+                )
+
+
+            val result=sendMessageUseCaseById.execute(
+                message = message,
+                chatId = chatId,
+                offlineUsersIds=offlineUsersIds.toList(),
+                prevUnreadCount =actualUnreadCount.value,
+                roomDetail=roomDetail
+            )
             when (result){
                 is Resource.Error -> {
                 }
@@ -459,24 +509,8 @@ class ConversationViewModel @Inject constructor(
                 is Resource.Success -> {
                     //Брать Текущего пользователя
                     //Из ROOM!!! а не сети
-                    val currentUser=getUserByIdUseCase.execute(currentUsrUid)?:User(
-                        fullName = currentUsrUid,
-                        photoUrl = "",
-                        userName = ""
-                    )
 
-                    val roomDetail = RoomDetail(
-                        roomId =chatId,
-                        roomIconUrl =currentUser.photoUrl ,
-                        roomName = currentUser.fullName,
-                        typeRoom = TypeRoom.PRIVATE,
-                    )
-                    if(state.value.companionId.isEmpty()) return@launch
-                    notifySendMessageUseCase.execute(
-                        notificationRecipientsId = listOf(state.value.companionId),
-                        roomDetail = roomDetail,
-                        message=message
-                    )
+
                 }
             }
         }
@@ -489,17 +523,13 @@ class ConversationViewModel @Inject constructor(
                 text = text,
               //  attachment = state.value.selectedUrisForRequest
             )
-
             if (!state.value.chatExistence ){
                 //create Chat
                 createNewChat(newMessage)
                 return
             }
-
             //send Message
             sendMessageById(message = newMessage, chatId = state.value.groupId)
-
-
         }
     }
 
@@ -537,7 +567,14 @@ class ConversationViewModel @Inject constructor(
            ConversationEvent.DeleteSelectedMessages ->{
                deleteMessagesInChat()
            }
+
+           ConversationEvent.LeftChat -> leftChat()
        }
+    }
+    private fun leftChat(){
+        viewModelScope.launch {
+            leftChatUseCase.execute(state.value.groupId,currentUsrUid)
+        }
     }
     @Deprecated("Удалят и наши и ваши сообщения")
     fun deleteMessagesInChat(){

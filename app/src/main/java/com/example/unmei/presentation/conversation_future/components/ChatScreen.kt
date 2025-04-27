@@ -135,7 +135,10 @@ fun  ChatScreen(
     Scaffold(
         topBar = {
             TopBarChatScreen(
-                onClickBack ={navController.popBackStack()},
+                onClickBack ={
+                    viewModel.onEvent(ConversationEvent.LeftChat)
+                    navController.popBackStack()
+                             },
                 onClickProfile = {},
                 iconChatPainter = rememberAsyncImagePainter(model =state.value.chatIconUrl),
                 titleChat = state.value.chatFullName,

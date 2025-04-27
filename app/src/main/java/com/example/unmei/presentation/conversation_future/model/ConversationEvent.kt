@@ -12,6 +12,7 @@ sealed class ConversationEvent {
     data class  SendMessage(val text:String):ConversationEvent()
 
     object Offoptions:ConversationEvent()
+    object LeftChat:ConversationEvent()
 
     object DeleteSelectedMessages:ConversationEvent()
 }

@@ -10,13 +10,9 @@ import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
-import com.example.unmei.domain.usecase.messages.ObserveChatRoomUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
-import com.example.unmei.domain.usecase.user.ObserveUserUseCase
-import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.presentation.chat_list_feature.model.ChatItemAdvenced
-import com.example.unmei.presentation.chat_list_feature.model.ChatItemUI
 import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUiAdv
 import com.example.unmei.presentation.chat_list_feature.model.ChatVMState
 import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
@@ -120,7 +116,7 @@ class ChatListViewModel @Inject constructor(
                     .collect { chatItems ->
                         val chatItemAdvenced = chatItems.map {
                             toUiChatList(it)
-                        }
+                        }.sortedByDescending { it.timestamp }
                         _state.value = state.value.copy(
                              chatListAdv = chatItemAdvenced,
                              contentState = ContentStateScreen.Content

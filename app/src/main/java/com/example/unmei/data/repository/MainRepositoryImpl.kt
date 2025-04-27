@@ -1,5 +1,6 @@
 package com.example.unmei.data.repository
 
+import com.example.unmei.data.model.ChatRoomAdvance
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.data.network.RemoteDataSource
@@ -10,11 +11,13 @@ import com.example.unmei.domain.model.messages.NewRoomModel
 import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.User
+import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.Resource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import org.example.Mappers.base.Mapper
 import javax.inject.Inject
@@ -36,6 +39,26 @@ class MainRepositoryImpl @Inject constructor(
     override suspend fun sendMessageAdv(message: Message, chatId: String): Resource<Unit> {
        return remoteDataSource.sendMessageAdvRemote(message,chatId)
     }
+
+    override suspend fun updateUnreadCountInRoomSummaries(
+        roomId: String,
+        newUnreadCount: Map<String, Int>
+    ): Boolean {
+        return remoteDataSource.updateUnreadCountInRoomSummariesRemote(roomId, newUnreadCount)
+    }
+
+    override suspend fun resetUnreadCountMessage(roomId: String, userId: String) {
+        return remoteDataSource.resetUnreadCountMessageRemote(roomId,userId)
+    }
+    override suspend fun updateActiveUserInRoomRemote(
+        roomId: String,
+        userId: String,
+        active: UserActivity
+    ) {
+        return remoteDataSource.updateActiveUserInRoomRemote(roomId,userId,active)
+    }
+
+
 
     override suspend fun createNewChatAdvence(newRoomModel: NewRoomModel): Resource<String> {
         return remoteDataSource.createNewRoomAdvence(newRoomModel)
@@ -137,10 +160,16 @@ class MainRepositoryImpl @Inject constructor(
 
 
     //переделать чтобы цепляла сначала данные из локальной БД!
-    override fun observeChatRoom(roomId:String): Flow<ChatRoom> {
-       return remoteDataSource.observeChatRoom(roomId).mapNotNull {
-           mapperChatRoom.map(it)
+
+
+    override fun observeChatRoomAdvance(roomId:String): Flow<ChatRoomAdvance> {
+
+
+       return remoteDataSource.observeChatRoom(roomId).map {
+           it.toChatRoomAdvence()
        }
+
+
     }
 
 
