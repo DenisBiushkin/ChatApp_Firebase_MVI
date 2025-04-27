@@ -46,7 +46,6 @@ class ReplyMessageReceiver @Inject constructor(
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
-
 //            val result=sendMessageUseCaseById.execute(
 //                message = Message(
 //                    senderId = currentUser!!.uid,
@@ -59,7 +58,6 @@ class ReplyMessageReceiver @Inject constructor(
 //                is Resource.Loading -> {}
 //                is Resource.Success -> {}
 //            }
-
             pendingResult.finish()
         }
 

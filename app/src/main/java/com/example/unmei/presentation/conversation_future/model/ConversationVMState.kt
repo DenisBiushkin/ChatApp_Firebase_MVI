@@ -4,6 +4,8 @@ import android.net.Uri
 import java.time.LocalDate
 
 data class ConversationVMState(
+    val textMessage:String="",
+
     val listMessage: List<MessageListItemUI> = emptyList(),
     val groupedMapMessage : LinkedHashMap<LocalDate,List<MessageListItemUI>> = LinkedHashMap(),
     val selectedUrisForRequest: List<Uri> = emptyList(),

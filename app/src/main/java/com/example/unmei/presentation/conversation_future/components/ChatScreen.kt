@@ -34,13 +34,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -121,6 +114,8 @@ fun showChatScreen(){
        viewModel = hiltViewModel()
    )
 }
+
+
 @RequiresApi(35)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -128,7 +123,6 @@ fun  ChatScreen(
     navController: NavController,
     viewModel: ConversationViewModel,
 ) {
-
     val state = viewModel.state.collectAsState()
     val lazyState = rememberLazyListState()
     val bottomSheetState = rememberModalBottomSheetState()
@@ -138,106 +132,65 @@ fun  ChatScreen(
                 onClickBack ={
                     viewModel.onEvent(ConversationEvent.LeftChat)
                     navController.popBackStack()
-                             },
-                onClickProfile = {},
+                 }
+                ,onClickProfile = {},
                 iconChatPainter = rememberAsyncImagePainter(model =state.value.chatIconUrl),
                 titleChat = state.value.chatFullName,
                 statusChat = state.value.statusChat,
                 isTyping=state.value.isTyping
             )
-            AnimatedVisibility(
-                visible = state.value.optionsVisibility
-                , enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                TopAppBar(
-                    title = { /*TODO*/ },
-                    modifier = Modifier.fillMaxWidth(),
-                    navigationIcon = {
-                        IconButton(
-                            modifier = Modifier
-                                .padding(start = 5.dp)
-                            ,
-                            onClick = {
-                                viewModel.onEvent(ConversationEvent.Offoptions)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                tint = Color.Black,
-                                contentDescription = null
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            modifier = Modifier
-                                .padding(start = 5.dp)
-                            ,
-                            onClick = { viewModel.onEvent(ConversationEvent.DeleteSelectedMessages) }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                tint = Color.Black,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                )
-            }
-
+            TopBarMessageActions(
+                isVisible=state.value.optionsVisibility,
+                onOffClickOptions={viewModel.onEvent(ConversationEvent.Offoptions)},
+                onDeleteClickMessages={viewModel.onEvent(ConversationEvent.DeleteSelectedMessages)}
+            )
         },
         bottomBar = {
-            BottomBarChatScreen(
-                onClickContent = {
-                    viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet)
-                },
-                onSendMessage = {
-                    viewModel.onEvent(ConversationEvent.SendMessage(it))
-
-                }
+            ChatScreenBottomBar(
+                textMessage = state.value.textMessage,
+                onValueChangeTextMessage = { viewModel.onEvent(ConversationEvent.OnValueChangeTextMessage(it)) },
+                onClickContent = { viewModel.onEvent(ConversationEvent.OpenCloseBottomSheet) },
+                onClickSendMessage = { viewModel.onEvent(ConversationEvent.SendMessage) }
             )
-
         },
-        //учитывает появление клавиатуры
         modifier = Modifier
             .fillMaxSize()
-
-
-           // .windowInsetsPadding(WindowInsets.ime)
-             // учитывает появление клавиатуры
     ) {
         paddingValues ->
-
-
-        when(state.value.contentState){
-            ContentStateScreen.EmptyType ->{
+        when(state.value.contentState) {
+            ContentStateScreen.EmptyType -> {
                 ChatScreenEmptyContent(
                     modifier = Modifier.padding(paddingValues),
                     backgroundColor = chatBacgroundColor
                 )
             }
             ContentStateScreen.Loading -> {
-                    CircularProgressIndicator()
-                }
+                CircularProgressIndicator()
+            }
             ContentStateScreen.Content -> {
                 ContentChatScreen(
                     modifier = Modifier
                         .padding(paddingValues)
-                          .consumeWindowInsets(paddingValues)
-
-                    ,
-                    state = state,
-                    lazyState= lazyState,
-                    viewModel
+                        .consumeWindowInsets(paddingValues), lazyState = lazyState,
+                    isLoadingOldMessages = state.value.loadingOldMessages,
+                    listMessage = state.value.listMessage,
+                    selectedMessages = state.value.selectedMessages,
+                    optionsVisibility = state.value.optionsVisibility,
+                    onClickMessageLine = {
+                        if (state.value.optionsVisibility){
+                            viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
+                        }else{
+                            //bottom drawer
+                        }
+                    },
+                    onLongClickMessageLine = {
+                       viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
+                    }
                 )
             }
 
         }
-
-
-        Log.d(TAG,state.value.selectedMessages.keys.toList().toString())
-
+       // Log.d(TAG,state.value.selectedMessages.keys.toList().toString())
         ConversationModalBottom(
             bottomSheetState = bottomSheetState,
             visibility = state.value.bottomSheetVisibility,
@@ -248,399 +201,8 @@ fun  ChatScreen(
                 viewModel.onEvent(ConversationEvent.SelectedMediaToSend(it))
             }
         )
-
-
-
     }
 }
-
-
-
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-@Composable
-fun ConversationModalBottom(
-    bottomSheetState: SheetState,
-    visibility :Boolean = false,
-    onDismissRequest: ()->Unit,
-    onSelectedMedia:(List<Uri>)->Unit
-){
-    val screenSettings= LocalConfiguration.current
-    val sizeOneItemDp=screenSettings.screenWidthDp.dp /3
-    val maxHeihtBottomSheet = screenSettings.screenHeightDp.dp * 0.7f
-
-    val selectedImages = remember { mutableStateOf<List<Uri>>(emptyList()) }
-    val listImageUris = remember { mutableStateOf<List<Uri>>(emptyList()) }
-    val isLoadingImages = remember { mutableStateOf<Boolean>(false) }
-
-
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    val doTrash = remember {
-        mutableStateOf(false)
-    }
-   if (doTrash .value){
-        Popup(
-            onDismissRequest = {},
-            properties = PopupProperties(focusable = true)
-        ) {
-            var offsetY by remember { mutableStateOf(0f) }
-            val maxHeight = 400.dp // Максимальная высота bottom sheet
-            val minHeight = 100.dp // Минимальная высота bottom sheet
-
-            // Анимация для плавного изменения высоты
-            val animatedOffsetY by animateFloatAsState(
-                targetValue = offsetY,
-                animationSpec = tween(durationMillis =0)
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f)) // Затемняющий фон
-                    .pointerInput(Unit) {
-                        detectTapGestures {
-                            //  onDismiss() // Закрыть при нажатии на scrim
-                        }
-                    }
-                , contentAlignment = Alignment.BottomEnd
-            ) {
-                // Содержимое bottom sheet
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(maxHeight)
-                        .offset {
-                            IntOffset(
-                                0,
-                                animatedOffsetY.roundToInt()
-                            )
-                        }
-                        .pointerInput(Unit) {
-                            detectVerticalDragGestures(
-                                onDragStart = { offset ->
-                                    // Начало перетаскивания (опционально)
-                                },
-                                onDragEnd = {
-                                    // Закрыть, если пользователь перетащил вниз
-                                    if (offsetY > -maxHeight.toPx() / 2) {
-                                        // onDismiss()
-                                    } else {
-                                        offsetY = -maxHeight.toPx()
-                                    }
-                                },
-                                onVerticalDrag = { change, dragAmount ->
-                                    offsetY = (offsetY + dragAmount)
-                                        .coerceIn(
-                                            -maxHeight.toPx(), -minHeight.toPx()
-                                        )
-                                }
-                            )
-                        },
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                    color = Color.White
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
-                        Text("Это кастомный Bottom Sheet", style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(16.dp))
-                       // content()
-                    }
-                }
-            }
-        }
-   }
-    if (visibility && !doTrash.value) {
-
-        ModalBottomSheet(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-            ,
-            sheetState = bottomSheetState,
-            onDismissRequest = onDismissRequest,
-            shape = RoundedCornerShape(
-                topStart = 10.dp, topEnd = 10.dp
-            ),
-            dragHandle = {}
-            // windowInsets = WindowInsets.,
-        ) {
-            Scaffold(
-                modifier = Modifier
-                    .fillMaxSize()
-                ,
-                topBar = {
-                    Row (
-                        modifier = Modifier
-                            .height(60.dp)
-                            .fillMaxWidth()
-                            .background(Color.Red)
-                    ){
-                    }
-                },
-
-                bottomBar = {
-                    BottomButtonSelectMedia(
-                        mediaSelected = selectedImages.value.size !=0,
-                        countSelectedMedia = selectedImages.value.size,
-                        onClick ={
-                            if (selectedImages.value.size !=0){
-                                onSelectedMedia(selectedImages.value)
-                                selectedImages.value = emptyList()
-                            }else{
-                                onDismissRequest()
-                            }
-                        }
-                    )
-                }
-            ) {
-                    paddingValues ->
-                // Log.d(TAG,bottomSheetState.requireOffset().dp.toString())
-
-                LaunchedEffect(key1 = isLoadingImages) {
-                    listImageUris.value=ContentResolverClient(context).getAllImagesUri().take(20)
-                    isLoadingImages.value= false
-                }
-                if(isLoadingImages.value){
-                    LoadingContentProgressIndicator(
-                        // modifier = Modifier.padding(paddingValues),
-                        visibility = true
-                    )
-                }else{
-
-                    //Сетка только для выбора фотографий
-                    LazyVerticalGrid(
-                        modifier = Modifier.padding(paddingValues)
-                        ,columns =GridCells.Fixed(3),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        items(listImageUris.value){
-                            Box(
-                                modifier = Modifier
-                                    .size(sizeOneItemDp)
-                                    .padding(top = 4.dp)
-                            ){
-                                Image(
-                                    modifier = Modifier
-                                        .clip(RectangleShape)
-                                        .size(sizeOneItemDp)
-                                    ,
-                                    painter = rememberAsyncImagePainter(it),
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = "Picture",
-                                )
-                                //Кружочек выбора
-                                Row (
-                                    modifier = Modifier.fillMaxSize(),
-                                    horizontalArrangement = Arrangement.End,
-                                    verticalAlignment = Alignment.Top
-                                ){
-                                    CircleCountIndicatorSelectedItem(
-                                        modifier = Modifier
-                                            .padding(
-                                                top = 4.dp,
-                                                end = 4.dp
-                                            )
-                                        ,
-                                        isSelected= selectedImages.value.contains(it),
-                                        count = selectedImages.value.indexOf(it)+1,
-                                        onClickRound = {
-                                            if(selectedImages.value.contains(it)){
-                                                selectedImages.value= selectedImages.value.minus(it)
-                                            }else{
-                                                selectedImages.value= selectedImages.value.plus(it)
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-
-            }
-        }
-
-
-    }
-}
-
-@Composable
-fun CircleCountIndicatorSelectedItem(
-    modifier: Modifier = Modifier,
-    isSelected:Boolean = false,
-    count:Int = 1,
-    onClickRound:()->Unit
-){
-
-    Box(
-        modifier = modifier
-            .background(
-                shape = CircleShape,
-                color = Color.Transparent
-            )
-            .size(25.dp)
-            .border(
-                width = 2.dp,
-                color = if (isSelected) Color.White else colorApp,
-                shape = CircleShape,
-            )
-            .clickable(
-                onClick = onClickRound
-            )
-        ,
-        contentAlignment = Alignment.Center
-    ){
-      AnimatedVisibility(
-          visible = isSelected,
-          enter= fadeIn()+ expandIn(expandFrom = Alignment.Center),
-          exit = fadeOut()
-      ) {
-          Box(
-              modifier = Modifier
-                  .size(22.dp)
-                  .background(
-                      shape = CircleShape,
-                      color = colorApp
-                  )
-              ,
-              contentAlignment = Alignment.Center
-          ){
-              Text(text = "$count", color = Color.White)
-          }
-
-      }
-    }
-}
-
-@Composable
-fun LoadingContentProgressIndicator(
-    modifier: Modifier = Modifier,
-    visibility: Boolean,
-
-) {
-   if(visibility){
-     Box(
-         modifier = modifier
-             .heightIn(min = 60.dp, max = 60.dp)
-             .fillMaxWidth()
-           //  .background(Color.LightGray)
-         ,
-         contentAlignment = Alignment.Center,
-
-     ){
-         CircularProgressIndicator(
-             modifier = Modifier
-                 .size(30.dp),
-             color = colorApp
-         )
-       }
-   }
-}
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun ContentChatScreen(
-    modifier: Modifier= Modifier,
-    state: State<ConversationVMState>,
-    lazyState: LazyListState,
-    viewModel: ConversationViewModel,
-
-) {
-    var previousIndex by remember { mutableStateOf(0) }
-    val isScrolling by remember {
-        //derivedStateOf оптимизирует измение,меняется только при реальном измении isScrolling а не просто recomposition
-        derivedStateOf { lazyState.isScrollInProgress }
-    }
-    val isScrollingUp by remember {
-        derivedStateOf {
-            val isUp = (lazyState.firstVisibleItemIndex <previousIndex)
-                 //   ||
-                 //   (!lazyState.canScrollForward)//не можем больше пролестнуть вверх
-            previousIndex =lazyState.firstVisibleItemIndex
-            isUp
-        }
-    }
-    val canScrollForward by remember {
-        derivedStateOf {
-            lazyState.canScrollForward
-        }
-    }
-        LazyColumn(
-            state = lazyState,
-            modifier = modifier
-                .fillMaxSize()
-                .background(color = chatBacgroundColor)
-                .padding(start = 4.dp, end = 4.dp)
-            ,
-            reverseLayout = true,
-
-            
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            item{
-              LoadingCircleProgressNewMessages(state.value.loadingOldMessages)
-            }
-//            state.value.groupedMapMessage.forEach{
-//                (date,messages)->
-                items(  state.value.listMessage) { message ->
-                    BaseRowWithSelectItemMessage(
-                        optionVisibility = state.value.optionsVisibility,
-                        onClickLine = {
-                            if (state.value.optionsVisibility){
-                                viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
-                            }else{
-                                //bottom drawer
-                            }
-                        },onLongClickLine = {
-                            viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(message.messageId))
-                        },
-                        selected = state.value.selectedMessages[message.messageId] == true
-                    ) {
-                        when(message.type){
-                            is MessageType.Image -> {
-                                ChatBubbleImages(item = message)
-                            }
-                            is  MessageType.Text -> {
-                                ChatBubbleWithPattern(
-                                    modifier= Modifier,
-                                    isOwn = message.isOwn,) {
-                                    MessageContent(
-                                        data = message
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-//                item {
-//                    TimeMessage(time = date.toString())
-//                    Spacer(modifier = Modifier.height(8.dp))
-//                }
-
-            }
-
-
-
-
-            if(!state.value.selectedUrisForRequest.isEmpty()){
-                viewModel.testFun()
-            }
-
-
-        }
-
-
-
 
 
 

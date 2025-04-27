@@ -1,0 +1,277 @@
+package com.example.unmei.presentation.conversation_future.components
+
+import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import com.example.unmei.presentation.conversation_future.ContentResolverClient
+import com.example.unmei.presentation.conversation_future.utils.BottomButtonSelectMedia
+import com.example.unmei.presentation.conversation_future.utils.CircleCountIndicatorSelectedItem
+import com.example.unmei.presentation.conversation_future.utils.LoadingContentProgressIndicator
+import com.example.unmei.presentation.util.ui.theme.colorApp
+import kotlin.math.roundToInt
+
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun ConversationModalBottom(
+    bottomSheetState: SheetState,
+    visibility :Boolean = false,
+    onDismissRequest: ()->Unit,
+    onSelectedMedia:(List<Uri>)->Unit
+){
+    val screenSettings= LocalConfiguration.current
+    val sizeOneItemDp=screenSettings.screenWidthDp.dp /3
+    val maxHeihtBottomSheet = screenSettings.screenHeightDp.dp * 0.7f
+
+    val selectedImages = remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val listImageUris = remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val isLoadingImages = remember { mutableStateOf<Boolean>(false) }
+
+
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val doTrash = remember {
+        mutableStateOf(false)
+    }
+   if (doTrash .value){
+        Popup(
+            onDismissRequest = {},
+            properties = PopupProperties(focusable = true)
+        ) {
+            var offsetY by remember { mutableStateOf(0f) }
+            val maxHeight = 400.dp // Максимальная высота bottom sheet
+            val minHeight = 100.dp // Минимальная высота bottom sheet
+
+            // Анимация для плавного изменения высоты
+            val animatedOffsetY by animateFloatAsState(
+                targetValue = offsetY,
+                animationSpec = tween(durationMillis =0)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)) // Затемняющий фон
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            //  onDismiss() // Закрыть при нажатии на scrim
+                        }
+                    }
+                , contentAlignment = Alignment.BottomEnd
+            ) {
+                // Содержимое bottom sheet
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(maxHeight)
+                        .offset {
+                            IntOffset(
+                                0,
+                                animatedOffsetY.roundToInt()
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragStart = { offset ->
+                                    // Начало перетаскивания (опционально)
+                                },
+                                onDragEnd = {
+                                    // Закрыть, если пользователь перетащил вниз
+                                    if (offsetY > -maxHeight.toPx() / 2) {
+                                        // onDismiss()
+                                    } else {
+                                        offsetY = -maxHeight.toPx()
+                                    }
+                                },
+                                onVerticalDrag = { change, dragAmount ->
+                                    offsetY = (offsetY + dragAmount)
+                                        .coerceIn(
+                                            -maxHeight.toPx(), -minHeight.toPx()
+                                        )
+                                }
+                            )
+                        },
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                    color = Color.White
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        Text("Это кастомный Bottom Sheet", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(16.dp))
+                       // content()
+                    }
+                }
+            }
+        }
+   }
+    if (visibility && !doTrash.value) {
+
+        ModalBottomSheet(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+            ,
+            sheetState = bottomSheetState,
+            onDismissRequest = onDismissRequest,
+            shape = RoundedCornerShape(
+                topStart = 10.dp, topEnd = 10.dp
+            ),
+            dragHandle = {}
+            // windowInsets = WindowInsets.,
+        ) {
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                ,
+                topBar = {
+                    Row (
+                        modifier = Modifier
+                            .height(60.dp)
+                            .fillMaxWidth()
+                            .background(Color.Red)
+                    ){
+                    }
+                },
+
+                bottomBar = {
+                    BottomButtonSelectMedia(
+                        mediaSelected = selectedImages.value.size !=0,
+                        countSelectedMedia = selectedImages.value.size,
+                        onClick ={
+                            if (selectedImages.value.size !=0){
+                                onSelectedMedia(selectedImages.value)
+                                selectedImages.value = emptyList()
+                            }else{
+                                onDismissRequest()
+                            }
+                        }
+                    )
+                }
+            ) {
+                    paddingValues ->
+                // Log.d(TAG,bottomSheetState.requireOffset().dp.toString())
+
+                LaunchedEffect(key1 = isLoadingImages) {
+                    listImageUris.value= ContentResolverClient(context).getAllImagesUri().take(20)
+                    isLoadingImages.value= false
+                }
+                if(isLoadingImages.value){
+                    LoadingContentProgressIndicator(
+                        // modifier = Modifier.padding(paddingValues),
+                        visibility = true
+                    )
+                }else{
+
+                    //Сетка только для выбора фотографий
+                    LazyVerticalGrid(
+                        modifier = Modifier.padding(paddingValues)
+                        ,columns = GridCells.Fixed(3),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        items(listImageUris.value){
+                            Box(
+                                modifier = Modifier
+                                    .size(sizeOneItemDp)
+                                    .padding(top = 4.dp)
+                            ){
+                                Image(
+                                    modifier = Modifier
+                                        .clip(RectangleShape)
+                                        .size(sizeOneItemDp)
+                                    ,
+                                    painter = rememberAsyncImagePainter(it),
+                                    contentScale = ContentScale.Crop,
+                                    contentDescription = "Picture",
+                                )
+                                //Кружочек выбора
+                                Row (
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.Top
+                                ){
+                                    CircleCountIndicatorSelectedItem(
+                                        modifier = Modifier
+                                            .padding(
+                                                top = 4.dp,
+                                                end = 4.dp
+                                            )
+                                        ,
+                                        isSelected= selectedImages.value.contains(it),
+                                        count = selectedImages.value.indexOf(it)+1,
+                                        onClickRound = {
+                                            if(selectedImages.value.contains(it)){
+                                                selectedImages.value= selectedImages.value.minus(it)
+                                            }else{
+                                                selectedImages.value= selectedImages.value.plus(it)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+
+            }
+        }
+
+
+    }
+}

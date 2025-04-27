@@ -9,10 +9,17 @@ sealed class ConversationEvent {
 
     object OpenCloseBottomSheet :ConversationEvent()
     data class  SelectedMediaToSend(val value: List<Uri>):ConversationEvent()
-    data class  SendMessage(val text:String):ConversationEvent()
 
     object Offoptions:ConversationEvent()
     object LeftChat:ConversationEvent()
 
     object DeleteSelectedMessages:ConversationEvent()
+
+
+    data class OnValueChangeTextMessage(
+        val text:String
+    ):ConversationEvent()
+
+    object  SendMessage:ConversationEvent()
+
 }

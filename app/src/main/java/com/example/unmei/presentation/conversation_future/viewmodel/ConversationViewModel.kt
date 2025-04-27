@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -393,7 +394,6 @@ class ConversationViewModel @Inject constructor(
             )
             return
         }
-
         val isSelected = state.value.selectedMessages[messageId] == true
         //тот же пришедшйи id удаляем, новый прибавлем
         if (isSelected) {
@@ -479,21 +479,15 @@ class ConversationViewModel @Inject constructor(
     ){
         Log.d(TAG,"Sending Message id: $chatId")
         viewModelScope.launch {
-
             val actual = actualDataRoom.value ?: return@launch
             var offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(currentUsrUid)
-
             Log.d(TAG,"Кому отправить уведомление ${offlineUsersIds}")
             val currentUser=getUserByIdUseCase.execute(currentUsrUid)?:User(
                 fullName = currentUsrUid,
                 photoUrl = "",
                 userName = ""
             )
-            val roomDetail = RoomDetail(roomId =chatId, roomIconUrl =currentUser.photoUrl , roomName = currentUser.fullName, typeRoom = TypeRoom.PRIVATE,
-
-                )
-
-
+            val roomDetail = RoomDetail(roomId =chatId, roomIconUrl =currentUser.photoUrl , roomName = currentUser.fullName, typeRoom = TypeRoom.PRIVATE,)
             val result=sendMessageUseCaseById.execute(
                 message = message,
                 chatId = chatId,
@@ -502,25 +496,19 @@ class ConversationViewModel @Inject constructor(
                 roomDetail=roomDetail
             )
             when (result){
-                is Resource.Error -> {
-                }
-                is Resource.Loading ->{
-                }
-                is Resource.Success -> {
-                    //Брать Текущего пользователя
-                    //Из ROOM!!! а не сети
-
-
-                }
+                is Resource.Error -> {}
+                is Resource.Loading ->{}
+                is Resource.Success -> {}
             }
         }
     }
-    fun selectActionWithMessage(text:String){
-        if (!text.isEmpty() || !state.value.selectedUrisForRequest.isEmpty()){
+
+    fun selectActionWithMessage(){
+        if (!state.value.textMessage.isEmpty() || !state.value.selectedUrisForRequest.isEmpty()){
             //Log.d(TAG,"Попали в условие  ${state.value.chatExistence}")
             val newMessage = Message(
                 senderId = currentUsrUid,
-                text = text,
+                text = state.value.textMessage,
               //  attachment = state.value.selectedUrisForRequest
             )
             if (!state.value.chatExistence ){
@@ -546,7 +534,6 @@ class ConversationViewModel @Inject constructor(
                     bottomSheetVisibility = !state.value.bottomSheetVisibility
                 )
            }
-
            is ConversationEvent.SelectedMediaToSend -> {
                _state.value = state.value.copy(
                    selectedUrisForRequest = event.value,
@@ -555,8 +542,10 @@ class ConversationViewModel @Inject constructor(
            }
 
            is ConversationEvent.SendMessage -> {
-               selectActionWithMessage(event.text)
+               selectActionWithMessage()
            }
+           is ConversationEvent.OnValueChangeTextMessage -> {_state.update { it.copy(textMessage = event.text) }}
+
            ConversationEvent.Offoptions -> {
                _state.value = state.value.copy(
                    optionsVisibility =false,
@@ -576,12 +565,12 @@ class ConversationViewModel @Inject constructor(
             leftChatUseCase.execute(state.value.groupId,currentUsrUid)
         }
     }
+
     @Deprecated("Удалят и наши и ваши сообщения")
     fun deleteMessagesInChat(){
         viewModelScope.launch {
             if(state.value.selectedMessages.isEmpty())
                 return@launch
-
             val messagesId = state.value.selectedMessages.keys.toList()
             repository.deleteMessagesInChat(messagesId, chatId = chatId).collect{
                 when(it){
@@ -600,9 +589,4 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
-
-
-
-
-
 }
