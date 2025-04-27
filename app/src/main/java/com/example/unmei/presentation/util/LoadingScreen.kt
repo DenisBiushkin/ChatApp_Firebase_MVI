@@ -14,12 +14,12 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun LoadingScreen (
-
+   modifier: Modifier = Modifier
 ){
     Box(
-        modifier = Modifier
+        modifier =  modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.4f))
+           // .background(Color.Black.copy(alpha = 0.4f))
             .clickable(enabled = false) {} // блокирует клики под ним
     ) {
         CircularProgressIndicator(

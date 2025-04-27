@@ -1,8 +1,19 @@
 package com.example.unmei.presentation.friends_feature.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -67,56 +78,78 @@ fun FriendScreenFull(
     val query = remember {
         mutableStateOf("")
     }
+
+}
+@Composable
+fun  FriendListItemDataClass(
+    itemUi:FriendItemUi,
+    onClickItem:(FriendItemUi)->Unit,
+    onClickSandMessage:(FriendItemUi)->Unit,
+    onClickAddUser:(FriendItemUi)->Unit,
+){
+    FriendListItem(
+        isOnline =itemUi.isOnline,
+        painterIcon = rememberAsyncImagePainter(model = itemUi.iconUrl),
+        fullName = itemUi.fullName,
+        onClickSendMessage ={
+            onClickSandMessage(itemUi)
+        },
+        onClickAddUser = {
+            onClickAddUser(itemUi)
+        },
+        isFriend = itemUi.isFriend,
+        onClickItem = {
+            onClickItem(itemUi)
+        }
+    )
+}
+@Composable
+fun FriendScreenTopAndSearchBar(
+    onClickBack:()->Unit,
+    searchActive:Boolean,
+    onExiteSearch:()->Unit,
+    textField:String,
+    onTextFieldChanged:(String)->Unit,
+    onFocusedChanged:(FocusState)->Unit,
+    content: @Composable() (ColumnScope.()->Unit)
+){
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            FriendTopBar(
-                onClickBack =onClickBack
-            )
+            AnimatedVisibility(
+                visible = !searchActive,
+            ) {
+                FriendTopBar(onClickBack = onClickBack)
+            }
         }
     ) {
         paddingValues ->
         val horizontalPadding= 8.dp
         Column(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .padding(paddingValues)
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 300, // скорость в миллисекундах
+                        easing = FastOutSlowInEasing
+                    )
+                )
         ) {
             SearchBar(
                 modifier = Modifier.padding(
-                    horizontal =  horizontalPadding
+                    horizontal = horizontalPadding
                 ),
                 query = textField,
-                onQueryChange =onTextFieldChanged,
-                onFocusedChanged =  onFocusedChanged
+                onQueryChange = onTextFieldChanged,
+                onFocusedChanged = onFocusedChanged,
+                onExitSearch = onExiteSearch,
+                isActiveSearch = searchActive
             )
-            LazyColumn(
-                modifier = Modifier
-                    .padding(top = 5.dp,
-                        start =  (horizontalPadding/2.dp).dp,
-                        end =   (horizontalPadding/2.dp).dp
-                    )
-                    .fillMaxWidth()
-            ) {
-                items( listFriends){
-                    FriendListItem(
-                        isOnline =it.isOnline,
-                        painterIcon = rememberAsyncImagePainter(model = it.iconUrl),
-                        fullName = it.fullName,
-                        onClickSendMessage ={
-                            onClickSandMessage(it)
-                        },
-                        onClickAddUser = {
-                            onClickAddUser(it)
-                        },
-                        isFriend = it.isFriend,
-                        onClickItem = {
-
-                        }
-                    )
-                }
-            }
+            content()
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendTopBar(

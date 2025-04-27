@@ -7,4 +7,12 @@ sealed class FriendVMEvent{
         val value:String
     ):FriendVMEvent()
 
+    data class SearchActiveChanged(
+        val value:Boolean
+    ):FriendVMEvent()
+
+    data class AddNewFriend(
+        val value: String
+    ):FriendVMEvent()
+
 }

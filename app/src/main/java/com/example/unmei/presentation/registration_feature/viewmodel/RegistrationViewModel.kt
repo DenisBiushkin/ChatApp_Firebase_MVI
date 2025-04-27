@@ -58,6 +58,7 @@ class RegistrationViewModel @Inject constructor(
        viewModelScope.launch {
            Log.d(TAG,"Выполнение регистрации")
            _state.value = state.value.copy(isLoading = true)
+
            val result=authRepository.registerWithEmail(
               email = state.value.emailOrPhone,
                password = state.value.firstPassword,

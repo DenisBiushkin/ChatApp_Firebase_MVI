@@ -99,12 +99,18 @@ class RemoteDataSource(
 
     }
     suspend fun getUsersIdsByFullName(fullName:String):List<String>{
+
         try {
             val dataSnapshot=idsByFullName
                 .orderByKey()
                 .startAt(fullName)
                 .endAt("$fullName\uf8ff").get().await()
-            return dataSnapshot.getValue<Map<String,String>>()?.values?.toList() ?: emptyList()
+
+            val idsByFullNameMap=dataSnapshot.getValue<Map<String,Map<String,Boolean>>>() ?:  return emptyList<String>()
+            val ids=idsByFullNameMap.firstNotNullOf {
+                idsByFullNameMap[it.key]?.keys
+            }.toList()
+            return ids
         }catch (e:Exception){
             return emptyList()
         }
@@ -277,8 +283,15 @@ class RemoteDataSource(
     @Deprecated(message = "Доработать добавление статуса online в presence")
     suspend fun saveUserData(user:User):Resource<Unit>{
         try {
-            val userResp =UserResponse.toUserResponse(user)
-            usersRef.child(userResp.uid).setValue(userResp).await()
+            val userId=user.uid
+            val userResp =UserResponse.toUserResponse(user).copy(userName = "@${userId}")
+            val updates = mapOf(
+                "$USERS_REFERENCE_DB/$userId" to userResp,
+                "$USERID_BY_USERNAME_REFERENCE_DB/${toNormilizeString(userResp.userName)}" to userId,
+                "$USERID_BY_FULLNAME_REFERENCE_DB/${toNormilizeString(userResp.fullName)}\"/$userId" to true,
+                "$PRESENCE_USERS_REFERENCE_DB/$userId" to StatusUserResponse(lastSeen = System.currentTimeMillis())
+            )
+            reference.updateChildren(updates).await()
             return Resource.Success(Unit)
         }catch (e:Exception){
             return Resource.Error(message = e.toString())
@@ -307,6 +320,9 @@ class RemoteDataSource(
             Log.d(TAG,"updateUsernameInProfileRemote ${e.message}")
             return false
         }
+    }
+    private fun toNormilizeString(str:String):String{
+        return str.replace(" ", "").toLowerCase(Locale.ROOT)
     }
     suspend fun updateFullNameInProfileRemote(
         userId:String,

@@ -111,6 +111,7 @@ fun FriendListItem(
             modifier = Modifier.weight(0.7f),
             rowHeight = rowHeight
         )
+
         FriendActionsPart(
             imageVector =  ImageVector.vectorResource(id = if(isFriend) R.drawable.chat_bubble_24px else R.drawable.person_add_24px),
             onClickSendMessage = if (isFriend) onClickSendMessage else onClickAddUser,

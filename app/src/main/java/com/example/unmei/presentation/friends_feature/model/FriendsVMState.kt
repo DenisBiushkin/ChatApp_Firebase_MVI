@@ -3,9 +3,10 @@ package com.example.unmei.presentation.friends_feature.model
 data class FriendsVMState(
 
     val searchQuery:String ="",
-    val isFocusedTextField:Boolean=false,
+    val isSearchActive:Boolean=false,
 
-    val myFriends:List<FriendItemUi> = emptyList(),
+    val myFriendsList: List<FriendItemUi> = emptyList(),
+    val searchResultList:List<FriendItemUi> = emptyList(),
 
-    val isLoading:Boolean= false
+    val contentState: FriendsContentState=FriendsContentState.Loading
 )
