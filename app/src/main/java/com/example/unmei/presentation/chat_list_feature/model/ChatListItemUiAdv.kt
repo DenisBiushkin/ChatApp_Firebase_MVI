@@ -13,18 +13,20 @@ data class ChatListItemUiAdv(
      val typingStatus: TypingStatus=TypingStatus.None,
      val typeChat: TypeRoom,//ок
      val timestamp: Long,
-     val contentMessage: contentMessage?,//ок
+     val contentMessage: ContentMessage?,//ок
      val lastMessageTimeString:String ="",
      val members: Set<String>,
      val moderators: Set<String>? = null,
      val unreadedCountMessage: Int//ок
 )
-data class contentMessage(
+data class ContentMessage(
      val contentSender:String,
-     val message: Message
+     val message: Message,
 )
 
 sealed class TypingStatus{
      object None :TypingStatus()
-     data class Typing(val whoTyping: String):TypingStatus()
+     data class Typing(
+          val whoTyping: String
+     ):TypingStatus()
 }

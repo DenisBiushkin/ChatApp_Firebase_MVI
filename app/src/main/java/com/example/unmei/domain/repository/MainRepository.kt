@@ -7,6 +7,7 @@ import com.example.unmei.domain.model.messages.NewRoomModel
 import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.StatusUser
+import com.example.unmei.domain.model.TypingStatus
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
@@ -40,6 +41,8 @@ interface MainRepository {
 
     //MessagesRepository
     fun observeRoomsUser(userId:String): Flow<RoomsUser>
+
+    suspend fun updateStatusUserById(groupId:String,userId: String,status: TypingStatus)
 
 
 

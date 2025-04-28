@@ -25,5 +25,12 @@ data class ConversationVMState(
     val isTyping:Boolean = false,
 
     val groupId : String = "",//хз тут ли должен быть
-    val companionId : String = ""//хз тут ли должен быть
+    val companionId : String = "",//хз тут ли должен быть,
+
+    val chatState: ChatState = ChatState.Chatting
 )
+
+sealed class ChatState{
+    object Chatting :ChatState()
+    object Create:ChatState()
+}

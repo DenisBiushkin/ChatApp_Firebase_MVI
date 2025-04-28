@@ -1,5 +1,6 @@
 package com.example.unmei.DI
 
+import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
@@ -8,9 +9,11 @@ import com.example.unmei.domain.usecase.messages.EnterChatUseCase
 import com.example.unmei.domain.usecase.messages.LeftChatUseCase
 import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatRoomAdvanceUseCase
+import com.example.unmei.domain.usecase.messages.ObserveChatsByUserIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
+import com.example.unmei.domain.usecase.messages.SetTypingStatusUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
 import dagger.Module
 import dagger.Provides
@@ -73,6 +76,16 @@ object MessagesModule {
     @Provides
     fun provideEnterChatUseCase(mainRepository: MainRepository):EnterChatUseCase{
         return EnterChatUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideObserveChatsByUserId(mainRepository: MainRepository,remoteDataSource: RemoteDataSource):ObserveChatsByUserIdUseCase{
+        return ObserveChatsByUserIdUseCase(mainRepository,remoteDataSource)
+    }
+
+    @Provides
+    fun provideSetTypingStatusUseCase(mainRepository: MainRepository):SetTypingStatusUseCase{
+        return SetTypingStatusUseCase(mainRepository)
     }
 
 }

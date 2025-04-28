@@ -1,11 +1,13 @@
 package com.example.unmei.presentation.chat_list_feature.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
@@ -37,6 +39,7 @@ import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUiAdv
 import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
 import com.example.unmei.presentation.chat_list_feature.viewmodel.ChatListViewModel
 import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
+import com.example.unmei.presentation.util.TypingIndicator
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -65,9 +68,8 @@ fun ScreenContent(
                             chatExist = true,
                             chatName = it.chatName,
                             chatUrl = it.iconUrl,
-                            companionUid = it.members.filter { it != state.value.userId }
-                                ?.first() ?: "",
-                            chatUid = it.chatId
+                            companionUid = it.members.filter { it != state.value.userId }?.first() ?: ""
+                            ,chatUid = it.chatId
                         )
                     )
                 },
@@ -123,12 +125,22 @@ fun ContentChats(
                         }
 
                         is TypingStatus.Typing -> {
-                            Text(
-                                text = it.typingStatus.whoTyping,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = Color.Black.copy(alpha = 0.7f)
-                            )
+                            Row (
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text = it.typingStatus.whoTyping,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = Color.Blue.copy(alpha = 0.7f)
+                                )
+                                Spacer(modifier = Modifier.width(2.dp))
+                                TypingIndicator(
+                                    sizeDot = 6.dp,
+                                    colorDot = Color.Blue
+                                )
+                            }
+
                         }
                     }
                 }

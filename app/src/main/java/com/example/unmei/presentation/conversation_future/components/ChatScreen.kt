@@ -2,6 +2,7 @@ package com.example.unmei.presentation.conversation_future.components
 
 import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.BackHandler
 
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -59,6 +60,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -126,6 +128,11 @@ fun  ChatScreen(
     val state = viewModel.state.collectAsState()
     val lazyState = rememberLazyListState()
     val bottomSheetState = rememberModalBottomSheetState()
+
+    BackHandler {
+        viewModel.onEvent(ConversationEvent.LeftChat)
+        navController.popBackStack()
+    }
     Scaffold(
         topBar = {
             TopBarChatScreen(

@@ -1,6 +1,7 @@
 package com.example.unmei.presentation.Navigation
 
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavArgument
@@ -27,6 +28,7 @@ import com.example.unmei.util.ConstansApp.CHAT_URI_DEEPLINK
 import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 
+@RequiresApi(35)
 fun NavGraphBuilder.mainNavGraph(
     navController: NavHostController,
     googleAuthUiClient: GoogleAuthUiClient
@@ -64,6 +66,7 @@ fun NavGraphBuilder.mainNavGraph(
         ){
             val navData= it.arguments!!.getString(ConstansApp.PROFILE_ARGUMENT_JSON)!!
             Log.d(TAG,"Profile NavArg: "+navData)
+
             val viewModel = hiltViewModel<ProfileUserViewModel>()
             viewModel.saveData(Screens.Profile.fromJsonData(navData))
             ProfileUserFull(
@@ -88,14 +91,8 @@ fun NavGraphBuilder.mainNavGraph(
             )
         ){
             //переделать, чтобы засунуть данные сразу в конструктор ViewModel
+
             val viewModel = hiltViewModel<ConversationViewModel>()
-
-            val jsonData = it.arguments!!.getString(CHAT_ARGUMENT_JSON)!!
-            val exsitenceData = Screens.Chat.fromJsonToExistenceData(jsonData)
-
-            Log.d(ConstansDev.TAG,"Receive Arguments $exsitenceData")
-
-            viewModel.saveNecessaryInfo(exsitenceData)
             ChatScreen(
                 navController = navController,
                 viewModel = viewModel

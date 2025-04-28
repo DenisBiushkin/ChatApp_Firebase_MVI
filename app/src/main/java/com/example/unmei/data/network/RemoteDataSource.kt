@@ -21,6 +21,7 @@ import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
+import com.example.unmei.domain.model.TypingStatus
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
@@ -736,6 +737,16 @@ class RemoteDataSource(
         try {
             val updates = mapOf(
                 "$MESAGES_SUMMERIES_DB/$roomId/unreadedCount/$userId" to 0
+            )
+            reference.updateChildren(updates).await()
+        }catch (e:Exception){
+
+        }
+    }
+    suspend fun updateStatusUserByIdRemote(groupId:String,userId: String, status: TypingStatus){
+        try{
+            val updates = mapOf(
+                "$MESAGES_SUMMERIES_DB/$groupId/typingUsersStatus/$userId" to status.value
             )
             reference.updateChildren(updates).await()
         }catch (e:Exception){

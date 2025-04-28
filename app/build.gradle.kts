@@ -99,8 +99,10 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     implementation("com.google.accompanist:accompanist-navigation-animation:0.33.2-alpha")
+
     //Coroutine
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     //Hilt
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation("com.google.dagger:hilt-android:2.46.1")

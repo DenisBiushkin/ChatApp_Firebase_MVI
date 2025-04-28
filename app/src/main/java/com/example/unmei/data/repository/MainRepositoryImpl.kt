@@ -10,6 +10,7 @@ import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.messages.NewRoomModel
 import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
+import com.example.unmei.domain.model.TypingStatus
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
@@ -58,7 +59,9 @@ class MainRepositoryImpl @Inject constructor(
         return remoteDataSource.updateActiveUserInRoomRemote(roomId,userId,active)
     }
 
-
+    override suspend fun updateStatusUserById(groupId:String,userId: String, status: TypingStatus) {
+        remoteDataSource.updateStatusUserByIdRemote(groupId,userId, status)
+    }
 
     override suspend fun createNewChatAdvence(newRoomModel: NewRoomModel): Resource<String> {
         return remoteDataSource.createNewRoomAdvence(newRoomModel)
