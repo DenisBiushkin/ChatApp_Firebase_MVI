@@ -26,6 +26,7 @@ import com.example.unmei.presentation.util.model.NavigateConversationData
 import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
 import com.example.unmei.util.ConstansApp.CHAT_URI_DEEPLINK
+import com.example.unmei.util.ConstansApp.CREATEGROUP_ARGUMENT_USERID
 import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 
@@ -101,7 +102,14 @@ fun NavGraphBuilder.mainNavGraph(
 
         }
         composable(
-            route = Screens.CreateGroupFirst.route
+            route = Screens.CreateGroupFirst.route,
+            arguments = listOf(
+                navArgument(
+                    name =CREATEGROUP_ARGUMENT_USERID ,
+                ){
+                    type = NavType.StringType
+                },
+            )
         ){
             NewGroupSelectUsersScreen(navController)
         }

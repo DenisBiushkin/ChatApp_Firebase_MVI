@@ -63,7 +63,7 @@ fun GroupBottomButtonSelectMedia(
             )
             , shape = RoundedCornerShape(15.dp)
         ) {
-            Text(text = "Продолжить")
+            Text(text = "Создать чат")
             if(countSelectedMedia!=0){
                 Spacer(modifier = Modifier.width(5.dp))
                 Box(

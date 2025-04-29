@@ -63,7 +63,12 @@ sealed class Screens(
         }
 
     }
-    object CreateGroupFirst:Screens(route="createGroup_first")
+
+    object CreateGroupFirst:Screens(route="createGroup_first/{${ConstansApp.CREATEGROUP_ARGUMENT_USERID}}"){
+        fun withUserId(userId:String):String{
+            return "createGroup_first/$userId"
+        }
+    }
 
     object CreateGroupSecond:Screens(route="createGroup_second")
 

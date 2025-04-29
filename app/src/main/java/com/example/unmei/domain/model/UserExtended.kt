@@ -1,5 +1,6 @@
 package com.example.unmei.domain.model
 
+import com.example.unmei.presentation.create_group_feature.model.CreateGroupItemUi
 import com.example.unmei.presentation.friends_feature.model.FriendItemUi
 
 data class UserExtended(
@@ -13,6 +14,14 @@ data class UserExtended(
             iconUrl = it.user.photoUrl,
             isOnline = it.statusUser.status == Status.ONLINE,
             isFriend =true
+        )
+    }
+    fun toGroupContacts():CreateGroupItemUi =this.run {
+        CreateGroupItemUi(
+            id= user.uid,
+            fullName = user.fullName,
+            lastSeen = statusUser.status.name,
+            iconUrl = user.photoUrl
         )
     }
 }

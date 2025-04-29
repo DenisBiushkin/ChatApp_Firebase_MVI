@@ -190,13 +190,14 @@ class RemoteDataSource(
     //Unknown Working(working)
     //
     @OptIn(UnstableApi::class)
-    suspend fun createNewRoomAdvence(
+    suspend fun createNewRoomAdvance(
         newRoomModel: NewRoomModel
     ):Resource<String>{
         try {
             val key= roomsRef.push().key.toString()
             val keyMessage = messagesRef.push().key.toString()
             var roomIconUrl = newRoomModel.standartUrlIcon
+
             when(newRoomModel.type){
                 TypeRoom.PRIVATE -> {
                     roomIconUrl = newRoomModel.iconUrl
@@ -209,7 +210,10 @@ class RemoteDataSource(
                     )
                     if(result is Resource.Success){
                         roomIconUrl = result.data.toString()
+                    }else{
+                        return Resource.Error(message = result.message.toString())
                     }
+
                 }
             }
             val room=ChatRoomResponseAdvence(
@@ -248,6 +252,64 @@ class RemoteDataSource(
             return Resource.Error(message = e.toString())
         }
     }
+    //
+    @OptIn(UnstableApi::class)
+    suspend fun createGroupChat(
+        newRoomModel: NewRoomModel
+    ):Resource<String>{
+        try {
+
+
+            val key= roomsRef.push().key.toString()
+            val keyMessage = messagesRef.push().key.toString()
+            var roomIconUrl = newRoomModel.standartUrlIcon
+
+            val result=saveToStorageByPath(
+                filePath = "$ROOMS_REFERENCE_STORAGE/$key",
+                fileName="$key.png",
+                uriData =newRoomModel. iconUri
+            )
+            if(result is Resource.Success){
+                roomIconUrl = result.data.toString()
+            }else {
+                return Resource.Error(message = result.message.toString())
+            }
+
+            val room=ChatRoomResponseAdvence(
+                id = key,
+                chatName=newRoomModel.chatName,
+                type = newRoomModel.type.value,
+                iconUrl =  roomIconUrl,
+                timestamp = ServerValue.TIMESTAMP,
+                moderators = newRoomModel.moderatorsIds.map { it to true }.toMap(),
+                members = newRoomModel.membersIds.map { it to true }.toMap(),
+                activeUsers = emptyMap()
+            )
+            val mesgResp=newRoomModel.message?.let {
+                MessageResponse().fromMessageToResp(it.copy(id = keyMessage))
+            }
+
+            val summaries = RoomSummariesResp(
+                lastMessage =mesgResp,
+                unreadedCount = newRoomModel.membersIds.map { it to 0 }.toMap()
+            )
+
+            val updates = mutableMapOf(
+                "${ROOMS_REFERENCE_DB}/$key" to room,
+                "${MESSAGES_REFERENCE_DB}/$key/$keyMessage" to mesgResp,
+                "${MESAGES_SUMMERIES_DB}/$key" to summaries
+            )
+            newRoomModel.membersIds.forEach {
+                //ДОБАВИТЬ UID чата каждому участнику
+                updates["${USERS_REFERENCE_DB}/$it/rooms/$key"]=true
+            }
+            reference.updateChildren(updates).await()
+            return Resource.Success(data = key)
+        }catch (e:Exception){
+            return Resource.Error(message = e.toString())
+        }
+    }
+
     //рабочая 22.03
     suspend fun cascadeDeleteRoomsAdvence(
         roomId:String

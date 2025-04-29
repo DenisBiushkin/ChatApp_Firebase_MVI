@@ -5,6 +5,7 @@ import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.repository.NotificationRepository
 import com.example.unmei.domain.usecase.CreateNewRoomAdvenceUseCase
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
+import com.example.unmei.domain.usecase.messages.CreatePublicChatUseCase
 import com.example.unmei.domain.usecase.messages.EnterChatUseCase
 import com.example.unmei.domain.usecase.messages.LeftChatUseCase
 import com.example.unmei.domain.usecase.messages.NotifySendMessageUseCase
@@ -86,6 +87,14 @@ object MessagesModule {
     @Provides
     fun provideSetTypingStatusUseCase(mainRepository: MainRepository):SetTypingStatusUseCase{
         return SetTypingStatusUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideCreatePublicChatUseCase(
+        mainRepository: MainRepository,
+        notificationRepository: NotificationRepository
+    ):CreatePublicChatUseCase{
+        return CreatePublicChatUseCase(mainRepository,notificationRepository)
     }
 
 }

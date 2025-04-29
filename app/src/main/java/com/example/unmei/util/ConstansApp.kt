@@ -11,6 +11,7 @@ object ConstansApp {
     val CHAT_ARGUMENT_COMPANIONUID = "companionUid"
     val CHAT_ARGUMENT_JSON="json_existence_data"
     val PROFILE_ARGUMENT_JSON="json_profile_data"
+    val CREATEGROUP_ARGUMENT_USERID="createGroupUserId"
 
     //deeplink
     val CHAT_URI_DEEPLINK="myapp://chat_screen"

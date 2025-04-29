@@ -114,7 +114,7 @@ fun DrawerScreen(
                           }
                       },
                       onCreateGroupClick = {
-                          navController.navigate(Screens.CreateGroupFirst.route)
+                          navController.navigate(Screens.CreateGroupFirst.withUserId(state.value.userId))
                       }
                   )
               }

@@ -3,15 +3,13 @@ package com.example.unmei.presentation.friends_feature.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.repository.FriendRepository
-import com.example.unmei.domain.usecase.user.GetFriendsByUserId
+import com.example.unmei.domain.usecase.user.GetFriendsByUserIdUseCase
 import com.example.unmei.domain.usecase.user.GetUsersExByFullName
 import com.example.unmei.domain.usecase.user.UpdateProfileFullNameById
 import com.example.unmei.domain.usecase.user.UpdateProfileUserNameById
 import com.example.unmei.domain.util.OrderType
-import com.example.unmei.presentation.friends_feature.model.FriendItemUi
 import com.example.unmei.presentation.friends_feature.model.FriendVMEvent
 import com.example.unmei.presentation.friends_feature.model.FriendsContentState
 import com.example.unmei.presentation.friends_feature.model.FriendsVMState
@@ -26,7 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -36,7 +33,7 @@ import javax.inject.Inject
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class FriendsViewModel @Inject constructor(
-    private val getFriendsByUserId: GetFriendsByUserId,
+    private val getFriendsByUserIdUseCase: GetFriendsByUserIdUseCase,
     private val chatSessionManager: ChatSessionManager,
     private val updateProfileUserNameById: UpdateProfileUserNameById,
     private val updateProfileFullNameById: UpdateProfileFullNameById,
@@ -96,7 +93,7 @@ class FriendsViewModel @Inject constructor(
         getMyFriends=viewModelScope.launch {
             _state.update { state.value.copy(contentState = FriendsContentState.Loading) }
 
-            val friendsCurrentUser = getFriendsByUserId.execute(currentUser.value!!.uid) ?:
+            val friendsCurrentUser = getFriendsByUserIdUseCase.execute(currentUser.value!!.uid) ?:
 
             return@launch _state.update { state.value.copy(
                 contentState = FriendsContentState.Content,

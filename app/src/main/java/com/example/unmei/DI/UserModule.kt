@@ -1,7 +1,7 @@
 package com.example.unmei.DI
 
 import com.example.unmei.domain.repository.MainRepository
-import com.example.unmei.domain.usecase.user.GetFriendsByUserId
+import com.example.unmei.domain.usecase.user.GetFriendsByUserIdUseCase
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.user.GetUsersExByFullName
 import com.example.unmei.domain.usecase.user.GetUsersWithStatus
@@ -22,8 +22,8 @@ object UserModule {
 
 
     @Provides
-    fun provideGetFriendsByUserId(mainRepository: MainRepository): GetFriendsByUserId{
-        return GetFriendsByUserId(mainRepository)
+    fun provideGetFriendsByUserId(mainRepository: MainRepository): GetFriendsByUserIdUseCase{
+        return GetFriendsByUserIdUseCase(mainRepository)
     }
     @Provides
     fun provideSaveUserUseCase(mainRepository: MainRepository): SaveUserUseCase {

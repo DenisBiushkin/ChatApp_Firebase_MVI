@@ -59,7 +59,9 @@ fun showCompanionTextFieldGroup(
         CompanionTextFieldGroup(
             onSelectClick = {
 
-            }
+            },
+            textChatName = "",
+            onValueChange = {}
         )
     }
 }
@@ -67,6 +69,8 @@ fun showCompanionTextFieldGroup(
 @Composable
 fun CompanionTextFieldGroup(
     modifier: Modifier = Modifier,
+    textChatName:String,
+    onValueChange:(String)->Unit,
     painter: Painter?=null,
     onSelectClick:()->Unit
 ){
@@ -135,10 +139,8 @@ fun CompanionTextFieldGroup(
                         color = Color.Blue.copy(alpha = .5f)
                     )
                 ,
-                value ="" ,
-                onValueChange = {
-
-                },
+                value =textChatName ,
+                onValueChange =onValueChange,
                 placeholder = {
                     Text(
                         text = "Название",

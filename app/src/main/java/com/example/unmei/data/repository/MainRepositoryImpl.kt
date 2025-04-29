@@ -64,7 +64,7 @@ class MainRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createNewChatAdvence(newRoomModel: NewRoomModel): Resource<String> {
-        return remoteDataSource.createNewRoomAdvence(newRoomModel)
+        return remoteDataSource.createNewRoomAdvance(newRoomModel)
     }
 
     override suspend fun deleteChatAdvance(roomId: String): Resource<Unit> {
