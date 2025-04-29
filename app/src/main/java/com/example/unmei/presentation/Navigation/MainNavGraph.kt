@@ -16,6 +16,7 @@ import com.example.unmei.presentation.conversation_future.components.ChatScreen
 import com.example.unmei.presentation.chat_list_feature.components.DrawerScreen
 
 import com.example.unmei.presentation.conversation_future.viewmodel.ConversationViewModel
+import com.example.unmei.presentation.create_group_feature.components.NewGroupSelectUsersScreen
 import com.example.unmei.presentation.friends_feature.components.FriendsScreen
 import com.example.unmei.presentation.friends_feature.viewmodel.FriendsViewModel
 import com.example.unmei.presentation.profile_user_feature.components.ProfileUserFull
@@ -98,6 +99,11 @@ fun NavGraphBuilder.mainNavGraph(
                 viewModel = viewModel
             )
 
+        }
+        composable(
+            route = Screens.CreateGroupFirst.route
+        ){
+            NewGroupSelectUsersScreen(navController)
         }
     }
 }

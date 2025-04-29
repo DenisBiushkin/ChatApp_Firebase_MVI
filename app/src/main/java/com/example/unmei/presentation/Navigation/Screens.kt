@@ -63,5 +63,9 @@ sealed class Screens(
         }
 
     }
+    object CreateGroupFirst:Screens(route="createGroup_first")
+
+    object CreateGroupSecond:Screens(route="createGroup_second")
+
 
 }
