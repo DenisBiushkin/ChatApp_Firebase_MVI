@@ -1,6 +1,6 @@
 package com.example.unmei.presentation.chat_list_feature.model
 
-import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
+import com.example.unmei.presentation.singleChat_feature.model.ContentStateScreen
 
 data class ChatVMState (
     val chatList:List<ChatItemUI> = emptyList(),

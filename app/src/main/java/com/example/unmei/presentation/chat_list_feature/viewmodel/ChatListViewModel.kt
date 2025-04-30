@@ -11,7 +11,7 @@ import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
 import com.example.unmei.presentation.chat_list_feature.model.ChatVMState
-import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
+import com.example.unmei.presentation.singleChat_feature.model.ContentStateScreen
 import com.example.unmei.util.ChatSessionManager
 import com.example.unmei.util.ConstansDev.TAG
 import com.google.firebase.auth.ktx.auth

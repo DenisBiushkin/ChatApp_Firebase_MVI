@@ -31,8 +31,8 @@ fun GroupUserItemListWithIndicator(
             painter,
             fullName,
             lastSeen,
-            onClick = {},
-            clickEnable = false
+            onClick = onClick,
+            clickEnable = true
         )
     }
 }

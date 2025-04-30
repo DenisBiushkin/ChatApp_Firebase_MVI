@@ -1,11 +1,7 @@
 package com.example.unmei.presentation.chat_list_feature.components
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,23 +18,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
-import com.example.unmei.R
+import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.chat_list_feature.model.ChatListItemUiAdv
 import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
 import com.example.unmei.presentation.chat_list_feature.viewmodel.ChatListViewModel
-import com.example.unmei.presentation.conversation_future.model.ContentStateScreen
+import com.example.unmei.presentation.singleChat_feature.model.ContentStateScreen
 import com.example.unmei.presentation.util.TypingIndicator
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -63,15 +55,24 @@ fun ScreenContent(
             ContentStateScreen.Content -> ContentChats(
                 listItems = state.value.chatListAdv,
                 onClickItem = {
-                    navController.navigate(
-                        Screens.Chat.withExistenceData(
-                            chatExist = true,
-                            chatName = it.chatName,
-                            chatUrl = it.iconUrl,
-                            companionUid = it.members.filter { it != state.value.userId }?.first() ?: ""
-                            ,chatUid = it.chatId
-                        )
-                    )
+                    when(it.typeChat){
+                        TypeRoom.PRIVATE -> {
+                            navController.navigate(
+                                Screens.Chat.withExistenceData(
+                                    chatExist = true,
+                                    chatName = it.chatName,
+                                    chatUrl = it.iconUrl,
+                                    companionUid = it.members.filter { it != state.value.userId }?.first() ?: ""
+                                    ,chatUid = it.chatId
+                                )
+                            )
+                        }
+                        TypeRoom.PUBLIC ->{
+                            navController.navigate(
+                                Screens.GroupChat.withChatId(it.chatId)
+                            )
+                        }
+                    }
                 },
                 onLongClickItem = {
                     showBottomSheet.value = true

@@ -13,7 +13,9 @@ sealed class Attachment{
     abstract val base64data: String
 
     @Serializable
-    class Image(override val base64data: String,): Attachment()
+    class Image(
+        override val base64data: String,
+    ): Attachment()
 
     @Serializable
     class File(

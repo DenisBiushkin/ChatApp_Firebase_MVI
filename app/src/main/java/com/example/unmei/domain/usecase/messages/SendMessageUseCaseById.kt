@@ -16,8 +16,9 @@ class SendMessageUseCaseById(
     suspend fun execute(
         message: Message,
         chatId:String,
-        offlineUsersIds:List<String>,
+
         //For quick((
+        offlineUsersIds:List<String>,
         prevUnreadCount:Map<String,Int>,
         roomDetail:RoomDetail
     ):Resource<Unit> = coroutineScope{
@@ -32,6 +33,8 @@ class SendMessageUseCaseById(
         }.toMap()
 
         val sendMessageResult =async {   repository.sendMessageAdv(message,chatId)}
+
+
         val notifResult=async {  notificationRepository.notifySendMessageInRooms(roomDetail = roomDetail,message,offlineUsersIds)}
         val summerisRusult =async { repository.updateUnreadCountInRoomSummaries(roomId = chatId, newUnreadCount = newMapUnread)}
          notifResult.await()

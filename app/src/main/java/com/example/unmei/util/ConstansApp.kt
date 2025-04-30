@@ -12,6 +12,7 @@ object ConstansApp {
     val CHAT_ARGUMENT_JSON="json_existence_data"
     val PROFILE_ARGUMENT_JSON="json_profile_data"
     val CREATEGROUP_ARGUMENT_USERID="createGroupUserId"
+    val GROUPCHAT_ARGUMENT_CHATID = "groupChat_argument_chatId"
 
     //deeplink
     val CHAT_URI_DEEPLINK="myapp://chat_screen"
@@ -33,7 +34,11 @@ object ConstansApp {
     val USERID_BY_FULLNAME_REFERENCE_DB="userid_by_fullname"
 
     //Storage
-    val ROOMS_REFERENCE_STORAGE = "Rooms"
+    val STORAGE_ROOM_REFERENCE = "Rooms"
+    val STORAGE_ROOM_FILE_FOLDER="files"
+    val STORAGE_ROOM_PHOTO_FOLDER="photos"
+    val STORAGE_ROOM_VIDEO_FOLDER="videos"
+    val STORAGE_ROOM_VOTE_FOLDER="votes"
 
     //Android Fraimworks
     val BROCAST_MESSAGE_KEY="messageextra"

@@ -5,13 +5,18 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unmei.data.network.RemoteDataSource
+import com.example.unmei.domain.model.UploadProgress
 import com.example.unmei.domain.usecase.messages.CreatePublicChatUseCase
 import com.example.unmei.domain.usecase.user.GetFriendsByUserIdUseCase
 import com.example.unmei.presentation.create_group_feature.model.CreateGroupContentState
 import com.example.unmei.presentation.create_group_feature.model.CreateGroupItemUi
 import com.example.unmei.presentation.create_group_feature.model.CreateGroupVMState
 import com.example.unmei.util.ConstansApp
+import com.example.unmei.util.ConstansApp.STORAGE_ROOM_PHOTO_FOLDER
+import com.example.unmei.util.ConstansApp.STORAGE_ROOM_REFERENCE
 import com.example.unmei.util.ConstansDev.TAG
+import com.example.unmei.util.ConstansDev.YOUR_PATHFOLDER_STORAGE
 import com.example.unmei.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +30,8 @@ import javax.inject.Inject
 class CreateGroupViewModel @Inject constructor(
     private val getFriendsByUserIdUseCase: GetFriendsByUserIdUseCase,
     private val createPublicChatUseCase: CreatePublicChatUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val remoteDataSource: RemoteDataSource
 ):ViewModel() {
 
     private val _state:MutableStateFlow<CreateGroupVMState> = MutableStateFlow(CreateGroupVMState())
@@ -77,19 +83,37 @@ class CreateGroupViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            //на всякий случай
-            val membersIds =(state.value.selectedContacts.keys.toSet()+ setOf(state.value.currentUserId)).toList()
-            val resultCreateGroup=createPublicChatUseCase.execute(
-                chatName = state.value.chatName,
-                moderatorsIds = listOf(state.value.currentUserId),
-                membersIds = membersIds,
-                iconUri = state.value.chatIconUri!!
-            )
-            when(resultCreateGroup){
-                is Resource.Error -> Log.d(TAG,"Ошибка создания группы")
-                is Resource.Loading -> Log.d(TAG,"Загрузка ")
-                is Resource.Success -> Log.d(TAG,"Успешное создание группы ${resultCreateGroup.data}")
-            }
+            val pathString = STORAGE_ROOM_REFERENCE+"/-OP1eRdshClb_BOlU3rl/"+ STORAGE_ROOM_PHOTO_FOLDER
+            remoteDataSource.uploadAttachmentWithProgress(
+                 pathString=pathString,
+                draft = RemoteDataSource.AttachmentDraft(
+                    uri=state.value.chatIconUri!!,
+                    mimeType = ""
+                )
+            ).collect{
+                progress->
+                when(progress){
+                    is UploadProgress.Failed ->  Log.d(TAG,"Ошибка загрузки")
+                    is UploadProgress.Success ->  Log.d(TAG,"Успешно загружено")
+                    is UploadProgress.Uploading ->   Log.d(TAG,"процесс загрузкт ${progress.progress * 100}%")
+                }
+
+
+        }
+//        viewModelScope.launch {
+//            //на всякий случай
+//            val membersIds =(state.value.selectedContacts.keys.toSet()+ setOf(state.value.currentUserId)).toList()
+//            val resultCreateGroup=createPublicChatUseCase.execute(
+//                chatName = state.value.chatName,
+//                moderatorsIds = listOf(state.value.currentUserId),
+//                membersIds = membersIds,
+//                iconUri = state.value.chatIconUri!!
+//            )
+//            when(resultCreateGroup){
+//                is Resource.Error -> Log.d(TAG,"Ошибка создания группы")
+//                is Resource.Loading -> Log.d(TAG,"Загрузка ")
+//                is Resource.Success -> Log.d(TAG,"Успешное создание группы ${resultCreateGroup.data}")
+//            }
         }
     }
     fun textChatNameChanged(text:String){

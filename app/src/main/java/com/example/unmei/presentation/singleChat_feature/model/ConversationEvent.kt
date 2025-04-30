@@ -1,0 +1,25 @@
+package com.example.unmei.presentation.singleChat_feature.model
+
+import android.net.Uri
+
+sealed class ConversationEvent {
+
+    object LoadingNewMessage :ConversationEvent()
+    data class ChangeSelectedMessages (val id:String) :ConversationEvent()
+
+    object OpenCloseBottomSheet :ConversationEvent()
+    data class  SelectedMediaToSend(val value: List<Uri>):ConversationEvent()
+
+    object Offoptions:ConversationEvent()
+    object LeftChat:ConversationEvent()
+
+    object DeleteSelectedMessages:ConversationEvent()
+
+
+    data class OnValueChangeTextMessage(
+        val text:String
+    ):ConversationEvent()
+
+    object  SendMessage:ConversationEvent()
+
+}

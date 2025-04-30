@@ -1,12 +1,15 @@
 package com.example.unmei.presentation.create_group_feature.utils
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -18,7 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,22 +76,38 @@ fun SelectedGroupUser(
 @Composable
 fun ImageBoxWithRejectIcon(
     painter: Painter,
-    onClickReject:()->Unit
-){
+    onClickReject: () -> Unit
+) {
     Box(
-        modifier = Modifier.size(
-            60.dp
-        ),
+        modifier = Modifier.size(60.dp),
         contentAlignment = Alignment.TopEnd
-    ){
+    ) {
         Image(
-            modifier = Modifier.clip(CircleShape),
             painter = painter,
-            contentDescription = ""
+            contentDescription = "",
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray),
+            contentScale = ContentScale.Crop
         )
-        IconButton(onClick = onClickReject) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = "")
-        }
 
+        // Крестик на белом фоне-кружочке
+        Box(
+            modifier = Modifier
+                .offset(x = 4.dp, y = (-4).dp)
+                .size(20.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable { onClickReject() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Удалить",
+                tint = Color.Black,
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }

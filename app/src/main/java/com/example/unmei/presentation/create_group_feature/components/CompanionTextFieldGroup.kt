@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.unmei.R
 import com.example.unmei.presentation.create_group_feature.utils.CircleSelectItemBox
+import com.example.unmei.presentation.util.CompactTextField
 import com.example.unmei.presentation.util.ui.theme.focusedTextFieldText
 import com.example.unmei.presentation.util.ui.theme.textFieldContainer
 import com.example.unmei.presentation.util.ui.theme.unfocusedTextFieldText
@@ -117,17 +118,9 @@ fun CompanionTextFieldGroup(
         Column(
 
         ) {
-            TextField(
-                colors = TextFieldDefaults.colors(
-                    //фон подсказывающего текста
-                    unfocusedPlaceholderColor  = MaterialTheme.colorScheme.unfocusedTextFieldText,
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.focusedTextFieldText,
-                    //фон контейнера
-                    unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,//не выбран(не в фокусе)
-                    focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer//выбран(в фокусе)
-                ),shape = textFieldShape,
+            CompactTextField(
                 modifier = Modifier
-                    .height(50.dp)
+                    .height(40.dp)
                     .width(width)
                     .background(
                         color = Color.Black.copy(alpha = .3f),
@@ -137,26 +130,18 @@ fun CompanionTextFieldGroup(
                         shape = textFieldShape,
                         width = 1.dp,
                         color = Color.Blue.copy(alpha = .5f)
-                    )
-                ,
-                value =textChatName ,
+                    ),
+                value = textChatName,
                 onValueChange =onValueChange,
-                placeholder = {
-                    Text(
-                        text = "Название",
-                        fontSize = 14.sp,
-                        color = LocalContentColor.current.copy(alpha = 0.6f)
-                    )
-                },
-                maxLines = 1,
-                singleLine = true
+                placeholder = "Название"
             )
+
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 modifier = Modifier
                 .width(width),
                 text = "Введите название и при желании загрузите фотографию",
-                fontSize = 14.sp
+                fontSize = 13.sp
             )
         }
     }

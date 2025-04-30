@@ -2,8 +2,8 @@ package com.example.unmei.domain.model.messages
 
 import com.example.unmei.domain.model.TypeMessageResp
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
-import com.example.unmei.presentation.conversation_future.model.MessageListItemUI
-import com.example.unmei.presentation.conversation_future.model.MessageType
+import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
+import com.example.unmei.presentation.singleChat_feature.model.MessageType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId

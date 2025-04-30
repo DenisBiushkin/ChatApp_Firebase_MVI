@@ -1,4 +1,5 @@
-package com.example.unmei.presentation.create_group_feature.utils
+package com.example.unmei.presentation.singleChat_feature.utils
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,18 +22,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GroupBottomButtonSelectMedia(
-    modifier: Modifier=Modifier,
+fun BottomButtonSelectMedia(
+    mediaSelected:Boolean = false,
     countSelectedMedia:Int,
     onClick: () -> Unit,
+    textButton:String = "Добавить",
     height: Dp = 60.dp
 ){
     Row (
-        modifier = modifier
+        modifier = Modifier
             .height(height)
             .fillMaxWidth()
-          //  .background(Color.Blue)
-        , horizontalArrangement = Arrangement.Center,
+            .background(Color.Blue),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ){
         Button(
@@ -41,13 +43,13 @@ fun GroupBottomButtonSelectMedia(
                 .height(height-10.dp)
             , onClick = onClick,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Blue.copy(alpha = 0.7f),
-                //  contentColor = if(mediaSelected)  Color.White else Color.Black
+                containerColor = if(mediaSelected) Color.White else Color.Gray,
+              //  contentColor = if(mediaSelected)  Color.White else Color.Black
             )
             , shape = RoundedCornerShape(15.dp)
         ) {
-            Text(text = "Создать чат")
-            if(countSelectedMedia!=0){
+            if(mediaSelected){
+                Text(text = "Добавить")
                 Spacer(modifier = Modifier.width(5.dp))
                 Box(
                     modifier = Modifier
@@ -60,6 +62,8 @@ fun GroupBottomButtonSelectMedia(
                 ){
                     Text(text = "$countSelectedMedia",color= Color.White)
                 }
+            }else{
+                Text(text = "Отменить")
             }
         }
     }

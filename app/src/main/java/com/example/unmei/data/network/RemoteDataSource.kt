@@ -6,6 +6,7 @@ import androidx.annotation.OptIn
 
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+
 import com.example.unmei.data.model.ChatRoomAdvance
 import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.data.model.ChatRoomResponseAdvence
@@ -22,16 +23,18 @@ import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.TypingStatus
+import com.example.unmei.domain.model.UploadProgress
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
+import com.example.unmei.domain.model.messages.Attachment
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.util.ConstansApp.CHATS_BY_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.MESAGES_SUMMERIES_DB
 import com.example.unmei.util.ConstansApp.MESSAGES_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.PRESENCE_USERS_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_DB
-import com.example.unmei.util.ConstansApp.ROOMS_REFERENCE_STORAGE
+import com.example.unmei.util.ConstansApp.STORAGE_ROOM_REFERENCE
 import com.example.unmei.util.ConstansApp.USERID_BY_FULLNAME_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.USERID_BY_USERNAME_REFERENCE_DB
 import com.example.unmei.util.ConstansApp.USERS_REFERENCE_DB
@@ -72,7 +75,46 @@ class RemoteDataSource(
     private val reference = db.getReference()
 
     private  val messagesSummariesRef= db.getReference(MESAGES_SUMMERIES_DB)
-    private val storageRoomsRef=storage.getReference("Rooms")
+
+    private val storageRoomsRef=storage.getReference(STORAGE_ROOM_REFERENCE)
+
+
+    //За Императора
+
+    data class AttachmentDraft(
+        val uri: Uri,
+        val mimeType: String,
+        val extraInfo: Map<String, Any> = emptyMap() // для duration, filename и т.п.
+    )
+
+    @OptIn(UnstableApi::class)
+    fun uploadAttachmentWithProgress(
+        pathString: String,
+        draft:AttachmentDraft
+    ):Flow<UploadProgress> = callbackFlow {
+
+    //    val fileRef = storage.child("messages/${UUID.randomUUID()}")
+        val fileRef=storage.reference.child(pathString+"/${1}_dljklfjsk")
+        val uploadTask = fileRef.putFile(draft.uri)
+        uploadTask
+            .addOnProgressListener { taskSnapshot ->
+                val progress = taskSnapshot.bytesTransferred.toFloat() / taskSnapshot.totalByteCount
+                Log.d(TAG,"InnerProgress ${progress*100}%")
+                trySend(UploadProgress.Uploading(progress))
+            }
+            .addOnSuccessListener {
+                trySend(UploadProgress.Success(Attachment.Image("skfjkfj")))
+            }
+            .addOnFailureListener {
+                trySend(UploadProgress.Failed(it))
+                close(it)
+            }
+
+        awaitClose { uploadTask.cancel() }
+    }
+
+
+
 
 
 //100 working
@@ -204,7 +246,7 @@ class RemoteDataSource(
                 }
                 TypeRoom.PUBLIC -> {
                     val result=saveToStorageByPath(
-                        filePath = "$ROOMS_REFERENCE_STORAGE/$key",
+                        filePath = "$STORAGE_ROOM_REFERENCE/$key",
                         fileName="$key.png",
                         uriData =newRoomModel. iconUri
                     )
@@ -265,7 +307,7 @@ class RemoteDataSource(
             var roomIconUrl = newRoomModel.standartUrlIcon
 
             val result=saveToStorageByPath(
-                filePath = "$ROOMS_REFERENCE_STORAGE/$key",
+                filePath = "$STORAGE_ROOM_REFERENCE/$key",
                 fileName="$key.png",
                 uriData =newRoomModel. iconUri
             )

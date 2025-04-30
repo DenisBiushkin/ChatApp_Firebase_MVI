@@ -69,8 +69,11 @@ sealed class Screens(
             return "createGroup_first/$userId"
         }
     }
-
-    object CreateGroupSecond:Screens(route="createGroup_second")
+    object GroupChat:Screens(route="groupChat_screen/{${ConstansApp.GROUPCHAT_ARGUMENT_CHATID}}"){
+        fun withChatId(chatId:String):String{
+            return "groupChat_screen/$chatId"
+        }
+    }
 
 
 }
