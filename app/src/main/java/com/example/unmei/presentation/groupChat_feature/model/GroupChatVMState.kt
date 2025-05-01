@@ -1,6 +1,7 @@
 package com.example.unmei.presentation.groupChat_feature.model
 
 import android.net.Uri
+import com.example.unmei.domain.model.AttachmentDraft
 
 data class GroupChatVMState(
     val chatId:String = "",
@@ -11,7 +12,7 @@ data class GroupChatVMState(
     val textMessage:String = "",
     val isTyping:Boolean = false,
     val bottomSheetVisibility:Boolean = false,
-    val selectedUrisForRequest: List<Uri> = emptyList(),
+    val selectedMediaForRequest: List<AttachmentDraft> = emptyList(),
     val selectedMessagesIds: Set<String> = emptySet(),
     val optionsVisibility:Boolean = false,
     val screenState: GroupChatScreenState = GroupChatScreenState.LOADING

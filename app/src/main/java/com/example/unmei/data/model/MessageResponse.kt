@@ -21,8 +21,6 @@ data class MessageResponse(
     val attachment: String? = null,
 ){
     fun toMessage(): Message =this.run {
-
-
         Message(
             id=id,
             senderId =senderId,
@@ -51,7 +49,7 @@ data class MessageResponse(
              typeMessage = "withanyattachment"
              val onlyPhoto = message.attachment.all { it is Attachment.Image}
              if (onlyPhoto){
-                 typeMessage = "onlyhoto"
+                 typeMessage = "onlyphoto"
              }
 
          }

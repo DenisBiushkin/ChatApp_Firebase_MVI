@@ -1,6 +1,10 @@
 package com.example.unmei.presentation.singleChat_feature.components
 
+import android.Manifest
 import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -52,11 +56,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.IntOffset
 import coil.compose.rememberAsyncImagePainter
+import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.presentation.singleChat_feature.ContentResolverClient
 import com.example.unmei.presentation.singleChat_feature.utils.BottomButtonSelectMedia
 import com.example.unmei.presentation.singleChat_feature.utils.CircleCountIndicatorSelectedItem
 import com.example.unmei.presentation.singleChat_feature.utils.LoadingContentProgressIndicator
+import com.example.unmei.util.ConstansDev.TAG
 import kotlin.math.roundToInt
+
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -65,98 +74,17 @@ fun ConversationModalBottom(
     bottomSheetState: SheetState,
     visibility :Boolean = false,
     onDismissRequest: ()->Unit,
-    onSelectedMedia:(List<Uri>)->Unit
+    onSelectedMedia:(List<AttachmentDraft>)->Unit
 ){
+//Сори бро, но редачить времени уже нет
     val screenSettings= LocalConfiguration.current
     val sizeOneItemDp=screenSettings.screenWidthDp.dp /3
-    val maxHeihtBottomSheet = screenSettings.screenHeightDp.dp * 0.7f
 
     val selectedImages = remember { mutableStateOf<List<Uri>>(emptyList()) }
     val listImageUris = remember { mutableStateOf<List<Uri>>(emptyList()) }
     val isLoadingImages = remember { mutableStateOf<Boolean>(false) }
-
-
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    val doTrash = remember {
-        mutableStateOf(false)
-    }
-   if (doTrash .value){
-        Popup(
-            onDismissRequest = {},
-            properties = PopupProperties(focusable = true)
-        ) {
-            var offsetY by remember { mutableStateOf(0f) }
-            val maxHeight = 400.dp // Максимальная высота bottom sheet
-            val minHeight = 100.dp // Минимальная высота bottom sheet
-
-            // Анимация для плавного изменения высоты
-            val animatedOffsetY by animateFloatAsState(
-                targetValue = offsetY,
-                animationSpec = tween(durationMillis =0)
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f)) // Затемняющий фон
-                    .pointerInput(Unit) {
-                        detectTapGestures {
-                            //  onDismiss() // Закрыть при нажатии на scrim
-                        }
-                    }
-                , contentAlignment = Alignment.BottomEnd
-            ) {
-                // Содержимое bottom sheet
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(maxHeight)
-                        .offset {
-                            IntOffset(
-                                0,
-                                animatedOffsetY.roundToInt()
-                            )
-                        }
-                        .pointerInput(Unit) {
-                            detectVerticalDragGestures(
-                                onDragStart = { offset ->
-                                    // Начало перетаскивания (опционально)
-                                },
-                                onDragEnd = {
-                                    // Закрыть, если пользователь перетащил вниз
-                                    if (offsetY > -maxHeight.toPx() / 2) {
-                                        // onDismiss()
-                                    } else {
-                                        offsetY = -maxHeight.toPx()
-                                    }
-                                },
-                                onVerticalDrag = { change, dragAmount ->
-                                    offsetY = (offsetY + dragAmount)
-                                        .coerceIn(
-                                            -maxHeight.toPx(), -minHeight.toPx()
-                                        )
-                                }
-                            )
-                        },
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                    color = Color.White
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
-                        Text("Это кастомный Bottom Sheet", style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(16.dp))
-                       // content()
-                    }
-                }
-            }
-        }
-   }
-    if (visibility && !doTrash.value) {
+    if (visibility) {
 
         ModalBottomSheet(
             modifier = Modifier
@@ -191,7 +119,13 @@ fun ConversationModalBottom(
                         countSelectedMedia = selectedImages.value.size,
                         onClick ={
                             if (selectedImages.value.size !=0){
-                                onSelectedMedia(selectedImages.value)
+                                val selectedAttachmentDraft = selectedImages.value.map{
+                                    AttachmentDraft(
+                                        uri = it,
+                                        mimeType = "image/"
+                                    )
+                                }
+                                onSelectedMedia( selectedAttachmentDraft)
                                 selectedImages.value = emptyList()
                             }else{
                                 onDismissRequest()
@@ -200,13 +134,14 @@ fun ConversationModalBottom(
                     )
                 }
             ) {
-                    paddingValues ->
+                paddingValues ->
                 // Log.d(TAG,bottomSheetState.requireOffset().dp.toString())
 
                 LaunchedEffect(key1 = isLoadingImages) {
                     listImageUris.value= ContentResolverClient(context).getAllImagesUri().take(20)
                     isLoadingImages.value= false
                 }
+
                 if(isLoadingImages.value){
                     LoadingContentProgressIndicator(
                         // modifier = Modifier.padding(paddingValues),

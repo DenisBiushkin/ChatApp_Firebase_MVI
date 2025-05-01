@@ -114,6 +114,15 @@ fun DrawerScreen(
                           }
                       },
                       onCreateGroupClick = {
+//                          navController.navigate(
+//                              Screens.Chat.withExistenceData(
+//                                  chatExist = true,
+//                                  chatName = "TESTING",
+//                                  chatUrl = "",
+//                                  chatUid = "TESTING",
+//                                  companionUid = ""
+//                              )
+//                          )
                           navController.navigate(Screens.CreateGroupFirst.withUserId(state.value.userId))
                       }
                   )

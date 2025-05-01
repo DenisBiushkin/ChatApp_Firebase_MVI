@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unmei.data.network.RemoteDataSource
+import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.domain.model.UploadProgress
 import com.example.unmei.domain.usecase.messages.CreatePublicChatUseCase
 import com.example.unmei.domain.usecase.user.GetFriendsByUserIdUseCase
@@ -16,8 +17,6 @@ import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansApp.STORAGE_ROOM_PHOTO_FOLDER
 import com.example.unmei.util.ConstansApp.STORAGE_ROOM_REFERENCE
 import com.example.unmei.util.ConstansDev.TAG
-import com.example.unmei.util.ConstansDev.YOUR_PATHFOLDER_STORAGE
-import com.example.unmei.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -84,9 +83,9 @@ class CreateGroupViewModel @Inject constructor(
         }
         viewModelScope.launch {
             val pathString = STORAGE_ROOM_REFERENCE+"/-OP1eRdshClb_BOlU3rl/"+ STORAGE_ROOM_PHOTO_FOLDER
-            remoteDataSource.uploadAttachmentWithProgress(
+            remoteDataSource.uploadAttachmentWithProgressRemote(
                  pathString=pathString,
-                draft = RemoteDataSource.AttachmentDraft(
+                draft = AttachmentDraft(
                     uri=state.value.chatIconUri!!,
                     mimeType = ""
                 )

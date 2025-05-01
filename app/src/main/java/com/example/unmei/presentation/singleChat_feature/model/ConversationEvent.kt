@@ -1,6 +1,6 @@
 package com.example.unmei.presentation.singleChat_feature.model
 
-import android.net.Uri
+import com.example.unmei.domain.model.AttachmentDraft
 
 sealed class ConversationEvent {
 
@@ -8,9 +8,9 @@ sealed class ConversationEvent {
     data class ChangeSelectedMessages (val id:String) :ConversationEvent()
 
     object OpenCloseBottomSheet :ConversationEvent()
-    data class  SelectedMediaToSend(val value: List<Uri>):ConversationEvent()
+    data class  SelectedMediaToSend(val value: List<AttachmentDraft>):ConversationEvent()
 
-    object Offoptions:ConversationEvent()
+    object OffOptions:ConversationEvent()
     object LeftChat:ConversationEvent()
 
     object DeleteSelectedMessages:ConversationEvent()

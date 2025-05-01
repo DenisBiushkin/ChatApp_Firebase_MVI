@@ -1,6 +1,6 @@
 package com.example.unmei.presentation.singleChat_feature.model
 
-import android.net.Uri
+import com.example.unmei.domain.model.AttachmentDraft
 import java.time.LocalDate
 
 data class ConversationVMState(
@@ -8,7 +8,9 @@ data class ConversationVMState(
 
     val listMessage: List<MessageListItemUI> = emptyList(),
     val groupedMapMessage : LinkedHashMap<LocalDate,List<MessageListItemUI>> = LinkedHashMap(),
-    val selectedUrisForRequest: List<Uri> = emptyList(),
+
+    val selectedMediaForRequest: List<AttachmentDraft> = emptyList(),
+
     val selectedMessages: Map<String,Boolean> = emptyMap(),
 
     val loadingScreen: Boolean= true,

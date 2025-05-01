@@ -1,5 +1,7 @@
 package com.example.unmei.domain.model.messages
 
+import com.example.unmei.presentation.singleChat_feature.model.AttachmentTypeUI
+import com.example.unmei.presentation.singleChat_feature.model.AttachmentUi
 import kotlinx.serialization.Serializable
 
 sealed class Animal {
@@ -10,24 +12,23 @@ sealed class Animal {
 
 @Serializable
 sealed class Attachment{
-    abstract val base64data: String
+    abstract val attachUrl: String
 
     @Serializable
     class Image(
-        override val base64data: String,
+        override val attachUrl: String,
     ): Attachment()
 
     @Serializable
     class File(
-        override val base64data: String,
+        override val attachUrl: String,
         val filename:String
     ): Attachment()
 
     @Serializable
   class Audio(
-      override val base64data: String,
+        override val attachUrl: String,
         val duration: Float
     ): Attachment()
-
 
 }

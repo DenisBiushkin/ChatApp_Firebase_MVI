@@ -66,25 +66,16 @@ fun ChatBubbleImages(
     val screenSettings= LocalConfiguration.current
     val maxWidth=screenSettings.screenWidthDp.dp *0.8f
 
-    val imageUri = item.attachments?.let {
-        it.first().base64data
-    }
 
     SimpleChatBubbleContainer(
         isOwn = item.isOwn
     ){
-//        LazyVerticalGrid(
-//            columns = GridCells.Adaptive(100.dp),
-//            verticalArrangement = Arrangement.spacedBy(1.dp),
-//            horizontalArrangement = Arrangement.spacedBy(1.dp)
-//        ) {
-//            items(10){
         Image(
             modifier = Modifier
            //     .aspectRatio(1f)
             // .clip(RoundedCornerShape(20.dp))
             ,contentScale = ContentScale.Crop,
-            painter = rememberAsyncImagePainter(model = imageUri)
+            painter = rememberAsyncImagePainter(model = item.attachmentsUi.values.first())
             ,contentDescription = ""
         )
         Box(

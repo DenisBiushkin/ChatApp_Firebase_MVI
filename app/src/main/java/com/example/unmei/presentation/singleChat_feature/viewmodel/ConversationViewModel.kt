@@ -15,12 +15,14 @@ import com.example.unmei.domain.model.messages.RoomDetail
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.TypeRoom
 import com.example.unmei.domain.model.TypingStatus
+import com.example.unmei.domain.model.UploadProgress
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.usecase.messages.CreatePrivateChatUseCase
 import com.example.unmei.domain.usecase.messages.EnterChatUseCase
 import com.example.unmei.domain.usecase.messages.LeftChatUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatRoomAdvanceUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
+import com.example.unmei.domain.usecase.messages.SendMessageByChatIdWithLoadingFlow
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.domain.usecase.messages.SetTypingStatusUseCase
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
@@ -28,12 +30,14 @@ import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
 import com.example.unmei.domain.util.ExtendedResource
 import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
+import com.example.unmei.presentation.singleChat_feature.model.AttachmentTypeUI
 import com.example.unmei.presentation.singleChat_feature.model.ChatState
 import com.example.unmei.presentation.singleChat_feature.model.ContentStateScreen
 import com.example.unmei.presentation.singleChat_feature.model.ConversationEvent
 import com.example.unmei.presentation.singleChat_feature.model.ConversationVMState
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
+import com.example.unmei.presentation.singleChat_feature.model.AttachmentUi
 import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
 import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
@@ -84,7 +88,8 @@ class ConversationViewModel @Inject constructor(
     //из room должно быть
     private val getUserByIdUseCase: GetUserByIdUseCase,
 
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val sendMessageByChatIdWithLoadingFlow: SendMessageByChatIdWithLoadingFlow
 ):ViewModel() {
 
     val _state = MutableStateFlow<ConversationVMState>(ConversationVMState())
@@ -97,7 +102,12 @@ class ConversationViewModel @Inject constructor(
      private val actualUnreadCount = MutableStateFlow<Map<String,Int>>(emptyMap())
 
     init {
-        initVM()
+//        _state.update {
+//            it.copy(
+//                contentState = ContentStateScreen.Content
+//            )
+//        }
+       initVM()
     }
 
     private fun initVM(){
@@ -293,7 +303,6 @@ class ConversationViewModel @Inject constructor(
                     is ExtendedResource.Added -> {
                         it.data?.let{
                             val newMessageUi= it.toMessageListItemUI(currentUsrUid)
-                            val key = newMessageUi.timestamp.toLocalDate()
                             state.value.listMessage.any { it==newMessageUi }.let {
                                     found->
                                 if (!found){
@@ -374,31 +383,137 @@ class ConversationViewModel @Inject constructor(
         }
 
     }
+    private fun getRoomDetail():RoomDetail{
+       return  RoomDetail(
+            roomId =state.value.groupId,
+            roomIconUrl =state.value.chatIconUrl,
+            roomName = state.value.chatFullName,
+            typeRoom = TypeRoom.PRIVATE,)
+    }
 
     //добавление сообщения типа ONLYIMAGES в список без отправки
     fun testFun(){
-        val item = MessageListItemUI(
+        val genMessageUi=genLoadingMessage()
+        viewModelScope.launch {
+            val actual = actualDataRoom.value ?: return@launch
+            var offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(currentUsrUid)
+            val roomDetail = getRoomDetail()
+            Log.d(TAG,"Uris "+state.value.selectedMediaForRequest.toString())
+            sendMessageByChatIdWithLoadingFlow(
+                chatId = state.value.groupId,
+                senderId = currentUsrUid,
+                offlineUsersIds = offlineUsersIds.toList(),
+                roomDetail = roomDetail,
+                textMessage = state.value.textMessage,
+                attachmentDraft = state.value.selectedMediaForRequest,
+                prevUnreadCount = actualUnreadCount.value
+            ).collect{
+
+                result->
+
+                when(result){
+                    is Resource.Success -> {
+                        Log.d(TAG,"Сообщение--Отправлено")
+                        messageLoaded(messageId= "Sending")
+                    }
+                    is Resource.Error -> {
+                       Log.d(TAG,"Сообщение--НЕ Отправлено ${result.message}")
+
+                    }
+                    is Resource.Loading -> {
+                        val progress = result.data ?: return@collect
+                        when(progress){
+                            is UploadProgress.Failed ->{}
+                            is UploadProgress.Success ->{
+                                onAttachmentUploaded(progress= progress, messageId = "Sending")
+                            }
+                            is UploadProgress.Uploading ->{
+                                updateProgressAttachment(progress= progress, messageId = "Sending")
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        }
+        _state.update {
+            val oldList=it.listMessage.toMutableList()
+            oldList.add(0,genMessageUi)
+            it.copy(
+                listMessage = oldList,
+                selectedMediaForRequest = emptyList(),
+                textMessage = ""
+            )
+        }
+    }
+    private fun genLoadingMessage():MessageListItemUI{
+        val attachmentsUi=state.value.selectedMediaForRequest.mapIndexed { index, it,->
+            it.uri.toString() to AttachmentUi(
+                uri = it.uri,
+                type = AttachmentTypeUI.IMAGE,
+                progressValue = 0.1f,
+                isLoading = true
+            )
+        }.toMap()
+        return MessageListItemUI(
+            messageId = "Sending",
             text = "",
             timestamp = LocalDateTime.now(),
             timeString = "3:07",
             fullName = "",
             isOwn = true,
-            isChanged = true,
-            type = MessageType.Image(""),
-            status = MessageStatus.Readed,
-            attachments = listOf(Attachment.Image(state.value.selectedUrisForRequest.first().toString()))
+            isChanged = false,
+            type = MessageType.OnlyImage,
+            status = MessageStatus.Loading,
+            attachmentsUi = attachmentsUi
         )
-        viewModelScope.launch {
-            uploadFile(state.value.selectedUrisForRequest.first())
+    }
+    private fun messageLoaded(messageId:String){
+        _state.update {
+            val newList = state.value.listMessage.map { message->
+                if (message.messageId == messageId) {
+                    val newUiMap = message.attachmentsUi!!.map {it.key to it.value.copy(isLoading = false) }.toMap()
+                    message.copy(
+                        attachmentsUi = newUiMap,
+                        status = MessageStatus.Readed
+                    )
+                } else { message }
+            }
+            it.copy(listMessage = newList)
         }
-        Log.d(TAG,state.value.selectedUrisForRequest.toString())
-        val currentList = state.value.listMessage.toMutableList()
-        currentList.add(0, item)
-        _state.value= state.value.copy(
-            listMessage = currentList,
-            selectedUrisForRequest = emptyList()
-        )
-
+    }
+    private fun updateProgressAttachment(progress: UploadProgress.Uploading, messageId:String){
+        _state.update {
+            val newList = state.value.listMessage.map { message->
+                val key= progress.uri.toString()
+                if (message.messageId == messageId) {
+                    val newUiMap = message.attachmentsUi.toMutableMap()
+                    newUiMap[key]=newUiMap[key]!!.copy(
+                        progressValue = progress.progress,
+                        isLoading = progress.progress!= 1.0f
+                    )
+                    message.copy(attachmentsUi = newUiMap)
+                } else { message }
+            }
+            it.copy(listMessage = newList)
+        }
+    }
+    private fun  onAttachmentUploaded(progress: UploadProgress.Success, messageId:String){
+        _state.update {
+            val newList = state.value.listMessage.map { message->
+                val key= progress.uri.toString()
+                if (message.messageId == messageId) {
+                    val newUiMap = message.attachmentsUi.orEmpty().toMutableMap()
+                    newUiMap[key]=newUiMap[key]!!.copy(
+                        isLoading = false,
+                        uploadedUrl = progress.attachment.attachUrl
+                    )
+                    message.copy(attachmentsUi = newUiMap)
+                } else { message }
+            }
+            it.copy(listMessage = newList)
+        }
     }
 
    // @Deprecated("Не подходит под новый ТИП сообщения")
@@ -476,10 +591,12 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun selectActionWithMessage(){
-        if (!state.value.textMessage.isEmpty() || !state.value.selectedUrisForRequest.isEmpty()){
+        if (!state.value.textMessage.isEmpty() || !state.value.selectedMediaForRequest.isEmpty()){
             val newMessage = Message(senderId = currentUsrUid, text = state.value.textMessage,
               //  attachment = state.value.selectedUrisForRequest
             )
+            testFun()
+            return
             if (state.value.chatState is ChatState.Create){
                 //create Chat
                 createNewChat(newMessage)
@@ -505,7 +622,7 @@ class ConversationViewModel @Inject constructor(
            }
            is ConversationEvent.SelectedMediaToSend -> {
                _state.value = state.value.copy(
-                   selectedUrisForRequest = event.value,
+                   selectedMediaForRequest = event.value,
                    bottomSheetVisibility = !state.value.bottomSheetVisibility
                )
            }
@@ -514,7 +631,7 @@ class ConversationViewModel @Inject constructor(
                selectActionWithMessage()
            }
            is ConversationEvent.OnValueChangeTextMessage -> {_state.update { it.copy(textMessage = event.text) }}
-           ConversationEvent.Offoptions -> {
+           ConversationEvent.OffOptions -> {
                _state.value = state.value.copy(
                    optionsVisibility =false,
                    selectedMessages = emptyMap())

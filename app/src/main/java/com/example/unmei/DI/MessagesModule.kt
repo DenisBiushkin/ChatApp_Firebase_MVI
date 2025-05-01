@@ -13,6 +13,7 @@ import com.example.unmei.domain.usecase.messages.ObserveChatRoomAdvanceUseCase
 import com.example.unmei.domain.usecase.messages.ObserveChatsByUserIdUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomSummariesUseCase
 import com.example.unmei.domain.usecase.messages.ObserveRoomsUserUseCase
+import com.example.unmei.domain.usecase.messages.SendMessageByChatIdWithLoadingFlow
 import com.example.unmei.domain.usecase.messages.SendMessageUseCaseById
 import com.example.unmei.domain.usecase.messages.SetTypingStatusUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserStatusByIdUseCase
@@ -95,6 +96,15 @@ object MessagesModule {
         notificationRepository: NotificationRepository
     ):CreatePublicChatUseCase{
         return CreatePublicChatUseCase(mainRepository,notificationRepository)
+    }
+    @Provides
+    fun provideSendMessageByChatIdWithLoadingFlow(
+        mainRepository: MainRepository,
+        notificationRepository: NotificationRepository
+    ): SendMessageByChatIdWithLoadingFlow {
+        return SendMessageByChatIdWithLoadingFlow(
+            mainRepository,notificationRepository
+        )
     }
 
 }

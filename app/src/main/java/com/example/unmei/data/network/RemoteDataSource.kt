@@ -14,6 +14,7 @@ import com.example.unmei.data.model.MessageResponse
 import com.example.unmei.data.model.RoomSummariesResp
 import com.example.unmei.data.model.StatusUserResponse
 import com.example.unmei.data.model.UserResponse
+import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.messages.NewRoomModel
@@ -78,32 +79,28 @@ class RemoteDataSource(
 
     private val storageRoomsRef=storage.getReference(STORAGE_ROOM_REFERENCE)
 
-
     //За Императора
-
-    data class AttachmentDraft(
-        val uri: Uri,
-        val mimeType: String,
-        val extraInfo: Map<String, Any> = emptyMap() // для duration, filename и т.п.
-    )
-
     @OptIn(UnstableApi::class)
-    fun uploadAttachmentWithProgress(
+    fun uploadAttachmentWithProgressRemote(
         pathString: String,
-        draft:AttachmentDraft
+        draft: AttachmentDraft
     ):Flow<UploadProgress> = callbackFlow {
 
     //    val fileRef = storage.child("messages/${UUID.randomUUID()}")
-        val fileRef=storage.reference.child(pathString+"/${1}_dljklfjsk")
+        val fileRef=storage.reference.child(pathString+"/${System.currentTimeMillis()}")
         val uploadTask = fileRef.putFile(draft.uri)
         uploadTask
             .addOnProgressListener { taskSnapshot ->
                 val progress = taskSnapshot.bytesTransferred.toFloat() / taskSnapshot.totalByteCount
                 Log.d(TAG,"InnerProgress ${progress*100}%")
-                trySend(UploadProgress.Uploading(progress))
+                trySend(UploadProgress.Uploading(draft.uri,progress))
             }
             .addOnSuccessListener {
-                trySend(UploadProgress.Success(Attachment.Image("skfjkfj")))
+                fileRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    trySend(UploadProgress.Success(uri = draft.uri,Attachment.Image(attachUrl = downloadUri.toString())))
+                    close()
+                }
+
             }
             .addOnFailureListener {
                 trySend(UploadProgress.Failed(it))

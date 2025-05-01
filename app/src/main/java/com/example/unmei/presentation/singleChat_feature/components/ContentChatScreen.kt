@@ -1,4 +1,6 @@
 package com.example.unmei.presentation.singleChat_feature.components
+import android.nfc.Tag
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -17,11 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
 import com.example.unmei.presentation.singleChat_feature.utils.BaseRowWithSelectItemMessage
-import com.example.unmei.presentation.singleChat_feature.utils.ChatBubbleImages
+import com.example.unmei.presentation.singleChat_feature.utils.ChatBubbleOnlyImageMessage
 import com.example.unmei.presentation.singleChat_feature.utils.ChatBubbleWithPattern
 import com.example.unmei.presentation.singleChat_feature.utils.LoadingCircleProgressNewMessages
 import com.example.unmei.presentation.singleChat_feature.utils.MessageContent
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
+import com.example.unmei.util.ConstansDev.TAG
 
 
 @RequiresApi(35)
@@ -61,11 +64,15 @@ fun ContentChatScreen(
                 onLongClickLine = { onLongClickMessageLine(message.messageId) },
                 selected = selectedMessages[message.messageId] == true
             ) {
+                //Смотрим тип сообщения
+
                 when(message.type){
-                    is MessageType.Image -> {
-                        ChatBubbleImages(item = message)
+                    is MessageType.OnlyImage -> {
+                        Log.d(TAG,"MessageType.OnlyImage")
+                        ChatBubbleOnlyImageMessage(item = message)
                     }
                     is  MessageType.Text -> {
+                        Log.d(TAG,"MessageType.Text ")
                         ChatBubbleWithPattern(
                             modifier= Modifier,
                             isOwn = message.isOwn,) {

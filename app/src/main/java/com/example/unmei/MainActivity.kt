@@ -115,7 +115,8 @@ class MainActivity : ComponentActivity() {
             this,
             arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.POST_NOTIFICATIONS
+                Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.READ_MEDIA_IMAGES
             ),
             0
         )

@@ -1,9 +1,7 @@
 package com.example.unmei.presentation.groupChat_feature.components
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,7 +52,7 @@ fun  GroupChatScreen(
             )
             TopBarMessageActions(
                 isVisible=state.value.optionsVisibility,
-                onOffClickOptions={viewModel.onEvent(ConversationEvent.Offoptions)},
+                onOffClickOptions={viewModel.onEvent(ConversationEvent.OffOptions)},
                 onDeleteClickMessages={viewModel.onEvent(ConversationEvent.DeleteSelectedMessages)}
             )
         },

@@ -83,7 +83,7 @@ fun  ChatScreen(
             )
             TopBarMessageActions(
                 isVisible=state.value.optionsVisibility,
-                onOffClickOptions={viewModel.onEvent(ConversationEvent.Offoptions)},
+                onOffClickOptions={viewModel.onEvent(ConversationEvent.OffOptions)},
                 onDeleteClickMessages={viewModel.onEvent(ConversationEvent.DeleteSelectedMessages)}
             )
         },

@@ -5,12 +5,14 @@ import com.example.unmei.data.model.ChatRoomResponse
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.data.source.LocalDataSource
+import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.messages.NewRoomModel
 import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypingStatus
+import com.example.unmei.domain.model.UploadProgress
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
@@ -28,6 +30,15 @@ class MainRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource ,// Firebase,
     private val mapperChatRoom: Mapper<ChatRoomResponse, ChatRoom>
 ):MainRepository {
+
+    override fun uploadAttachmentWithProgressRemote(
+        pathString: String,
+        draft: AttachmentDraft
+    ): Flow<UploadProgress> {
+        return remoteDataSource.uploadAttachmentWithProgressRemote(pathString,draft)
+        //Fake Method
+    }
+
     override suspend fun getExistencePrivateGroupByUids(
         companionUid_1: String,
         companionUid_2: String

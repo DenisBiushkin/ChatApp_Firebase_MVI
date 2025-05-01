@@ -100,17 +100,22 @@ class GroupChatViewModel @Inject constructor(
                 )
             }
             is ConversationEvent.SelectedMediaToSend -> {
-                _state.value = state.value.copy(
-                    selectedUrisForRequest = event.value,
-                    bottomSheetVisibility = !state.value.bottomSheetVisibility
-                )
+//                _state.update {
+//                    it.copy(
+//                        se
+//                    )
+//                }
+//                _state.value = state.value.copy(
+//                    selectedMediaForRequest = event.value,
+//                    bottomSheetVisibility = !state.value.bottomSheetVisibility
+//                )
             }
 
             is ConversationEvent.SendMessage -> {
               //  selectActionWithMessage()
             }
             is ConversationEvent.OnValueChangeTextMessage -> {_state.update { it.copy(textMessage = event.text) }}
-            ConversationEvent.Offoptions -> {
+            ConversationEvent.OffOptions -> {
                 _state.value = state.value.copy(
                     optionsVisibility =false,
                     selectedMessagesIds = emptySet()

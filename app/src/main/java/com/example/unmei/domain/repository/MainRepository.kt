@@ -1,6 +1,8 @@
 package com.example.unmei.domain.repository
 
 import com.example.unmei.data.model.ChatRoomAdvance
+import com.example.unmei.data.network.RemoteDataSource
+import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.domain.model.messages.ChatRoom
 import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.model.messages.NewRoomModel
@@ -8,6 +10,7 @@ import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.RoomsUser
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypingStatus
+import com.example.unmei.domain.model.UploadProgress
 import com.example.unmei.domain.model.User
 import com.example.unmei.domain.model.UserActivity
 import com.example.unmei.domain.model.UserExtended
@@ -40,6 +43,8 @@ interface MainRepository {
 
 
     //MessagesRepository
+    fun uploadAttachmentWithProgressRemote(pathString: String, draft: AttachmentDraft):Flow<UploadProgress>
+
     fun observeRoomsUser(userId:String): Flow<RoomsUser>
 
     suspend fun updateStatusUserById(groupId:String,userId: String,status: TypingStatus)
@@ -67,5 +72,6 @@ interface MainRepository {
     suspend fun createNewChatAdvence( newRoomModel: NewRoomModel):Resource<String>
     suspend fun deleteChatAdvance(roomId:String):Resource<Unit>
     suspend fun  getExistencePrivateGroupByUids(companionUid_1:String,companionUid_2:String):String?
+
     suspend fun sendMessageAdv(message: Message, chatId:String):Resource<Unit>
 }

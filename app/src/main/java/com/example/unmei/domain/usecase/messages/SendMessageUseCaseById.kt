@@ -35,9 +35,10 @@ class SendMessageUseCaseById(
         val sendMessageResult =async {   repository.sendMessageAdv(message,chatId)}
 
 
+
         val notifResult=async {  notificationRepository.notifySendMessageInRooms(roomDetail = roomDetail,message,offlineUsersIds)}
         val summerisRusult =async { repository.updateUnreadCountInRoomSummaries(roomId = chatId, newUnreadCount = newMapUnread)}
-         notifResult.await()
+        notifResult.await()
         if (
             (sendMessageResult.await() is Resource.Success)
             &&

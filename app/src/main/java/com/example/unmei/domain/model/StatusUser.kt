@@ -5,8 +5,3 @@ data class StatusUser(
     val lastSeen:Long
 )
 
-enum class Status{
-    OFFLINE,
-    ONLINE,
-    RECENTLY
-}
