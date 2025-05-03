@@ -27,7 +27,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +43,8 @@ import com.example.unmei.presentation.singleChat_feature.model.ConversationEvent
 
 import com.example.unmei.presentation.singleChat_feature.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
+import kotlinx.coroutines.flow.distinctUntilChanged
+import okio.AsyncTimeout.Companion.condition
 
 @RequiresApi(35)
 @Preview(showBackground = true)
@@ -100,6 +104,7 @@ fun  ChatScreen(
     ) {
         paddingValues ->
         when(state.value.contentState) {
+            is ContentStateScreen.Error ->{}
             ContentStateScreen.EmptyType -> {
                 ChatScreenEmptyContent(
                     modifier = Modifier.padding(paddingValues),
@@ -110,6 +115,7 @@ fun  ChatScreen(
                 CircularProgressIndicator()
             }
             ContentStateScreen.Content -> {
+
                 ContentChatScreen(
                     modifier = Modifier
                         .padding(paddingValues)
@@ -127,9 +133,11 @@ fun  ChatScreen(
                     },
                     onLongClickMessageLine = {
                        viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
-                    }
+                    },
+                    groupedListMessage = emptyMap()
                 )
             }
+
 
         }
        // Log.d(TAG,state.value.selectedMessages.keys.toList().toString())

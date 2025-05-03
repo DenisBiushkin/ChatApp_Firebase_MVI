@@ -9,4 +9,6 @@ sealed class ContentStateScreen {
     object EmptyType :ContentStateScreen()
 
     object Content :ContentStateScreen()
+
+    data class Error(val message:String):ContentStateScreen()
 }

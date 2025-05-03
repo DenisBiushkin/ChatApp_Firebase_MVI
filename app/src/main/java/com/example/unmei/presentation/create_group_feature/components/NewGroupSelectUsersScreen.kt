@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.unmei.presentation.Navigation.Screens
 import com.example.unmei.presentation.create_group_feature.model.CreateGroupContentState
 import com.example.unmei.presentation.create_group_feature.model.CreateGroupItemUi
 import com.example.unmei.presentation.create_group_feature.utils.GroupBottomButtonSelectMedia
@@ -116,6 +117,12 @@ fun NewGroupSelectUsersScreen(
             } else {
                 Log.d(TAG, "Изображение не выбрано")
             }
+        }
+        if (state.value.navigateInChat){
+            navController.navigate(
+                Screens.GroupChat.withChatId(state.value.createdChatId)
+            )
+            viewModel.resetState()
         }
         Column (
             modifier = Modifier.padding(paddingValues)

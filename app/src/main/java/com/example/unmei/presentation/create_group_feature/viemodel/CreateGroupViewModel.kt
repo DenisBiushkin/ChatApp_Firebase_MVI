@@ -17,6 +17,7 @@ import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansApp.STORAGE_ROOM_PHOTO_FOLDER
 import com.example.unmei.util.ConstansApp.STORAGE_ROOM_REFERENCE
 import com.example.unmei.util.ConstansDev.TAG
+import com.example.unmei.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,6 +39,11 @@ class CreateGroupViewModel @Inject constructor(
 
     init{
         getNavAguments()
+    }
+    fun resetState(){
+        _state.update {
+            CreateGroupVMState()
+        }
     }
     private fun getNavAguments(){
         val userId = savedStateHandle.get<String>(ConstansApp.CREATEGROUP_ARGUMENT_USERID)
@@ -81,38 +87,49 @@ class CreateGroupViewModel @Inject constructor(
         if (state.value.chatIconUri==null){
             return
         }
-        viewModelScope.launch {
-            val pathString = STORAGE_ROOM_REFERENCE+"/-OP1eRdshClb_BOlU3rl/"+ STORAGE_ROOM_PHOTO_FOLDER
-            remoteDataSource.uploadAttachmentWithProgressRemote(
-                 pathString=pathString,
-                draft = AttachmentDraft(
-                    uri=state.value.chatIconUri!!,
-                    mimeType = ""
-                )
-            ).collect{
-                progress->
-                when(progress){
-                    is UploadProgress.Failed ->  Log.d(TAG,"Ошибка загрузки")
-                    is UploadProgress.Success ->  Log.d(TAG,"Успешно загружено")
-                    is UploadProgress.Uploading ->   Log.d(TAG,"процесс загрузкт ${progress.progress * 100}%")
-                }
-
-
-        }
 //        viewModelScope.launch {
-//            //на всякий случай
-//            val membersIds =(state.value.selectedContacts.keys.toSet()+ setOf(state.value.currentUserId)).toList()
-//            val resultCreateGroup=createPublicChatUseCase.execute(
-//                chatName = state.value.chatName,
-//                moderatorsIds = listOf(state.value.currentUserId),
-//                membersIds = membersIds,
-//                iconUri = state.value.chatIconUri!!
-//            )
-//            when(resultCreateGroup){
-//                is Resource.Error -> Log.d(TAG,"Ошибка создания группы")
-//                is Resource.Loading -> Log.d(TAG,"Загрузка ")
-//                is Resource.Success -> Log.d(TAG,"Успешное создание группы ${resultCreateGroup.data}")
-//            }
+//            val pathString = STORAGE_ROOM_REFERENCE+"/-OP1eRdshClb_BOlU3rl/"+ STORAGE_ROOM_PHOTO_FOLDER
+//            remoteDataSource.uploadAttachmentWithProgressRemote(
+//                 pathString=pathString,
+//                draft = AttachmentDraft(
+//                    uri=state.value.chatIconUri!!,
+//                    mimeType = ""
+//                )
+//            ).collect{
+//                progress->
+//                when(progress){
+//                    is UploadProgress.Failed ->  Log.d(TAG,"Ошибка загрузки")
+//                    is UploadProgress.Success ->  Log.d(TAG,"Успешно загружено")
+//                    is UploadProgress.Uploading ->   Log.d(TAG,"процесс загрузкт ${progress.progress * 100}%")
+//                }
+//
+//
+//        }
+        viewModelScope.launch {
+            //на всякий случай
+            val membersIds =(state.value.selectedContacts.keys.toSet()+ setOf(state.value.currentUserId)).toList()
+            val resultCreateGroup=createPublicChatUseCase.execute(
+                chatName = state.value.chatName,
+                moderatorsIds = listOf(state.value.currentUserId),
+                membersIds = membersIds,
+                iconUri = state.value.chatIconUri!!
+            )
+            when(resultCreateGroup){
+                is Resource.Error -> Log.d(TAG,"Ошибка создания группы")
+                is Resource.Loading -> Log.d(TAG,"Загрузка ")
+                is Resource.Success ->{
+                    Log.d(TAG,"Успешное создание группы ${ resultCreateGroup.data}")
+                    resultCreateGroup.data?.let {
+                        _state.update {
+                            it.copy(
+                                createdChatId = resultCreateGroup.data,
+                                navigateInChat = true
+                            )
+                        }
+                    }
+
+                }
+            }
         }
     }
     fun textChatNameChanged(text:String){

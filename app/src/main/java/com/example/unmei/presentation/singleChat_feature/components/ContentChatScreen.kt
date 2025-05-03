@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.unmei.presentation.groupChat_feature.utils.TimeDivider
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
 import com.example.unmei.presentation.singleChat_feature.utils.BaseRowWithSelectItemMessage
@@ -25,6 +26,7 @@ import com.example.unmei.presentation.singleChat_feature.utils.LoadingCircleProg
 import com.example.unmei.presentation.singleChat_feature.utils.MessageContent
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
 import com.example.unmei.util.ConstansDev.TAG
+import java.time.LocalDate
 
 
 @RequiresApi(35)
@@ -38,7 +40,8 @@ fun ContentChatScreen(
     selectedMessages: Map<String,Boolean>,
     optionsVisibility:Boolean,
     onClickMessageLine:(String)->Unit,
-    onLongClickMessageLine:(String)->Unit
+    onLongClickMessageLine:(String)->Unit,
+    groupedListMessage:Map<LocalDate,List<MessageListItemUI>>,
 ) {
     LazyColumn(
         state = lazyState,
@@ -53,38 +56,78 @@ fun ContentChatScreen(
         item{
           LoadingCircleProgressNewMessages(isLoadingOldMessages)
         }
+        groupedListMessage.forEach { groupedList ->
 
-        items(listMessage) {
-            message ->
-            BaseRowWithSelectItemMessage(
-                optionVisibility =optionsVisibility,
-                onClickLine = {
+            items(groupedList.value) { message ->
+                BaseRowWithSelectItemMessage(
+                    optionVisibility = optionsVisibility,
+                    onClickLine = {
                         onClickMessageLine(message.messageId)
-                },
-                onLongClickLine = { onLongClickMessageLine(message.messageId) },
-                selected = selectedMessages[message.messageId] == true
-            ) {
-                //Смотрим тип сообщения
+                    },
+                    onLongClickLine = { onLongClickMessageLine(message.messageId) },
+                    selected = selectedMessages[message.messageId] == true
+                ) {
+                    //Смотрим тип сообщения
 
-                when(message.type){
-                    is MessageType.OnlyImage -> {
-                        Log.d(TAG,"MessageType.OnlyImage")
-                        ChatBubbleOnlyImageMessage(item = message)
-                    }
-                    is  MessageType.Text -> {
-                        Log.d(TAG,"MessageType.Text ")
-                        ChatBubbleWithPattern(
-                            modifier= Modifier,
-                            isOwn = message.isOwn,) {
-                            MessageContent(
-                                data = message
-                            )
+                    when (message.type) {
+                        is MessageType.OnlyImage -> {
+                            Log.d(TAG, "MessageType.OnlyImage")
+                            ChatBubbleOnlyImageMessage(item = message)
+                        }
+
+                        is MessageType.Text -> {
+                            Log.d(TAG, "MessageType.Text ")
+                            ChatBubbleWithPattern(
+                                modifier = Modifier,
+                                isOwn = message.isOwn,
+                            ) {
+                                MessageContent(
+                                    data = message
+                                )
+                            }
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            //снизу т.к reverseLayout
+            item(groupedList.key) {
+                TimeDivider(timeText=groupedList.key.toString())
+            }
         }
+
+//        items(listMessage) {
+//            message ->
+//            BaseRowWithSelectItemMessage(
+//                optionVisibility =optionsVisibility,
+//                onClickLine = {
+//                        onClickMessageLine(message.messageId)
+//                },
+//                onLongClickLine = { onLongClickMessageLine(message.messageId) },
+//                selected = selectedMessages[message.messageId] == true
+//            ) {
+//                //Смотрим тип сообщения
+//
+//                when(message.type){
+//                    is MessageType.OnlyImage -> {
+//                        Log.d(TAG,"MessageType.OnlyImage")
+//                        ChatBubbleOnlyImageMessage(item = message)
+//                    }
+//                    is  MessageType.Text -> {
+//                        Log.d(TAG,"MessageType.Text ")
+//                        ChatBubbleWithPattern(
+//                            modifier= Modifier,
+//                            isOwn = message.isOwn,
+//                            ) {
+//                            MessageContent(
+//                                data = message
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//            Spacer(modifier = Modifier.height(8.dp))
+//        }
     }
 //    if(!state.value.selectedUrisForRequest.isEmpty()){
 //        viewModel.testFun()

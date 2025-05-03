@@ -207,74 +207,7 @@ fun BaseRowWithSelectItemMessage(
 }
 
 
-@Composable
-fun MessageContent(
-    data: MessageListItemUI
-){
-    val textWidth= 15.sp
-    val fontSizeStatus= 12.sp
-    val horizontalPadding= 4.dp
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(
-                start = horizontalPadding,
-                end = horizontalPadding,
-                top = horizontalPadding,
-                bottom = 0.dp
-            ),
-    ){
-        Column(
-            horizontalAlignment = Alignment.Start
-        ) {
-            if (!data.isOwn){
-                Text(
-                    text = data.fullName,
-                    fontSize = fontSizeStatus,
-                    color= primaryOwnMessageColor,
-                    fontWeight = FontWeight.Bold
-                )
-            }else{
-                Text(
-                    text = data.fullName,
-                    fontSize = fontSizeStatus,
-                )
-            }
 
-            Text(
-                text =data.text,
-                fontSize = textWidth
-            )
-            Row(
-                modifier = Modifier.wrapContentWidth(),
-                horizontalArrangement = Arrangement.End,
-            ){
-                Row (
-                    modifier = Modifier.wrapContentWidth()
-                    ,
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-
-                ) {
-                    if (data.isChanged)Text(text = "ред.", fontSize = fontSizeStatus)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text =data.timeString , fontSize = fontSizeStatus)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    if(data.isOwn)
-                        MessageIconStatus(
-                            status= data.status,
-                            sizeIcon = 18.dp
-                        )
-                }
-            }
-            }
-
-
-
-    }
-
-
-}
 
 @Composable
 fun ChatBubbleWithPattern(
@@ -320,9 +253,6 @@ fun ChatBubbleWithPattern(
         if(isOwn) Arrangement.End else Arrangement.Start
     ) {
 
-
-
-            //
         if (isOwn) {
             Box(
                 modifier = modifier

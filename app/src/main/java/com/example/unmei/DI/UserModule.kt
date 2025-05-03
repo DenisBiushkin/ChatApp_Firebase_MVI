@@ -5,6 +5,7 @@ import com.example.unmei.domain.usecase.user.GetFriendsByUserIdUseCase
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
 import com.example.unmei.domain.usecase.user.GetUsersExByFullName
 import com.example.unmei.domain.usecase.user.GetUsersWithStatus
+import com.example.unmei.domain.usecase.user.GetUsersWithStatusUseCase
 import com.example.unmei.domain.usecase.user.ObserveUserUseCase
 import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.user.SaveUserUseCase
@@ -64,5 +65,9 @@ object UserModule {
     @Provides
     fun provideGetUsersExByFullName(mainRepository: MainRepository):GetUsersExByFullName{
         return GetUsersExByFullName(mainRepository)
+    }
+    @Provides
+    fun provideGetUsersWithStatusUseCase(mainRepository: MainRepository):GetUsersWithStatusUseCase{
+        return GetUsersWithStatusUseCase(mainRepository)
     }
 }

@@ -106,7 +106,7 @@ class MainRepositoryImpl @Inject constructor(
         return remoteDataSource.getUserByIdRemote(userId)
     }
 
-    override fun observeMessagesInChat(chatId: String): Flow<ExtendedResource<Message>> {
+    override fun observeMessagesInChat(chatId: String):Flow<ExtendedResource<Message>>{
         return remoteDataSource.observeMessagesInChat(chatId)
     }
 

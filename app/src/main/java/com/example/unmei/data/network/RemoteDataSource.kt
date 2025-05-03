@@ -525,13 +525,36 @@ class RemoteDataSource(
                 trySend(ExtendedResource.Error(message = error.toString()))
             }
         }
-        val ref= messagesRef.child(roomId).limitToLast(1)//только новые
+        val ref= messagesRef.child(roomId)
+            .limitToLast(1)//только новые
         ref.addChildEventListener(listener)
         awaitClose{
             ref.removeEventListener(listener)
         }
     }
 
+    suspend fun getPageMessagesByChatId(
+        chatId:String,
+        count:Int = 5,
+        lastMessageKey: String
+    ):Result<List<Message>>{
+        try{
+            var query =messagesRef.child(chatId).limitToLast(count)
+            if( !lastMessageKey.isBlank()){
+                query=messagesRef.child(chatId).limitToLast(count).orderByKey().endBefore(lastMessageKey)
+            }
+            val snapshot= query
+                .get()
+                .await()
+            //сырые данные
+            val newMessages = snapshot.children.mapNotNull {
+                it.getValue(MessageResponse::class.java)
+            }
+            return Result.success(newMessages.map { it.toMessage() })
+        }catch (e:Exception) {
+            return Result.failure(e)
+        }
+    }
 
     fun getBlockMessagesByChatIdRemote(
         chatId:String,

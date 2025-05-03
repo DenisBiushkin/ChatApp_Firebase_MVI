@@ -2,6 +2,7 @@ package com.example.unmei.domain.model.messages
 
 import android.util.Log
 import com.example.unmei.domain.model.TypeMessageResp
+import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.model.messages.Attachment.Audio
 import com.example.unmei.domain.model.messages.Attachment.File
 import com.example.unmei.domain.model.messages.Attachment.Image
@@ -27,8 +28,10 @@ data class Message(
     val attachment: List<Attachment> ?= null,
 
     ){
-    fun toMessageListItemUI(owUid:String):MessageListItemUI = this.run {
-
+    fun toMessageListItemUI(
+        owUid:String,
+        mapUsers:Map<String,UserExtended>? = null
+    ):MessageListItemUI = this.run {
             MessageListItemUI(
                     text = text ?: "",
                     messageId = id,
@@ -36,7 +39,7 @@ data class Message(
                     timeString = timestampToStringHourMinute(timestamp),
                     isChanged = edited,
                     isOwn = owUid == senderId,
-                    fullName = "name",//брать из hAshMap?????
+                    fullName = mapUsers?.get(senderId)?.user?.fullName ?: "Undefined" ,//брать из hAshMap????? ДА)))))))
                     type = when(type){
                             TypeMessageResp.TEXT -> MessageType.Text
                             TypeMessageResp.ONLYPHOTO -> MessageType.OnlyImage

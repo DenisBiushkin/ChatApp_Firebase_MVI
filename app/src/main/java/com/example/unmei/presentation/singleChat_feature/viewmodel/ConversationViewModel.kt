@@ -74,7 +74,6 @@ import kotlin.time.measureTime
 @RequiresApi(35)
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    private val remote:RemoteDataSource,
     private val repository: MainRepository,
     private val createPrivateChatUseCase: CreatePrivateChatUseCase,
     private val sendMessageUseCaseById:  SendMessageUseCaseById,
@@ -302,16 +301,13 @@ class ConversationViewModel @Inject constructor(
                 when(it){
                     is ExtendedResource.Added -> {
                         it.data?.let{
-                            val newMessageUi= it.toMessageListItemUI(currentUsrUid)
-                            state.value.listMessage.any { it==newMessageUi }.let {
-                                    found->
-                                if (!found){
-                                    var newListred = mutableListOf(newMessageUi)
-                                    newListred.addAll(state.value.listMessage)
-                                    _state.value =state.value.copy(
-                                        listMessage = newListred
-                                    )
-                                }
+                            val newMessageUi= mutableListOf( it.toMessageListItemUI(
+                                owUid = currentUsrUid
+                            ))
+
+                            _state.update {
+                                val newMessageList=newMessageUi.toMutableList().plus(state.value.listMessage)
+                                it.copy(listMessage = newMessageList)
                             }
                         }
                     }

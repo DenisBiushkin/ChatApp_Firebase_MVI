@@ -50,7 +50,7 @@ class CreatePublicChatUseCase(
 //            roomDetail = RoomDetail()
 //            )
 //        }.await()
-//
+
         if (
             createResult is Resource.Success
             ){

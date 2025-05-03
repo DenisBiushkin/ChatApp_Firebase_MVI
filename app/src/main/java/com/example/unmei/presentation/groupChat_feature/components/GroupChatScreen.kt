@@ -1,14 +1,19 @@
 package com.example.unmei.presentation.groupChat_feature.components
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -16,12 +21,16 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.unmei.presentation.groupChat_feature.model.GroupChatScreenState
 import com.example.unmei.presentation.groupChat_feature.viemodel.GroupChatViewModel
 import com.example.unmei.presentation.singleChat_feature.components.ChatScreenBottomBar
+import com.example.unmei.presentation.singleChat_feature.components.ContentChatScreen
 import com.example.unmei.presentation.singleChat_feature.components.ConversationModalBottom
 import com.example.unmei.presentation.singleChat_feature.components.TopBarChatScreen
 import com.example.unmei.presentation.singleChat_feature.components.TopBarMessageActions
+import com.example.unmei.presentation.singleChat_feature.model.ContentStateScreen
 import com.example.unmei.presentation.singleChat_feature.model.ConversationEvent
 import com.example.unmei.presentation.util.LoadingScreen
+import kotlinx.coroutines.flow.distinctUntilChanged
 
+@RequiresApi(35)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun  GroupChatScreen(
@@ -68,33 +77,50 @@ fun  GroupChatScreen(
             .fillMaxSize()
     ) {
         paddingValues ->
-        when(state.value.screenState) {
-            GroupChatScreenState.LOADING ->{
-                LoadingScreen()
-            }
-            GroupChatScreenState.CONTENT ->{
+        when(state.value.contentState) {
 
-//                ContentChatScreen(
-//                    modifier = Modifier
-//                        .padding(paddingValues)
-//                        .consumeWindowInsets(paddingValues),
-//                    lazyState = lazyState,
-//                    isLoadingOldMessages = state.value.loadingOldMessages,
-//                    listMessage = state.value.listMessage,
-//                    selectedMessages = state.value.selectedMessages,
-//                    optionsVisibility = state.value.optionsVisibility,
-//                    onClickMessageLine = {
-//                        if (state.value.optionsVisibility){
-//                            viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
-//                        }else{
-//                            //bottom drawer
-//                        }
-//                    },
-//                    onLongClickMessageLine = {
-//                        viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
-//                    }
-//                )
+            is ContentStateScreen.Content -> {
+                LaunchedEffect(lazyState) {
+                    snapshotFlow {
+                        val lastVisible = lazyState.layoutInfo.visibleItemsInfo.lastOrNull()
+                        val totalItems = lazyState.layoutInfo.totalItemsCount
+                        lastVisible?.index == totalItems - 1
+                    }
+                    .distinctUntilChanged()
+                    .collect { isAtEnd ->
+                        if (isAtEnd && !state.value.onReached && !state.value.loadingOldMessages) {
+                            viewModel.loadNextMessages()
+                        }
+                    }
+                }
+                ContentChatScreen(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .consumeWindowInsets(paddingValues),
+                    lazyState = lazyState,
+                    isLoadingOldMessages = state.value.loadingOldMessages,
+                    listMessage = state.value.listMessage,
+                    selectedMessages = state.value.selectedMessages,
+                    optionsVisibility = state.value.optionsVisibility,
+                    onClickMessageLine = {
+                        if (state.value.optionsVisibility){
+                            viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
+                        }else{
+                            //bottom drawer
+                        }
+                    },
+                    onLongClickMessageLine = {
+                        viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
+                    },
+                    groupedListMessage = state.value.grouped
+                )
             }
+            is ContentStateScreen.EmptyType -> {}
+            is ContentStateScreen.Error -> {}
+            is ContentStateScreen.Loading -> { LoadingScreen()}
+
+
+
         }
        // Log.d(TAG,state.value.selectedMessages.keys.toList().toString())
         ConversationModalBottom(

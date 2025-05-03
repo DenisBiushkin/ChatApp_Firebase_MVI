@@ -9,5 +9,8 @@ data class CreateGroupVMState(
     val contentState: CreateGroupContentState= CreateGroupContentState.LOADING,
     val groupedContacts: Map<String,List<CreateGroupItemUi>> = emptyMap(),
     val selectedContacts:  Map<String,CreateGroupItemUi> = emptyMap(),
+    val loadingCreatingChat:Boolean = false,
+    val navigateInChat:Boolean=false,
+    val createdChatId:String="",
 )
 

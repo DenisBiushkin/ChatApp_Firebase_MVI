@@ -50,6 +50,8 @@ fun ScreenContent(
         contentAlignment = Alignment.Center
     ) {
         when (state.value.contentState) {
+
+            is ContentStateScreen.Error -> {}
             ContentStateScreen.EmptyType -> EmptyChatScreen()
             ContentStateScreen.Loading -> ShimmerChatList()
             ContentStateScreen.Content -> ContentChats(
@@ -78,6 +80,7 @@ fun ScreenContent(
                     showBottomSheet.value = true
                 }
             )
+
         }
     }
     if (showBottomSheet.value) {

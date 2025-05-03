@@ -17,6 +17,7 @@ import com.example.unmei.presentation.singleChat_feature.viewmodel.ConversationV
 import com.example.unmei.presentation.create_group_feature.components.NewGroupSelectUsersScreen
 import com.example.unmei.presentation.friends_feature.components.FriendsScreen
 import com.example.unmei.presentation.friends_feature.viewmodel.FriendsViewModel
+import com.example.unmei.presentation.groupChat_feature.components.GroupChatScreen
 import com.example.unmei.presentation.profile_user_feature.components.ProfileUserFull
 import com.example.unmei.presentation.profile_user_feature.viewmodel.ProfileUserViewModel
 import com.example.unmei.presentation.sign_in_feature.sign_in.GoogleAuthUiClient
@@ -24,6 +25,7 @@ import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
 import com.example.unmei.util.ConstansApp.CHAT_URI_DEEPLINK
 import com.example.unmei.util.ConstansApp.CREATEGROUP_ARGUMENT_USERID
+import com.example.unmei.util.ConstansApp.GROUPCHAT_ARGUMENT_CHATID
 import com.example.unmei.util.ConstansDev.TAG
 
 @RequiresApi(35)
@@ -88,15 +90,14 @@ fun NavGraphBuilder.mainNavGraph(
                 }
             )
         ){
-            //переделать, чтобы засунуть данные сразу в конструктор ViewModel
-
             val viewModel = hiltViewModel<ConversationViewModel>()
             ChatScreen(
                 navController = navController,
                 viewModel = viewModel
             )
-
         }
+
+
         composable(
             route = Screens.CreateGroupFirst.route,
             arguments = listOf(
@@ -108,6 +109,20 @@ fun NavGraphBuilder.mainNavGraph(
             )
         ){
             NewGroupSelectUsersScreen(navController)
+        }
+
+
+        composable(
+            route = Screens.GroupChat.route,
+            arguments = listOf(
+                navArgument(
+                    name =GROUPCHAT_ARGUMENT_CHATID ,
+                ){
+                    type = NavType.StringType
+                },
+            )
+        ){
+            GroupChatScreen(navController)
         }
     }
 }
