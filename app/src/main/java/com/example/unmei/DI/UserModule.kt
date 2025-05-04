@@ -11,6 +11,7 @@ import com.example.unmei.domain.usecase.user.SaveUserOnceUseCase
 import com.example.unmei.domain.usecase.user.SaveUserUseCase
 import com.example.unmei.domain.usecase.user.SetStatusUserUseCase
 import com.example.unmei.domain.usecase.user.UpdateProfileFullNameById
+import com.example.unmei.domain.usecase.user.UpdateProfilePhotoUseCase
 import com.example.unmei.domain.usecase.user.UpdateProfileUserNameById
 import dagger.Module
 import dagger.Provides
@@ -69,5 +70,10 @@ object UserModule {
     @Provides
     fun provideGetUsersWithStatusUseCase(mainRepository: MainRepository):GetUsersWithStatusUseCase{
         return GetUsersWithStatusUseCase(mainRepository)
+    }
+
+    @Provides
+    fun provideUpdateProfilePhotoUseCase(mainRepository: MainRepository):UpdateProfilePhotoUseCase{
+        return UpdateProfilePhotoUseCase(mainRepository)
     }
 }

@@ -36,10 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.unmei.R
 import com.example.unmei.presentation.util.ui.theme.Black
 import com.example.unmei.presentation.util.ui.theme.BlueGray
 
@@ -59,7 +61,8 @@ fun showEditProfileScreen(){
         },
         saveProfile = {
 
-        }
+        },
+        onChangePhoto = {}
 
     )
 }
@@ -74,7 +77,8 @@ fun EditProfileScreen(
     profilePhotoUrl: String? = null,
     onBackClick: () -> Unit,
     onValueChange: (firstName: String, lastName: String, username: String) -> Unit,
-    saveProfile:()->Unit
+    saveProfile:()->Unit,
+    onChangePhoto:()->Unit
 ) {
     var firstName by remember { mutableStateOf(fullName.first) }
     var lastName by remember { mutableStateOf(fullName.second) }
@@ -102,26 +106,45 @@ fun EditProfileScreen(
         ) {
             // Profile photo
             val sizeIcon = 150.dp
-            if (profilePhotoUrl != null) {
-                AsyncImage(
-                    model = profilePhotoUrl,
-                    contentDescription = "Profile photo",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(sizeIcon)
-                        .clip(CircleShape)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(sizeIcon)
-                        .clip(CircleShape)
-                        .background(Color.Gray),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("?", color = Color.White, fontSize = 24.sp)
+            Box(
+                contentAlignment = Alignment.Center
+            ){
+
+                if (profilePhotoUrl != null) {
+                    AsyncImage(
+                        model = profilePhotoUrl,
+                        contentDescription = "Profile photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(sizeIcon)
+                            .clip(CircleShape)
+
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(sizeIcon)
+                            .clip(CircleShape)
+                            .background(Color.Gray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("?", color = Color.White, fontSize = 24.sp)
+                    }
                 }
+                Icon(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(Color.Transparent)
+                        .clickable {
+                            onChangePhoto()
+                        }
+                    ,painter = painterResource(id = R.drawable.edit_24px)
+                    , contentDescription ="",
+                    tint = Color.White
+                )
             }
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -176,7 +199,7 @@ fun EditProfileScreen(
                     text = "Сохранить",
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.clickable {
-
+                        saveProfile()
                     }
                 )
             }

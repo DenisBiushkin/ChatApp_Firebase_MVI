@@ -36,6 +36,8 @@ object ConstansApp {
 
     //Storage
     val STORAGE_ROOM_REFERENCE = "Rooms"
+    val STORAGE_USERS_PROFILES_REFERENCE = "Users_profiles"
+
     val STORAGE_ROOM_FILE_FOLDER="files"
     val STORAGE_ROOM_PHOTO_FOLDER="photos"
     val STORAGE_ROOM_VIDEO_FOLDER="videos"
