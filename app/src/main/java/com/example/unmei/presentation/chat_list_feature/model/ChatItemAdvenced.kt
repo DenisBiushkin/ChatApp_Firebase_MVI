@@ -32,8 +32,10 @@ data class ChatItemAdvenced(
             contentMessage =getContentMessage(currentUsrUid) ,
             unreadedCountMessage = it.summaries.unreadedCount[currentUsrUid] ?: 0,
             lastMessageTimeString = if (it.summaries.lastMessage != null) toStringTime(it.summaries.lastMessage.timestamp) else "",
+            messageStatus= MessageStatus.None
         )
     }
+
     private fun getTypingStatus(currentUsrUid:String):TypingStatus{
         val it= this
         val typingIds = it.summaries.typingUsersStatus - setOf(currentUsrUid)
@@ -51,9 +53,12 @@ data class ChatItemAdvenced(
         return if (it.summaries.lastMessage != null) {
             val lastMessage = it.summaries.lastMessage
             var sender = "Вы"
+
             if (it.chatRoom.type == TypeRoom.PUBLIC) {
-                sender = "Участник"
+                if (it.summaries.lastMessage.senderId != currentUsrUid)
+                       sender = "Участник"
             } else {
+
                 if (it.summaries.lastMessage.senderId != currentUsrUid)
                     sender = it.chatRoom.chatName.split(" ").first()
             }

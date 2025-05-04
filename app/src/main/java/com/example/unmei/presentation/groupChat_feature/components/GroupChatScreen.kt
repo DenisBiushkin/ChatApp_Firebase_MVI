@@ -2,6 +2,7 @@ package com.example.unmei.presentation.groupChat_feature.components
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,9 +16,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.unmei.R
 import com.example.unmei.presentation.groupChat_feature.model.GroupChatScreenState
 import com.example.unmei.presentation.groupChat_feature.viemodel.GroupChatViewModel
 import com.example.unmei.presentation.singleChat_feature.components.ChatScreenBottomBar
@@ -77,6 +80,7 @@ fun  GroupChatScreen(
             .fillMaxSize()
     ) {
         paddingValues ->
+
         when(state.value.contentState) {
 
             is ContentStateScreen.Content -> {

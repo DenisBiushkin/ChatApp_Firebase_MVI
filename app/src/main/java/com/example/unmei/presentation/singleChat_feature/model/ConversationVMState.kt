@@ -26,10 +26,17 @@ data class ConversationVMState(
     val statusChat:String ="",
     val isTyping:Boolean = false,
 
-    val groupId : String = "",//хз тут ли должен быть
+    val chatId : String = "",//хз тут ли должен быть
     val companionId : String = "",//хз тут ли должен быть,
 
-    val chatState: ChatState = ChatState.Chatting
+    val chatState: ChatState = ChatState.Chatting,
+
+    val currentUsrUid:String = "",
+    val grouped: Map<LocalDate, List<MessageListItemUI>> = emptyMap(),
+    val idIndex: Map<String, MessageListItemUI> = emptyMap(),
+    //для пагинации
+    val onReached:Boolean=false,
+    val lastMessageId:String=""
 )
 
 sealed class ChatState{

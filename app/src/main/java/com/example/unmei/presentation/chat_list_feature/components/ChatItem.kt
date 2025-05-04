@@ -32,6 +32,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +41,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+
 import  com.example.unmei.R
 import com.example.unmei.presentation.chat_list_feature.model.MessageStatus
 import com.example.unmei.presentation.chat_list_feature.model.NotificationMessageStatus
@@ -102,6 +107,7 @@ fun ChatItem(
     chatContent: @Composable() (RowScope.()->Unit),
     chatName:String = "",
     iconPainter: Painter,
+    iconUrl:String? = null,
     isOnline: Boolean = false,
     unredCount:Int,
     messageStatus:MessageStatus = MessageStatus.Send
@@ -127,6 +133,7 @@ fun ChatItem(
         ){
               BoxWithImageUser(
                   painterUser =iconPainter,
+                  iconUrl = iconUrl,
                   height =height,
                   isOnline =isOnline
               )
@@ -286,6 +293,7 @@ fun BoxWithUnderline(
 fun BoxWithImageUser(
     modifier: Modifier=Modifier,
     painterUser: Painter,
+    iconUrl:String? = null,
     isOnline:Boolean= false,
     height: Dp,
     statusCircleRadius:Dp = 8.dp
@@ -316,12 +324,23 @@ fun BoxWithImageUser(
                 }
             }
     ){
-        Image(
+//        Image(
+//            modifier = Modifier
+//                .size(height - 10.dp)
+//                .clip(CircleShape)
+//            ,painter = painterUser,
+//            contentDescription = ""
+//        )
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(iconUrl)
+                .memoryCachePolicy(CachePolicy.ENABLED) // включить кэш в памяти
+                .diskCachePolicy(CachePolicy.ENABLED)   // включить кэш на диске
+                .build(),
+            contentDescription = "Profile image",
             modifier = Modifier
                 .size(height - 10.dp)
                 .clip(CircleShape)
-            ,painter = painterUser,
-            contentDescription = ""
         )
     }
 }

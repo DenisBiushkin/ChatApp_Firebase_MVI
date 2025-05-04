@@ -74,6 +74,11 @@ sealed class Screens(
             return "groupChat_screen/$chatId"
         }
     }
+    object EditProfile:Screens(route="editProfile_screen/{${ConstansApp.EDITPROFILE_ARGUMENT_USERID}}"){
+        fun withUserId(userId:String):String{
+            return "editProfile_screen/$userId"
+        }
+    }
 
 
 }

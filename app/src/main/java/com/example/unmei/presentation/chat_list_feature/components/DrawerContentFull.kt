@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,12 +56,8 @@ fun DrawerContentFull(
     val navigationItemDrawers= listOf(
         NavigationItemDrawer(
             title="Профиль",
-            imageVector= ImageVector.vectorResource(id = R.drawable.account_circle_24px)
-        ),
-        NavigationItemDrawer(
-            title="Группы",
-            imageVector= ImageVector.vectorResource(id = R.drawable.group_24px),
-            navRoute = ""
+            imageVector= ImageVector.vectorResource(id = R.drawable.account_circle_24px),
+            navRoute = Screens.Profile.route
         ),
         NavigationItemDrawer(
             title="Друзья",
@@ -113,18 +110,27 @@ fun NavigationDrawerBlock(
     val sizeList= remember {
         mutableStateOf(navigationDrawerListItems.size-1)
     }
+
     Box(
         modifier= Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.7f)
+            .fillMaxHeight()
+          //  .fillMaxHeight(0.7f)
     ){
-        Column {
+//        Image(
+//
+//            painter = painterResource(id = R.drawable.subtle_prism), contentDescription = "",
+//            contentScale = ContentScale.FillBounds,
+//
+//        )
+        Column (Modifier.fillMaxSize()){
             navigationDrawerListItems.forEachIndexed {
                     index, it->
                 if(index==sizeList.value-1){
                     HorizontalDivider()
                 }
                 if(index!=sizeList.value){
+                   // Spacer(modifier = Modifier.height(10.dp))
                     NavigationDrawerItemAdvanced(
                         item = it,
                         onClickItemDrawer = onClickItemDrawer
@@ -132,6 +138,7 @@ fun NavigationDrawerBlock(
                 }
             }
             val exitItem = navigationDrawerListItems.last()
+           // Spacer(modifier = Modifier.height(10.dp))
             NavigationDrawerItemAdvanced(
                 onClickItemDrawer = {
                     onClickExitAccount()
@@ -178,7 +185,8 @@ fun DrawerIconBlock(
     signInData:String,
     iconOnClick: ()->Unit
 ){
-    val colorProfile = Color(0xFF42A5F5)
+    val colorProfile = Color(0xFFFF9457)
+
     val colorText = Color(0xFFFFFFFF)
     val colorTextLight = Color(0xFF90CAF9)
     val imageModifier= Modifier

@@ -38,12 +38,16 @@ fun showProfileUser(){
         fullName = "Marcile Donato",
         statusOnline = "Offline",
         painterIcon = painterResource(id = R.drawable.test_user),
-        isMine = false
+        isMine = false,
+        editOnClick = {
+
+        }
     )
 }
 @Composable
 fun ProfileUserScreen(
     messageOnClick:()->Unit,
+    editOnClick:()->Unit,
     backOnClick:()->Unit,
     fullName:String,
     statusOnline:String,
@@ -83,6 +87,23 @@ fun ProfileUserScreen(
                         contentDescription =""
                     )
                 }
+            }else{
+                FloatingActionButton(
+                    modifier = Modifier
+                        .size(sizeFloating)
+                        .offset(y = -25.dp, x = widh - sizeFloating - 30.dp),
+                    onClick = editOnClick,
+                    backgroundColor = Color.White
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .size(sizeFloating-20.dp),
+                        imageVector= ImageVector.vectorResource(id = R.drawable.edit_24px),
+                        tint = Color.Black ,
+                        contentDescription =""
+                    )
+                }
+
             }
 
 

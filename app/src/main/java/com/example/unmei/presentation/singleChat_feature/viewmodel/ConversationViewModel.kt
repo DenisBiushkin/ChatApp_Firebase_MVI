@@ -1,6 +1,5 @@
 package com.example.unmei.presentation.singleChat_feature.viewmodel
 
-import android.net.Uri
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
@@ -10,7 +9,6 @@ import com.example.unmei.data.model.ChatRoomAdvance
 import com.example.unmei.data.network.RemoteDataSource
 import com.example.unmei.domain.model.messages.Message
 import com.example.unmei.domain.repository.MainRepository
-import com.example.unmei.domain.model.messages.Attachment
 import com.example.unmei.domain.model.messages.RoomDetail
 import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.TypeRoom
@@ -38,13 +36,12 @@ import com.example.unmei.presentation.singleChat_feature.model.ConversationVMSta
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
 import com.example.unmei.presentation.singleChat_feature.model.AttachmentUi
+import com.example.unmei.presentation.util.pagging.MessagePaginator
 import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
-import com.example.unmei.util.ConstansDev
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,7 +58,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.TextStyle
@@ -75,6 +71,7 @@ import kotlin.time.measureTime
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
     private val repository: MainRepository,
+    private val remoteDataSource: RemoteDataSource,
     private val createPrivateChatUseCase: CreatePrivateChatUseCase,
     private val sendMessageUseCaseById:  SendMessageUseCaseById,
     private val observeUserStatusByIdUseCase: ObserveUserStatusByIdUseCase,
@@ -100,6 +97,54 @@ class ConversationViewModel @Inject constructor(
      private val actualDataRoom = MutableStateFlow<ChatRoomAdvance?>(null)
      private val actualUnreadCount = MutableStateFlow<Map<String,Int>>(emptyMap())
 
+    private val countLoadOldMessages = 20
+
+    private val messagePaginator = MessagePaginator<String, Message>(
+        initKey = state.value.lastMessageId,
+        onLoadUpdated = {
+                onLoad->
+            _state.update {chatState->
+                chatState.copy(
+                    loadingOldMessages = onLoad
+                )
+            }},
+        onRequest = {
+                nextLastMessageId->
+            Log.d(TAG,"onRequest Id${state.value.chatId}")
+            remoteDataSource.getPageMessagesByChatId(
+                count = countLoadOldMessages,
+                chatId = state.value.chatId,
+                lastMessageKey = nextLastMessageId)
+        },
+        getNextKey = {
+                newMessagesList->
+            if (newMessagesList.isEmpty())
+                return@MessagePaginator ""
+            Log.d(TAG,"Last message"+newMessagesList.first())
+            newMessagesList.first().id
+
+        },
+        onError = {
+            Log.d(TAG,"Ошибка пагинации")
+        },
+        onSuccess = {
+                items, newKey ->
+            _state.update {
+                val newMessagesUi=items.map { it.toMessageListItemUI(owUid = state.value.currentUsrUid) }.toMutableList()
+                newMessagesUi.reverse()
+                addMessages(newMessagesUi)
+                it.copy(
+                    //  listMessage =newMessagesUi.plus(state.value.listMessage),
+                    onReached = items.size < countLoadOldMessages,
+                    lastMessageId = newKey,
+
+                    )
+
+            }
+
+        }
+    )
+
     init {
 //        _state.update {
 //            it.copy(
@@ -111,7 +156,8 @@ class ConversationViewModel @Inject constructor(
 
     private fun initVM(){
         val navDataJson=savedStateHandle.get<String>(CHAT_ARGUMENT_JSON)
-        if(navDataJson==null){
+        val currentUsrUid = Firebase.auth.currentUser?.uid
+        if(navDataJson==null || currentUsrUid==null){
             _state.update {
                 it.copy(
                     //тут скорее вобще должен быть error
@@ -123,19 +169,28 @@ class ConversationViewModel @Inject constructor(
         val chatNavData= Screens.Chat.fromJsonToExistenceData(navDataJson)
         _state.value = state.value.copy(chatFullName = chatNavData.chatName, chatIconUrl = chatNavData.chatUrl,
             contentState = ContentStateScreen.Loading, chatExistence = chatNavData.chatExist,
-            companionId = chatNavData.companionUid, groupId = chatNavData.chatUid ?: "")
+            companionId = chatNavData.companionUid, chatId = chatNavData.chatUid ?: "",
+            currentUsrUid=currentUsrUid
+        )
         selectChatState()
+    }
+
+
+    fun loadNextMessages(){
+        viewModelScope.launch {
+            messagePaginator.loadNextItems()
+        }
     }
     private fun selectChatState(){
         viewModelScope.launch {
-            if (state.value.groupId.isNotBlank()) {
+            if (state.value.chatId.isNotBlank()) {
                 initConversation()
                 return@launch
             }
             val groupId = repository.getExistencePrivateGroupByUids(currentUsrUid, state.value.companionId)
 
             if (groupId!=null){//узнать если чат chats_by_Users
-                _state.update { it.copy(groupId = groupId) }
+                _state.update { it.copy(chatId = groupId) }
                 initConversation()
                 return@launch
             }
@@ -159,11 +214,13 @@ class ConversationViewModel @Inject constructor(
             chatState = ChatState.Chatting
         )
         //getGroupById
+        loadNextMessages()
         observeStatusChat()
         observeTypingStatus()
-        observeActualDataRoom(state.value.groupId)
-        enterChat(state.value.groupId,currentUsrUid)
-        observeMessages(state.value.groupId)
+        observeActualDataRoom(state.value.chatId)
+        enterChat(state.value.chatId,state.value.currentUsrUid)
+        observeMessages()
+       // observeMessages(state.value.chatId)
     }
     private fun enterChat(chatId: String,currentUserId:String){
         viewModelScope.launch {
@@ -173,7 +230,7 @@ class ConversationViewModel @Inject constructor(
     }
     private fun leftChat(){
         viewModelScope.launch {
-            leftChatUseCase.execute(state.value.groupId,currentUsrUid)
+            leftChatUseCase.execute(state.value.chatId,currentUsrUid)
         }
     }
     private fun createNewChat(message: Message){
@@ -187,7 +244,7 @@ class ConversationViewModel @Inject constructor(
                 is Resource.Success -> {
                     _state.update {
                         it.copy(
-                            groupId = result.data.toString(),
+                            chatId = result.data.toString(),
                             chatState = ChatState.Chatting
                         )
                     }
@@ -211,7 +268,7 @@ class ConversationViewModel @Inject constructor(
 
                     if (newStatus != lastStatus) {
                         setTypingStatusUseCase(
-                            groupId = state.value.groupId,
+                            groupId = state.value.chatId,
                             userId = currentUsrUid,
                             status = newStatus
                         )
@@ -224,7 +281,7 @@ class ConversationViewModel @Inject constructor(
     private fun observeStatusChat(){
         viewModelScope.launch {
             val statusFlow =observeUserStatusByIdUseCase.execute(state.value.companionId)
-            val summariesFlow = observeRoomSummariesUseCase.execute(state.value.groupId)
+            val summariesFlow = observeRoomSummariesUseCase.execute(state.value.chatId)
             combine(summariesFlow,statusFlow){ summary, presence ->
                 Pair( presence,summary)
             }.collect{
@@ -251,49 +308,6 @@ class ConversationViewModel @Inject constructor(
     }
 
 
-    @RequiresApi(35)
-    private suspend fun initFirstMassages(chatId:String){
-        repository.getBlockMessagesByChatId(chatId).collect {
-            when (it) {
-                is Resource.Error -> { Log.d(TAG,"ошибка получения BlockMessage ${it.message}") }
-                is Resource.Loading -> {
-                    _state.value = state.value.copy(
-                        loadingScreen = true
-                    ) }
-                is Resource.Success -> {
-                    if (it.data != null) {
-                        val responseMessages = it.data
-                        val Messages = responseMessages.map {
-                            it.toMessageListItemUI(currentUsrUid)
-                        }
-
-                        val uiMessages = Messages.asReversed()
-                        val grouped = getGroupedMessages(uiMessages)
-                        //   val uiMessageReversed = uiMessages.reversed()
-
-                        Log.d(TAG,"first: ${uiMessages.first().timestamp} last: ${uiMessages.last().timestamp}")
-
-//                        lastLoadedTimestamp = uiMessages.first().timestamp
-//                        lastLoadedIdMessage = uiMessages.first().messageId
-
-                        _state.value = state.value.copy(
-                            listMessage = uiMessages,
-                            loadingScreen = false,
-                            groupedMapMessage = grouped
-                        )
-
-                    }
-                }
-            }
-        }
-    }
-
-
-    private fun uploadFile(fileUri: Uri) {
-        val storageRef = FirebaseStorage.getInstance(ConstansDev.YOUR_PATHFOLDER_STORAGE).getReference("TestImages");
-        val fileRef = storageRef.child("${System.currentTimeMillis()}.jpg")
-        val ref=fileRef.putFile(fileUri)
-    }
 
     private fun observeMessages(chatId: String){
         viewModelScope.launch {
@@ -304,7 +318,6 @@ class ConversationViewModel @Inject constructor(
                             val newMessageUi= mutableListOf( it.toMessageListItemUI(
                                 owUid = currentUsrUid
                             ))
-
                             _state.update {
                                 val newMessageList=newMessageUi.toMutableList().plus(state.value.listMessage)
                                 it.copy(listMessage = newMessageList)
@@ -330,17 +343,6 @@ class ConversationViewModel @Inject constructor(
 
 
 
-    fun getGroupedMessages(listItemUI: List<MessageListItemUI>): LinkedHashMap<LocalDate, List<MessageListItemUI>> {
-        val grouped = listItemUI.groupBy {
-            it.timestamp.toLocalDate()
-        }
-        grouped.forEach {
-            it.value.forEach {
-            }
-            Log.d(TAG, "------")
-        }
-        return LinkedHashMap(grouped)
-    }
 
 
     private fun onChangeSelectedMessages(
@@ -379,41 +381,30 @@ class ConversationViewModel @Inject constructor(
         }
 
     }
-    private fun getRoomDetail():RoomDetail{
-       return  RoomDetail(
-            roomId =state.value.groupId,
-            roomIconUrl =state.value.chatIconUrl,
-            roomName = state.value.chatFullName,
-            typeRoom = TypeRoom.PRIVATE,)
-    }
-
-    //добавление сообщения типа ONLYIMAGES в список без отправки
-    fun testFun(){
+    fun sendMessageWithLoadingFlow(){
         val genMessageUi=genLoadingMessage()
         viewModelScope.launch {
             val actual = actualDataRoom.value ?: return@launch
-            var offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(currentUsrUid)
+            var offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(state.value.currentUsrUid)
             val roomDetail = getRoomDetail()
             Log.d(TAG,"Uris "+state.value.selectedMediaForRequest.toString())
             sendMessageByChatIdWithLoadingFlow(
-                chatId = state.value.groupId,
-                senderId = currentUsrUid,
+                chatId = state.value.chatId,
+                senderId = state.value.currentUsrUid,
                 offlineUsersIds = offlineUsersIds.toList(),
                 roomDetail = roomDetail,
                 textMessage = state.value.textMessage,
                 attachmentDraft = state.value.selectedMediaForRequest,
                 prevUnreadCount = actualUnreadCount.value
             ).collect{
-
-                result->
-
+                    result->
                 when(result){
                     is Resource.Success -> {
                         Log.d(TAG,"Сообщение--Отправлено")
                         messageLoaded(messageId= "Sending")
                     }
                     is Resource.Error -> {
-                       Log.d(TAG,"Сообщение--НЕ Отправлено ${result.message}")
+                        Log.d(TAG,"Сообщение--НЕ Отправлено ${result.message}")
 
                     }
                     is Resource.Loading -> {
@@ -443,7 +434,39 @@ class ConversationViewModel @Inject constructor(
             )
         }
     }
-    private fun genLoadingMessage():MessageListItemUI{
+    private fun addMessages(newMessages: List<MessageListItemUI>) {
+        _state.update { currentState ->
+            val newGrouped = currentState.grouped.toMutableMap()
+            var newIdIndex = currentState.idIndex.toMutableMap()
+
+            for (msg in newMessages) {
+                val date = msg.timestamp.toLocalDate()
+
+                // Получаем существующий список и заменяем/добавляем сообщение
+                val updatedList = (newGrouped[date].orEmpty()
+                    .filterNot { it.messageId == msg.messageId } + msg
+                        )
+                    .sortedByDescending { it.timestamp } // ← Сортировка по времени
+
+                newGrouped[date] = updatedList
+                newIdIndex[msg.messageId] = msg
+            }
+
+            currentState.copy(
+                grouped = newGrouped,
+                idIndex = newIdIndex
+            )
+        }
+    }
+    private fun getRoomDetail(): RoomDetail {
+        return  RoomDetail(
+            roomId =state.value.chatId,
+            roomIconUrl =state.value.chatIconUrl,
+            roomName = state.value.chatFullName,
+            typeRoom = TypeRoom.PUBLIC
+        )
+    }
+    private fun genLoadingMessage(): MessageListItemUI {
         val attachmentsUi=state.value.selectedMediaForRequest.mapIndexed { index, it,->
             it.uri.toString() to AttachmentUi(
                 uri = it.uri,
@@ -457,7 +480,7 @@ class ConversationViewModel @Inject constructor(
             text = "",
             timestamp = LocalDateTime.now(),
             timeString = "3:07",
-            fullName = "",
+            fullName = state.value.chatFullName,
             isOwn = true,
             isChanged = false,
             type = MessageType.OnlyImage,
@@ -511,39 +534,33 @@ class ConversationViewModel @Inject constructor(
             it.copy(listMessage = newList)
         }
     }
-
-   // @Deprecated("Не подходит под новый ТИП сообщения")
-    private fun loadOldMessages(){
+    private fun observeMessages(){
         viewModelScope.launch {
-            if(lastLoadedIdMessage.isEmpty()){
-                return@launch
-            }
-            repository.getBlockMessagesByChatId(
-                state.value.groupId, lastMessageKey = lastLoadedIdMessage
-            ).collect{
-                when (it) {
-                    is Resource.Error -> {
+            repository.observeMessagesInChat(
+                chatId= state.value.chatId,
+
+                ).collect{
+                when(it){
+                    is ExtendedResource.Added -> {
+                        it.data?.let{
+                            if (!state.value.idIndex.keys.contains(it.id)){
+                                val item=it.toMessageListItemUI(
+                                    owUid = state.value.currentUsrUid
+                                )
+                                addMessages(listOf(item))
+                            }
+                        }
+                    }
+                    is ExtendedResource.Edited -> {
+                        Log.d(TAG,"Сообщение редактировано")
 
                     }
-                    is Resource.Loading -> {
-                        _state.value = state.value.copy(
-                            loadingOldMessages = true
-                        )
+                    is ExtendedResource.Error -> {
+
                     }
-                    is Resource.Success -> {
-                        if (it.data != null) {
-                            val responseMessages = it.data
-                            val uiMessages = responseMessages.map {
-                                it.toMessageListItemUI(currentUsrUid)
-                            }
-                            Log.d(TAG,"OLDMESSAGE first: ${uiMessages.first().timestamp} last: ${uiMessages.last().timestamp}")
-//                            lastLoadedTimestamp = uiMessages.first().timestamp
-//                            lastLoadedIdMessage = uiMessages.first().messageId
-                            val newlist =uiMessages.plus(state.value.listMessage.toMutableList())
-                            _state.value = state.value.copy(
-                                listMessage = newlist,
-                                loadingOldMessages = false
-                            )
+                    is ExtendedResource.Removed -> {
+                        Log.d(TAG,"Сообщение удалено")
+                        it.data?.let {
                         }
                     }
                 }
@@ -591,7 +608,7 @@ class ConversationViewModel @Inject constructor(
             val newMessage = Message(senderId = currentUsrUid, text = state.value.textMessage,
               //  attachment = state.value.selectedUrisForRequest
             )
-            testFun()
+            sendMessageWithLoadingFlow()
             return
             if (state.value.chatState is ChatState.Create){
                 //create Chat
@@ -599,14 +616,14 @@ class ConversationViewModel @Inject constructor(
                 return
             }
             //send Message
-            sendMessageById(message = newMessage, chatId = state.value.groupId)
+            sendMessageById(message = newMessage, chatId = state.value.chatId)
         }
     }
 
     fun onEvent(event: ConversationEvent){
        when(event){
            ConversationEvent.LoadingNewMessage -> {
-               loadOldMessages()
+               //loadOldMessages()
            }
            is ConversationEvent.ChangeSelectedMessages -> {
               onChangeSelectedMessages(event.id)
@@ -644,7 +661,7 @@ class ConversationViewModel @Inject constructor(
             if(state.value.selectedMessages.isEmpty())
                 return@launch
             val messagesId = state.value.selectedMessages.keys.toList()
-            repository.deleteMessagesInChat(messagesId, chatId =state.value.groupId).collect{
+            repository.deleteMessagesInChat(messagesId, chatId =state.value.chatId).collect{
                 when(it){
                     is Resource.Error -> {}
                     is Resource.Loading -> {}

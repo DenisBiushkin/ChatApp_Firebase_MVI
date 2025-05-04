@@ -15,6 +15,7 @@ import com.example.unmei.presentation.chat_list_feature.components.DrawerScreen
 
 import com.example.unmei.presentation.singleChat_feature.viewmodel.ConversationViewModel
 import com.example.unmei.presentation.create_group_feature.components.NewGroupSelectUsersScreen
+import com.example.unmei.presentation.editProfile_feature.components.EditProfileScreenFull
 import com.example.unmei.presentation.friends_feature.components.FriendsScreen
 import com.example.unmei.presentation.friends_feature.viewmodel.FriendsViewModel
 import com.example.unmei.presentation.groupChat_feature.components.GroupChatScreen
@@ -25,6 +26,7 @@ import com.example.unmei.util.ConstansApp
 import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
 import com.example.unmei.util.ConstansApp.CHAT_URI_DEEPLINK
 import com.example.unmei.util.ConstansApp.CREATEGROUP_ARGUMENT_USERID
+import com.example.unmei.util.ConstansApp.EDITPROFILE_ARGUMENT_USERID
 import com.example.unmei.util.ConstansApp.GROUPCHAT_ARGUMENT_CHATID
 import com.example.unmei.util.ConstansDev.TAG
 
@@ -123,6 +125,19 @@ fun NavGraphBuilder.mainNavGraph(
             )
         ){
             GroupChatScreen(navController)
+        }
+
+        composable(
+            route = Screens.EditProfile.route,
+            arguments = listOf(
+                navArgument(
+                    name =EDITPROFILE_ARGUMENT_USERID,
+                ){
+                    type = NavType.StringType
+                },
+            )
+        ){
+            EditProfileScreenFull(navController)
         }
     }
 }

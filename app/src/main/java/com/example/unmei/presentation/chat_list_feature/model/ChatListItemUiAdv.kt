@@ -17,7 +17,9 @@ data class ChatListItemUiAdv(
      val lastMessageTimeString:String ="",
      val members: Set<String>,
      val moderators: Set<String>? = null,
-     val unreadedCountMessage: Int//ок
+     val unreadedCountMessage: Int,//ок,
+
+     val messageStatus:MessageStatus = MessageStatus.Send
 )
 data class ContentMessage(
      val contentSender:String,
@@ -25,7 +27,9 @@ data class ContentMessage(
 )
 
 sealed class TypingStatus{
+
      object None :TypingStatus()
+
      data class Typing(
           val whoTyping: String
      ):TypingStatus()

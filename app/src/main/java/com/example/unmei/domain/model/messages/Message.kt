@@ -12,6 +12,8 @@ import com.example.unmei.presentation.singleChat_feature.model.AttachmentUi
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
 import com.example.unmei.util.ConstansDev.TAG
+import com.example.unmei.util.timestampToLocalDateTime
+import com.example.unmei.util.timestampToStringHourMinute
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -74,16 +76,16 @@ data class Message(
         )
     }
 
-    private fun timestampToStringHourMinute(timestamp: Long):String{
-            val formatter = DateTimeFormatter.ofPattern("HH:mm")
-                    .withZone(ZoneId.systemDefault())
-            return formatter.format(Instant.ofEpochMilli(timestamp))
-    }
-    private fun timestampToLocalDateTime(timestamp:Long):LocalDateTime{
-          return Instant.ofEpochMilli(timestamp)
-                    .atZone(ZoneId.systemDefault())  // Использует системный часовой пояс
-                    .toLocalDateTime()
-    }
+//    private fun timestampToStringHourMinute(timestamp: Long):String{
+//            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+//                    .withZone(ZoneId.systemDefault())
+//            return formatter.format(Instant.ofEpochMilli(timestamp))
+//    }
+//    private fun timestampToLocalDateTime(timestamp:Long):LocalDateTime{
+//          return Instant.ofEpochMilli(timestamp)
+//                    .atZone(ZoneId.systemDefault())  // Использует системный часовой пояс
+//                    .toLocalDateTime()
+//    }
 }
 
 //val id:String="",

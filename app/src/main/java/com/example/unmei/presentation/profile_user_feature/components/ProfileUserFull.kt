@@ -86,6 +86,11 @@ fun ProfileUserFull(
                         chatUrl = state.value.iconUrl
                     ))
             }
+        },
+        editOnClick = {
+            navController.navigate(
+                Screens.EditProfile.withUserId(state.value.userId)
+            )
         }
     )
 

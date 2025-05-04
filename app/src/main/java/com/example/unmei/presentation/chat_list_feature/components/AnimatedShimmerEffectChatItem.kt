@@ -11,6 +11,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.unmei.presentation.chat_list_feature.util.ShimmerChatItem
 
 @Preview(showBackground = true)
 @Composable

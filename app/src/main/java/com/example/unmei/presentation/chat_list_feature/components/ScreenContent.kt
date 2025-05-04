@@ -105,11 +105,13 @@ fun ContentChats(
             val painter = rememberAsyncImagePainter(model = it.iconUrl)
             val state = painter.state
             ChatItem(
+                messageStatus= it.messageStatus,
                 onClick = { onClickItem(it) },
                 onLongClick = { onLongClickItem(it) },
                 chatName = it.chatName,
-                iconPainter =painter
-                ,
+                //заменить потом
+                iconPainter =painter,
+                iconUrl = it.iconUrl,
                 isOnline = it.isOnline,
                 unredCount = it.unreadedCountMessage,
                 lastMessageTimeString = it.lastMessageTimeString,

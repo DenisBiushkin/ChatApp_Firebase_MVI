@@ -3,6 +3,7 @@ import android.nfc.Tag
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +16,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.unmei.R
 import com.example.unmei.presentation.groupChat_feature.utils.TimeDivider
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
@@ -46,8 +50,12 @@ fun ContentChatScreen(
     LazyColumn(
         state = lazyState,
         modifier = modifier
+            .background(
+
+               color = chatBacgroundColor
+             //   color = Color.Transparent
+            )
             .fillMaxSize()
-            .background(color = chatBacgroundColor)
             .padding(start = 4.dp, end = 4.dp)
         , reverseLayout = true,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -71,12 +79,12 @@ fun ContentChatScreen(
 
                     when (message.type) {
                         is MessageType.OnlyImage -> {
-                            Log.d(TAG, "MessageType.OnlyImage")
+                         //   Log.d(TAG, "MessageType.OnlyImage")
                             ChatBubbleOnlyImageMessage(item = message)
                         }
 
                         is MessageType.Text -> {
-                            Log.d(TAG, "MessageType.Text ")
+                           // Log.d(TAG, "MessageType.Text ")
                             ChatBubbleWithPattern(
                                 modifier = Modifier,
                                 isOwn = message.isOwn,

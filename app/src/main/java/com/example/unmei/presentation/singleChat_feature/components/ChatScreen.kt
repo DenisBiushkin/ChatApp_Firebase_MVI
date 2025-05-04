@@ -134,7 +134,7 @@ fun  ChatScreen(
                     onLongClickMessageLine = {
                        viewModel.onEvent(ConversationEvent.ChangeSelectedMessages(it))
                     },
-                    groupedListMessage = emptyMap()
+                    groupedListMessage = state.value.grouped
                 )
             }
 

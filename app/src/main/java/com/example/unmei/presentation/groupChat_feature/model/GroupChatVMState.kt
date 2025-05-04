@@ -4,6 +4,7 @@ import android.net.Uri
 import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.domain.model.UserExtended
 import com.example.unmei.domain.model.messages.Message
+import com.example.unmei.presentation.chat_list_feature.model.TypingStatus
 import com.example.unmei.presentation.singleChat_feature.model.ContentStateScreen
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.google.firebase.Timestamp
@@ -28,6 +29,8 @@ data class GroupChatVMState(
     val selectedMessagesIds: Set<String> = emptySet(),
     val listMessage: List<MessageListItemUI> = emptyList(),
     val selectedMessages: Map<String,Boolean> = emptyMap(),
+
+    val typingStatus: TypingStatus = TypingStatus.None,
 
 
     val grouped: Map<LocalDate, List<MessageListItemUI>> = emptyMap(),

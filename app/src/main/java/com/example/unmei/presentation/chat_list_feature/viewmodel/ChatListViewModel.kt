@@ -45,7 +45,6 @@ class ChatListViewModel @Inject constructor(
      init {
          viewModelScope.launch {
 
-
              currentUser = getUserByIdUseCase.execute(currentUsrUid)?:User(fullName = "unknown", userName = "unknown", photoUrl = "")
              _state.value = state.value.copy(
                  fullName = currentUser.fullName,
@@ -61,7 +60,7 @@ class ChatListViewModel @Inject constructor(
 
     private suspend fun observeChatRoomsAdvanced() {
         observeChatsByUserIdUseCase(currentUsrUid).collect{
-                chatItems ->
+            chatItems ->
             if(chatItems.isEmpty()){
                 _state.value = state.value.copy(
                     contentState = ContentStateScreen.EmptyType
