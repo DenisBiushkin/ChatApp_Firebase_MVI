@@ -308,44 +308,6 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-
-
-    private fun observeMessages(chatId: String){
-        viewModelScope.launch {
-            repository.observeMessagesInChat(chatId).collect{
-                when(it){
-                    is ExtendedResource.Added -> {
-                        it.data?.let{
-                            val newMessageUi= mutableListOf( it.toMessageListItemUI(
-                                owUid = currentUsrUid
-                            ))
-                            _state.update {
-                                val newMessageList=newMessageUi.toMutableList().plus(state.value.listMessage)
-                                it.copy(listMessage = newMessageList)
-                            }
-                        }
-                    }
-                    is ExtendedResource.Edited -> {
-                        Log.d(TAG,"Сообщение редактировано")
-
-                    }
-                    is ExtendedResource.Error -> {
-
-                    }
-                    is ExtendedResource.Removed -> {
-                        Log.d(TAG,"Сообщение удалено")
-                        it.data?.let {
-                        }
-                    }
-                }
-            }
-        }
-     }
-
-
-
-
-
     private fun onChangeSelectedMessages(
         messageId:String
     ){
@@ -454,7 +416,7 @@ class ConversationViewModel @Inject constructor(
             }
 
             currentState.copy(
-                grouped = newGrouped,
+                grouped = newGrouped.toSortedMap(reverseOrder()),
                 idIndex = newIdIndex
             )
         }

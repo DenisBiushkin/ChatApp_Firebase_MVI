@@ -483,7 +483,7 @@ class GroupChatViewModel @Inject constructor(
             }
 
             currentState.copy(
-                grouped = newGrouped,
+                grouped = newGrouped.toSortedMap(reverseOrder()),
                 idIndex = newIdIndex
             )
         }
