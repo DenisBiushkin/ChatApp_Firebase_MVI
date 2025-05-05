@@ -41,10 +41,12 @@ import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
 import com.example.unmei.util.getAdvancedStatusUser
+import com.example.unmei.util.timestampToStringHourMinute
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -99,6 +101,7 @@ class ConversationViewModel @Inject constructor(
      private val actualUnreadCount = MutableStateFlow<Map<String,Int>>(emptyMap())
 
     private val countLoadOldMessages = 20
+    private val sendingJobs = mutableMapOf<Job,String>()
 
     private val messagePaginator = MessagePaginator<String, Message>(
         initKey = state.value.lastMessageId,
@@ -344,13 +347,17 @@ class ConversationViewModel @Inject constructor(
         }
 
     }
-    fun sendMessageWithLoadingFlow(){
-        val genMessageUi=genLoadingMessage()
-        viewModelScope.launch {
-            val actual = actualDataRoom.value ?: return@launch
-            var offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(state.value.currentUsrUid)
-            val roomDetail = getRoomDetail()
-            Log.d(TAG,"Uris "+state.value.selectedMediaForRequest.toString())
+    private fun genTemporaryKey():String{
+        return "Sending_${System.currentTimeMillis()}"
+    }
+    private fun sendMessageWithLoadingFlow(){
+        val temporaryMsgId = genTemporaryKey()
+        val genMessageUi=genLoadingMessage(temporaryId =temporaryMsgId )
+        val actual = actualDataRoom.value ?: return
+        val offlineUsersIds = (actual.members.toSet()-actual.activeUsers.toSet())- setOf(state.value.currentUsrUid)
+        val roomDetail = getRoomDetail()
+
+        val currentJob=viewModelScope.launch {
             sendMessageByChatIdWithLoadingFlow(
                 chatId = state.value.chatId,
                 senderId = state.value.currentUsrUid,
@@ -361,40 +368,102 @@ class ConversationViewModel @Inject constructor(
                 prevUnreadCount = actualUnreadCount.value
             ).collect{
                     result->
+                val job = coroutineContext[Job]
+                val loadingMsgId = sendingJobs[job]?: ""
                 when(result){
                     is Resource.Success -> {
-                        Log.d(TAG,"Сообщение--Отправлено")
-                        messageLoaded(messageId= "Sending")
+                        messageLoaded(messageId= loadingMsgId)
+                        sendingJobs.remove(job)
                     }
                     is Resource.Error -> {
+                        //сделать отметку что удалить
+                        messageLoaded(messageId= loadingMsgId)
+                        sendingJobs.remove(job)
                         Log.d(TAG,"Сообщение--НЕ Отправлено ${result.message}")
-
                     }
                     is Resource.Loading -> {
                         val progress = result.data ?: return@collect
                         when(progress){
                             is UploadProgress.Failed ->{}
-                            is UploadProgress.Success ->{
-                                onAttachmentUploaded(progress= progress, messageId = "Sending")
-                            }
-                            is UploadProgress.Uploading ->{
-                                updateProgressAttachment(progress= progress, messageId = "Sending")
-                            }
+                            is UploadProgress.Success ->{ onAttachmentUploaded(progress= progress, messageId = loadingMsgId) }
+                            is UploadProgress.Uploading ->{ updateProgressAttachmentMessage(progress= progress, messageId = loadingMsgId) }
                         }
                     }
-
                 }
             }
-
         }
+        sendingJobs.put(key=currentJob, value = temporaryMsgId)
         _state.update {
-            val oldList=it.listMessage.toMutableList()
-            oldList.add(0,genMessageUi)
+            addMessages(listOf(genMessageUi))
             it.copy(
-                listMessage = oldList,
                 selectedMediaForRequest = emptyList(),
                 textMessage = ""
             )
+        }
+    }
+    private fun messageLoaded(messageId:String){
+        if(messageId.isEmpty())
+            return
+        val allMessages = state.value.grouped.values.flatten()
+            .filterNot{ message-> message.messageId == messageId }
+        val newMap = allMessages
+            .groupBy { it.timestamp.toLocalDate() }
+            .mapValues { (_, list) -> list.sortedByDescending { it.timestamp } }
+        _state.update {
+            it.copy(grouped =  newMap )
+        }
+    }
+    private fun updateProgressAttachmentMessage(progress: UploadProgress.Uploading, messageId:String){
+        if (messageId.isBlank())
+            return
+        val allMessages = state.value.grouped.values.flatten()
+            .map{
+                    message->
+                if (message.messageId == messageId){
+                    val key= progress.uri.toString()
+                    val newUiMap = message.attachmentsUi.toMutableMap()
+                    newUiMap[key]=newUiMap[key]!!.copy(
+                        progressValue = progress.progress,
+                        isLoading = progress.progress!= 1.0f
+                    )
+                    message.copy(
+                        attachmentsUi = newUiMap,
+                        timestamp = LocalDateTime.now()
+                    )
+                }
+                else message
+            }
+        val newMap = allMessages
+            .groupBy { it.timestamp.toLocalDate() }
+            .mapValues { (_, list) -> list.sortedByDescending { it.timestamp } }
+        _state.update {
+            it.copy(grouped =  newMap )
+        }
+    }
+    private fun  onAttachmentUploaded(progress: UploadProgress.Success, messageId:String){
+        if (messageId.isBlank())
+            return
+        val allMessages = state.value.grouped.values.flatten()
+            .map { message->
+                if (message.messageId == messageId){
+                    val key= progress.uri.toString()
+                    val newUiMap = message.attachmentsUi.toMutableMap()
+                    newUiMap[key]=newUiMap[key]!!.copy(
+                        isLoading = false,
+                        uploadedUrl = progress.attachment.attachUrl
+                    )
+                    message.copy(
+                        attachmentsUi = newUiMap,
+                        timestamp = LocalDateTime.now()
+                    )
+                }
+                else message
+            }
+        val newMap = allMessages
+            .groupBy { it.timestamp.toLocalDate() }
+            .mapValues { (_, list) -> list.sortedByDescending { it.timestamp } }
+        _state.update {
+            it.copy(grouped =  newMap )
         }
     }
     private fun addMessages(newMessages: List<MessageListItemUI>) {
@@ -426,10 +495,10 @@ class ConversationViewModel @Inject constructor(
             roomId =state.value.chatId,
             roomIconUrl =state.value.chatIconUrl,
             roomName = state.value.chatFullName,
-            typeRoom = TypeRoom.PUBLIC
+            typeRoom = TypeRoom.PRIVATE
         )
     }
-    private fun genLoadingMessage(): MessageListItemUI {
+    private fun genLoadingMessage(temporaryId:String): MessageListItemUI {
         val attachmentsUi=state.value.selectedMediaForRequest.mapIndexed { index, it,->
             it.uri.toString() to AttachmentUi(
                 uri = it.uri,
@@ -438,32 +507,19 @@ class ConversationViewModel @Inject constructor(
                 isLoading = true
             )
         }.toMap()
+
         return MessageListItemUI(
-            messageId = "Sending",
+            messageId =temporaryId,
             text = "",
             timestamp = LocalDateTime.now(),
-            timeString = "3:07",
-            fullName = state.value.chatFullName,
+            timeString = timestampToStringHourMinute(LocalDateTime.now().nano.toLong()),
+            fullName = "Undefined",
             isOwn = true,
             isChanged = false,
             type = MessageType.OnlyImage,
             status = MessageStatus.Loading,
             attachmentsUi = attachmentsUi
         )
-    }
-    private fun messageLoaded(messageId:String){
-        _state.update {
-            val newList = state.value.listMessage.map { message->
-                if (message.messageId == messageId) {
-                    val newUiMap = message.attachmentsUi!!.map {it.key to it.value.copy(isLoading = false) }.toMap()
-                    message.copy(
-                        attachmentsUi = newUiMap,
-                        status = MessageStatus.Readed
-                    )
-                } else { message }
-            }
-            it.copy(listMessage = newList)
-        }
     }
     private fun updateProgressAttachment(progress: UploadProgress.Uploading, messageId:String){
         _state.update {
@@ -481,22 +537,7 @@ class ConversationViewModel @Inject constructor(
             it.copy(listMessage = newList)
         }
     }
-    private fun  onAttachmentUploaded(progress: UploadProgress.Success, messageId:String){
-        _state.update {
-            val newList = state.value.listMessage.map { message->
-                val key= progress.uri.toString()
-                if (message.messageId == messageId) {
-                    val newUiMap = message.attachmentsUi.orEmpty().toMutableMap()
-                    newUiMap[key]=newUiMap[key]!!.copy(
-                        isLoading = false,
-                        uploadedUrl = progress.attachment.attachUrl
-                    )
-                    message.copy(attachmentsUi = newUiMap)
-                } else { message }
-            }
-            it.copy(listMessage = newList)
-        }
-    }
+
     private fun observeMessages(){
         viewModelScope.launch {
             repository.observeMessagesInChat(

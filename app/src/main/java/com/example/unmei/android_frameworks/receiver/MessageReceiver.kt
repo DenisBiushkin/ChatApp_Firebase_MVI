@@ -55,6 +55,7 @@ class MessageReceiver  (
         // не требует основного потока (Dispatchers.Main), так как это не UI-операция
         CoroutineScope(Dispatchers.IO).launch {
             var notification: Notification
+
             when (data.typeRoom) {
                 TypeRoom.PRIVATE.value ->{
                     notification=helper.createSingleMessageNotification(

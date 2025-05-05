@@ -243,33 +243,33 @@ fun TopPart(
             contentDescription = null,
             contentScale = ContentScale.FillBounds//заполнить все отведенное про-во
         )
-        Row(
-            modifier = Modifier
-                .padding(start = 0.dp)
-                .padding(top = 80.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Image(
-                modifier = Modifier.size(120.dp),
-                painter = painterResource(id = R.drawable.login_tohsaka),
-                contentDescription = stringResource(id = R.string.logo),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(10.dp))
-            Column {
-                Text(
-                    text = stringResource(id = R.string.app_log),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = uiColor
-                )
-                Text(
-                    text = stringResource(id = R.string.app_house),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = uiColor
-                )
-            }
-        }
+//        Row(
+//            modifier = Modifier
+//                .padding(start = 0.dp)
+//                .padding(top = 80.dp), verticalAlignment = Alignment.CenterVertically
+//        ) {
+//
+//            Image(
+//                modifier = Modifier.size(120.dp),
+//                painter = painterResource(id = R.drawable.login_tohsaka),
+//                contentDescription = stringResource(id = R.string.logo),
+//                contentScale = ContentScale.Crop
+//            )
+//
+//            Spacer(modifier = Modifier.width(10.dp))
+//            Column {
+//                Text(
+//                    text = stringResource(id = R.string.app_log),
+//                    style = MaterialTheme.typography.headlineMedium,
+//                    color = uiColor
+//                )
+//                Text(
+//                    text = stringResource(id = R.string.app_house),
+//                    style = MaterialTheme.typography.titleMedium,
+//                    color = uiColor
+//                )
+//            }
+//        }
         Text(
             modifier = Modifier
                 .padding(bottom = 10.dp)

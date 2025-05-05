@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
 
         if(currentUser!=null){
             startDestinationRoute=ConstansApp.MAIN_NAVIGATE_ROUTE
-             saveFCMToken(currentUser.uid)
+            saveFCMToken(currentUser.uid)
         }
 
         //ПОПРАВИТЬ

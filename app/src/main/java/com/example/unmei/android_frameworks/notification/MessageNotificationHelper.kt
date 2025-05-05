@@ -119,11 +119,15 @@ class MessageNotificationHelper (
             enableGroupConversation = true
         )
         val user = Person.Builder().setIcon(icon).setName(data.title).build()
+            var textMessage=data.body
+            if(data.body.isEmpty()){
+                textMessage="Прикрепелено вложение"
+            }
             style.addMessage(
-               data.body,System.currentTimeMillis(),user
+                textMessage,System.currentTimeMillis(),user
             )
         val dataDeepLink= NavigateConversationData(
-            chatExist = true,
+            chatExist = false,
             chatUrl = data.image,
             chatName = data.title,
             companionUid="",

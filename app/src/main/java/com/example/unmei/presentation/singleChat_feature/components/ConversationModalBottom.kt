@@ -41,6 +41,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -52,12 +55,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.IntOffset
 import coil.compose.rememberAsyncImagePainter
+import com.example.unmei.R
 import com.example.unmei.domain.model.AttachmentDraft
 import com.example.unmei.presentation.singleChat_feature.ContentResolverClient
+import com.example.unmei.presentation.singleChat_feature.model.AttachmentOption
 import com.example.unmei.presentation.singleChat_feature.utils.BottomButtonSelectMedia
 import com.example.unmei.presentation.singleChat_feature.utils.CircleCountIndicatorSelectedItem
 import com.example.unmei.presentation.singleChat_feature.utils.LoadingContentProgressIndicator
@@ -86,6 +93,17 @@ fun ConversationModalBottom(
     val context = LocalContext.current
     if (visibility) {
 
+        val ImageIcon = ImageVector.vectorResource(id = R.drawable.imagesmode_24px)
+        val options = listOf(
+            AttachmentOption("Фото/Видео", ImageIcon, true),
+//           AttachmentOption("Музыка", Icons.Default.MusicNote),
+//
+//            AttachmentOption("Место", Icons.Default.Place,selected = true),
+//            AttachmentOption("Файл", Icons.Default.InsertDriveFile),
+//            AttachmentOption("Граффити", Icons.Default.Edit),
+//            AttachmentOption("Граффити", Icons.Default.Edit),
+//            AttachmentOption("Граффити", Icons.Default.Edit)
+        )
         ModalBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,20 +122,14 @@ fun ConversationModalBottom(
                     .fillMaxSize()
                 ,
                 topBar = {
-                    Row (
-                        modifier = Modifier
-                            .height(60.dp)
-                            .fillMaxWidth()
-                            .background(Color.Red)
-                    ){
-                    }
-                },
+                    AttachmentOptionRow(
+                        options=options,
+                       onOptionClick={
 
-                bottomBar = {
-                    BottomButtonSelectMedia(
+                       },
                         mediaSelected = selectedImages.value.size !=0,
                         countSelectedMedia = selectedImages.value.size,
-                        onClick ={
+                        onSendClick ={
                             if (selectedImages.value.size !=0){
                                 val selectedAttachmentDraft = selectedImages.value.map{
                                     AttachmentDraft(
@@ -132,6 +144,27 @@ fun ConversationModalBottom(
                             }
                         }
                     )
+                },
+
+                bottomBar = {
+//                    BottomButtonSelectMedia(
+//                        mediaSelected = selectedImages.value.size !=0,
+//                        countSelectedMedia = selectedImages.value.size,
+//                        onClick ={
+//                            if (selectedImages.value.size !=0){
+//                                val selectedAttachmentDraft = selectedImages.value.map{
+//                                    AttachmentDraft(
+//                                        uri = it,
+//                                        mimeType = "image/"
+//                                    )
+//                                }
+//                                onSelectedMedia( selectedAttachmentDraft)
+//                                selectedImages.value = emptyList()
+//                            }else{
+//                                onDismissRequest()
+//                            }
+//                        }
+//                    )
                 }
             ) {
                 paddingValues ->

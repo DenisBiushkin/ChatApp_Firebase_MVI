@@ -80,7 +80,7 @@ class SendMessageByChatIdWithLoadingFlow(
 
         val sendMessageResult =async {   repository.sendMessageAdv(message,chatId)}
         val summerisRusult =async { repository.updateUnreadCountInRoomSummaries(roomId = chatId, newUnreadCount = newMapUnread)}
-        launch{  notificationRepository.notifySendMessageInRooms(roomDetail = roomDetail,message,offlineUsersIds)}
+        notificationRepository.notifySendMessageInRooms(roomDetail = roomDetail,message,offlineUsersIds)
         if (
             sendMessageResult.await() is Resource.Success
             &&

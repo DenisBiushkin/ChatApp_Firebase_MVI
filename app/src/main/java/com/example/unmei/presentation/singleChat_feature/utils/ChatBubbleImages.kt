@@ -58,6 +58,7 @@ fun showChatBubbleImages(){
     }
 
 }
+@Deprecated("не используется")
 @Composable
 fun ChatBubbleImages(
     modifier: Modifier= Modifier,

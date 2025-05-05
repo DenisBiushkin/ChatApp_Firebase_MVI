@@ -209,78 +209,7 @@ fun BaseRowWithSelectItemMessage(
 
 
 
-@Composable
-fun ChatBubbleWithPattern(
-    modifier: Modifier = Modifier,
-    isOwn:Boolean= false,
-    content: @Composable (ColumnScope.() -> Unit)
-){
-    val otherPadding = 5.dp
-    val compensatePadding=15.dp
-    val screenSettings=LocalConfiguration.current
-    val maxWidth=screenSettings.screenWidthDp.dp *0.8f
-    val density = LocalDensity.current
-    val cornerRadius = 15.dp
-    val leftMessageShape = remember {
-        CustomBubbleMessageShape(density=density, cornerRadiusDp =cornerRadius)
-    }
-    val rightMessageShape = remember {
-        CustomBubbleMessageShape(density=density,position = true, cornerRadiusDp = cornerRadius)
-    }
 
-    val modifierLeftMassage= modifier
-        .padding(
-            start = compensatePadding,
-            top = otherPadding,
-            bottom = otherPadding,
-            end = otherPadding
-        )
-        .widthIn(max = maxWidth)
-
-    val modifierRightMassage = modifier
-        .padding(
-            start = otherPadding,
-            top = otherPadding,
-            bottom = otherPadding,
-            end = compensatePadding
-        )
-        .widthIn(max = maxWidth)
-
-
-    Row (
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement =
-        if(isOwn) Arrangement.End else Arrangement.Start
-    ) {
-
-        if (isOwn) {
-            Box(
-                modifier = modifier
-                    .clip(shape = rightMessageShape)
-                    .background(primaryOwnMessageColor)
-            ) {
-                Column(
-                    modifier = modifierRightMassage
-                ) {
-                    content()
-                }
-            }
-        } else {
-            Box(
-                modifier = modifier
-                    .clip(shape = leftMessageShape)
-                    .background(color = primaryMessageColor)
-            ) {
-                Column(
-                    modifier = modifierLeftMassage
-                ) {
-                    content()
-                }
-            }
-        }
-    }
-
-}
 
 
 

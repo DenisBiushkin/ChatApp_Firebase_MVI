@@ -1,9 +1,6 @@
 package com.example.unmei.presentation.singleChat_feature.components
-import android.nfc.Tag
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -16,20 +13,15 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.unmei.R
 import com.example.unmei.presentation.groupChat_feature.utils.TimeDivider
 import com.example.unmei.presentation.singleChat_feature.model.MessageListItemUI
 import com.example.unmei.presentation.singleChat_feature.model.MessageType
 import com.example.unmei.presentation.singleChat_feature.utils.BaseRowWithSelectItemMessage
 import com.example.unmei.presentation.singleChat_feature.utils.ChatBubbleOnlyImageMessage
-import com.example.unmei.presentation.singleChat_feature.utils.ChatBubbleWithPattern
+
 import com.example.unmei.presentation.singleChat_feature.utils.LoadingCircleProgressNewMessages
-import com.example.unmei.presentation.singleChat_feature.utils.MessageContent
 import com.example.unmei.presentation.util.ui.theme.chatBacgroundColor
-import com.example.unmei.util.ConstansDev.TAG
 import java.time.LocalDate
 
 
@@ -37,6 +29,7 @@ import java.time.LocalDate
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContentChatScreen(
+    showFullName:Boolean = false,
     modifier: Modifier = Modifier,
     lazyState: LazyListState,
     isLoadingOldMessages:Boolean,
@@ -85,14 +78,22 @@ fun ContentChatScreen(
 
                         is MessageType.Text -> {
                            // Log.d(TAG, "MessageType.Text ")
-                            ChatBubbleWithPattern(
-                                modifier = Modifier,
+                            SimpleChatBubble(
+                                    modifier = Modifier,
                                 isOwn = message.isOwn,
                             ) {
-                                MessageContent(
+                                MessageContentForSingleChat(
                                     data = message
                                 )
                             }
+//                            ChatBubbleWithPattern(
+//                                modifier = Modifier,
+//                                isOwn = message.isOwn,
+//                            ) {
+//                                MessageContent(
+//                                    data = message
+//                                )
+//                            }
                         }
                     }
                 }
