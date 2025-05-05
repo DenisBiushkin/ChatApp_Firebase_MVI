@@ -98,6 +98,7 @@ fun  GroupChatScreen(
                     }
                 }
                 ContentChatScreen(
+                    showFullName = true,
                     modifier = Modifier
                         .padding(paddingValues)
                         .consumeWindowInsets(paddingValues),

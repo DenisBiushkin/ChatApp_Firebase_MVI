@@ -83,7 +83,8 @@ fun ContentChatScreen(
                                 isOwn = message.isOwn,
                             ) {
                                 MessageContentForSingleChat(
-                                    data = message
+                                    data = message,
+                                    showFullName=showFullName
                                 )
                             }
 //                            ChatBubbleWithPattern(
