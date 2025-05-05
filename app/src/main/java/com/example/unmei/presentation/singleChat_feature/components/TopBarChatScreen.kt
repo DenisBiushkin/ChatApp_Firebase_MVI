@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -69,7 +70,8 @@ fun TopBarChatScreen(
                     ,
                    // painter = rememberAsyncImagePainter(model = "https://firebasestorage.googleapis.com/v0/b/repository-d6c1a.appspot.com/o/TestImages%2FMarcile_donato.jpg?alt=media&token=524e6685-cbdf-4bed-9da3-095e56832093"),
                   painter =iconChatPainter,
-                    contentDescription =""
+                    contentDescription ="",
+                    contentScale = ContentScale.Crop
                 )
                 Column (
                     modifier = Modifier.padding(start = 10.dp)

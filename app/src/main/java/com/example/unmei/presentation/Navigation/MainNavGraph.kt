@@ -67,10 +67,7 @@ fun NavGraphBuilder.mainNavGraph(
             ),
         ){
             val navData= it.arguments!!.getString(ConstansApp.PROFILE_ARGUMENT_JSON)!!
-            Log.d(TAG,"Profile NavArg: "+navData)
-
             val viewModel = hiltViewModel<ProfileUserViewModel>()
-            viewModel.saveData(Screens.Profile.fromJsonData(navData))
             ProfileUserFull(
                 navController = navController,
                 viewmodel = viewModel

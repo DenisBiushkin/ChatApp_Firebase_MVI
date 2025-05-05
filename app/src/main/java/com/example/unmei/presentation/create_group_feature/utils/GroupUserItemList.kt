@@ -87,7 +87,7 @@ fun GroupUserItemList(
                .clip(CircleShape),
            painter = painter,
            contentDescription = "",
-           contentScale = ContentScale.Fit
+           contentScale = ContentScale.Crop
        )
         Spacer(modifier = Modifier.width(10.dp))
         Column(

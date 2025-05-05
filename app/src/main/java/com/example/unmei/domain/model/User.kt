@@ -14,6 +14,7 @@ data class User(
     val phoneNumber:String?=null,
     val email:String?=null,
     val age:String?=null,
+    val timestamp:Long = 0L,
 
     val photoUrl:String,
 

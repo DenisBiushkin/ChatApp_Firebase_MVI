@@ -26,7 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
+import com.example.unmei.presentation.profile_user_feature.model.BlockInfo
 
 
 @Preview(showBackground = true)
@@ -41,7 +41,9 @@ fun showProfileUser(){
         isMine = false,
         editOnClick = {
 
-        }
+        },
+        listInfoUser= emptyList()
+
     )
 }
 @Composable
@@ -52,7 +54,8 @@ fun ProfileUserScreen(
     fullName:String,
     statusOnline:String,
     painterIcon: Painter,
-    isMine:Boolean
+    isMine:Boolean,
+    listInfoUser:List<BlockInfo>
 ){
 
 
@@ -70,7 +73,9 @@ fun ProfileUserScreen(
         val widh= LocalConfiguration.current.screenWidthDp.dp
         val sizeFloating= 50.dp
         Box(modifier = Modifier.fillMaxSize()){
-            BottomPart()
+            BottomPart(
+                listInfoUser=listInfoUser
+            )
             if(!isMine){
                 FloatingActionButton(
                     modifier = Modifier

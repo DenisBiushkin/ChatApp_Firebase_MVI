@@ -64,9 +64,10 @@ fun CircleSelectItemBox(
                         color = colorApp
                     )
                 ,
+
                 imageVector = Icons.Default.Check,
                 contentDescription ="",
-                tint = Color.White
+                tint = Color.White,
             )
         }
     }

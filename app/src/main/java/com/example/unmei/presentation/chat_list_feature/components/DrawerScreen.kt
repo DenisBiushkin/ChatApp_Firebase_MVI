@@ -81,13 +81,22 @@ fun DrawerScreen(
                     DrawerContentFull(
                         navController=navController,
                         iconOnClick = {
+
                             navController.navigate(Screens.Profile.withJsonData(state.value.userId))
+
                         },
                         fullName = state.value.fullName,
                         iconUrl = state.value.iconUrl,
                         signInData = state.value.signInData,
                         onClickItemDrawer = {
-                            navController.navigate(it.navRoute)
+                            if(it.navRoute==Screens.Profile.route){
+                                navController.navigate(
+                                    Screens.Profile.withJsonData(state.value.userId)
+                                )
+                            }else{
+                                navController.navigate(it.navRoute)
+                            }
+
                         },
                         onClickExitAccount = {
                             Log.d(TAG,"Осуществляется выход")

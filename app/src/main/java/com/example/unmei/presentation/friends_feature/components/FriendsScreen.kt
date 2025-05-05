@@ -69,7 +69,9 @@ fun FriendsScreen(
                         )
                     },
                     onClickItem = {
-
+                        navController.navigate(
+                            Screens.Profile.withJsonData(it.uid)
+                        )
                     },
                     onClickSandMessage = {
                         navController.navigate(
@@ -119,7 +121,7 @@ fun FriendScreenContent(
             item(){
                 Text(
                     modifier = Modifier.padding(start = 5.dp),
-                    text = "Мои друзья ${friendsList.size}",
+                    text = "Мои контакты ${friendsList.size}",
                     fontSize = 17.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))

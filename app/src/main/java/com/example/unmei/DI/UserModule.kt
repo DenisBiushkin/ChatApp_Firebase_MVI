@@ -3,6 +3,7 @@ package com.example.unmei.DI
 import com.example.unmei.domain.repository.MainRepository
 import com.example.unmei.domain.usecase.user.GetFriendsByUserIdUseCase
 import com.example.unmei.domain.usecase.user.GetUserByIdUseCase
+import com.example.unmei.domain.usecase.user.GetUserWithStatusUseCase
 import com.example.unmei.domain.usecase.user.GetUsersExByFullName
 import com.example.unmei.domain.usecase.user.GetUsersWithStatus
 import com.example.unmei.domain.usecase.user.GetUsersWithStatusUseCase
@@ -75,5 +76,9 @@ object UserModule {
     @Provides
     fun provideUpdateProfilePhotoUseCase(mainRepository: MainRepository):UpdateProfilePhotoUseCase{
         return UpdateProfilePhotoUseCase(mainRepository)
+    }
+    @Provides
+    fun provideGetUserWithStatusUseCase(mainRepository: MainRepository): GetUserWithStatusUseCase {
+        return GetUserWithStatusUseCase(mainRepository)
     }
 }

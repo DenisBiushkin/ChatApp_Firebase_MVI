@@ -40,6 +40,7 @@ import com.example.unmei.presentation.util.pagging.MessagePaginator
 import com.example.unmei.util.ConstansApp.CHAT_ARGUMENT_JSON
 import com.example.unmei.util.ConstansDev.TAG
 import com.example.unmei.util.Resource
+import com.example.unmei.util.getAdvancedStatusUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -678,23 +679,5 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
-    private fun getAdvancedStatusUser(timeStamp:Long):String{
-        val now = LocalDateTime.now().toLocalDate()
-        val date = Instant.ofEpochMilli(timeStamp)
-            .atZone(ZoneOffset.UTC) // Устанавливаем временную зону
-            .toLocalDate() // Преобразуем в локальную дату
-        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-        if (now==date){
-            return "был(а) в "+sdf.format(Date(timeStamp))
-        }
-        if(
-            (now.year==date.year)&&(now.dayOfMonth==date.dayOfMonth+1)
-        ){
-            return "был(а) вчера в "+sdf.format(Date(timeStamp))
-        }
-        val russianDayOfWeek = date.month.getDisplayName(TextStyle.SHORT, Locale("ru"))
-        return "был(а) "+date.dayOfMonth.toString()+" "+russianDayOfWeek+" в "+sdf.format(Date(timeStamp))
-
-    }
 }

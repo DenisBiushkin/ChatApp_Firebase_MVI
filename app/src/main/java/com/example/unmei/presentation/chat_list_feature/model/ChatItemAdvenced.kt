@@ -5,6 +5,7 @@ import com.example.unmei.domain.model.Status
 import com.example.unmei.domain.model.messages.RoomSummaries
 import com.example.unmei.domain.model.StatusUser
 import com.example.unmei.domain.model.TypeRoom
+import com.example.unmei.util.toStringTime
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -68,14 +69,5 @@ data class ChatItemAdvenced(
             )
         } else null
     }
-    private fun toStringTime(timeStamp:Long):String{
-        //val timeStamp: Long =1737392296
-        val formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy")
-        val date = Instant.ofEpochMilli(timeStamp)
-            .atZone(ZoneOffset.UTC) // Устанавливаем временную зону
-            .toLocalDate() // Преобразуем в локальную дату
-        val text = date.format(formatter)
-        val russianDayOfWeek = date.month.getDisplayName(TextStyle.SHORT, Locale("ru"))
-        return date.dayOfMonth.toString()+" "+russianDayOfWeek
-    }
+
 }

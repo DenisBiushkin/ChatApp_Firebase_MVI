@@ -100,7 +100,8 @@ fun  FriendListItemDataClass(
         isFriend = itemUi.isFriend,
         onClickItem = {
             onClickItem(itemUi)
-        }
+        },
+        iconUrl = itemUi.iconUrl
     )
 }
 @Composable
@@ -158,7 +159,7 @@ fun FriendTopBar(
     TopAppBar(
         title = { 
             Text(
-                text = "Друзья",
+                text = "Kонтакты",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
             )

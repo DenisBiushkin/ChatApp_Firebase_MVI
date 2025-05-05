@@ -59,7 +59,8 @@ fun showFriendListItem(){
                 onClickSendMessage = {},
                 onClickAddUser = {},
                 onClickItem = {},
-                isFriend = it % 2==0
+                isFriend = it % 2==0,
+                iconUrl=""
             )
         }
     }
@@ -82,13 +83,13 @@ fun showFriendListItem(){
 fun FriendListItem(
     modifier: Modifier = Modifier,
     painterIcon: Painter,
+    iconUrl:String,
     fullName: String,
     isOnline: Boolean,
     isFriend:Boolean,
     onClickSendMessage: () -> Unit,
     onClickAddUser: ()->Unit,
     onClickItem:()->Unit,
-
 ) {
     val rowHeight = 60.dp
     Row(
@@ -103,7 +104,8 @@ fun FriendListItem(
             painterIcon = painterIcon,
             isOnline = isOnline,
             modifier = Modifier.weight(0.13f),
-            rowHeight = rowHeight
+            rowHeight = rowHeight,
+            iconUrl=iconUrl
         )
 
         FriendDescriptionPart(
@@ -124,6 +126,7 @@ fun FriendListItem(
 fun FriendImagePart(
     modifier: Modifier = Modifier,
     painterIcon: Painter,
+    iconUrl:String,
     isOnline: Boolean = false,
     rowHeight: Dp = 40.dp
 ) {
@@ -137,7 +140,8 @@ fun FriendImagePart(
             painterUser = painterIcon,
             height = rowHeight,
             statusCircleRadius = 5.dp,
-            isOnline = isOnline
+            isOnline = isOnline,
+            iconUrl = iconUrl
         )
     }
 }

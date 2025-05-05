@@ -60,7 +60,7 @@ fun DrawerContentFull(
             navRoute = Screens.Profile.route
         ),
         NavigationItemDrawer(
-            title="Друзья",
+            title="Контакты",
             imageVector= ImageVector.vectorResource(id = R.drawable.diversity_3_24px),
             navRoute = Screens.Friends.route
         ),
